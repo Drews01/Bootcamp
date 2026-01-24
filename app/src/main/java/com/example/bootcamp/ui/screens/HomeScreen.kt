@@ -1,33 +1,36 @@
 package com.example.bootcamp.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -37,211 +40,330 @@ import androidx.compose.ui.unit.sp
 import com.example.bootcamp.ui.theme.Gray400
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Gray700
-import com.example.bootcamp.ui.theme.Indigo100
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.theme.Indigo700
-import com.example.bootcamp.ui.theme.Red500
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
+import java.text.NumberFormat
+import java.util.Locale
+
+private data class LoanProduct(
+        val name: String,
+        val limitRupiah: Long,
+        val maxTenorMonth: Int,
+        val ratePercentPerYear: Double,
+)
+
+private val loanProducts =
+        listOf(
+                LoanProduct(
+                        name = "Bronze",
+                        limitRupiah = 10_000_000,
+                        maxTenorMonth = 36,
+                        ratePercentPerYear = 8.0,
+                ),
+                LoanProduct(
+                        name = "Silver",
+                        limitRupiah = 25_000_000,
+                        maxTenorMonth = 36,
+                        ratePercentPerYear = 7.0,
+                ),
+                LoanProduct(
+                        name = "Gold",
+                        limitRupiah = 50_000_000,
+                        maxTenorMonth = 36,
+                        ratePercentPerYear = 6.0,
+                ),
+        )
 
 @Composable
 fun HomeScreen(
-        viewModel: AuthViewModel,
-        onNavigateToLogin: () -> Unit,
+    viewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToSubmitLoan: () -> Unit,
 ) {
-        val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    // Select the first product by default
+    var selectedProduct by remember { mutableStateOf(loanProducts.first()) }
 
-        Box(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .background(
-                                        brush =
-                                                Brush.verticalGradient(
-                                                        colors =
-                                                                listOf(
-                                                                        Indigo600,
-                                                                        Indigo700,
-                                                                )
-                                                )
-                                ),
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color(0xFF0F1020),
+                                    Color(0xFF14162B),
+                                    Color(0xFF111827),
+                                )
+                        )
+                ),
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-                Column(
-                        modifier = Modifier.fillMaxSize().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                ) {
-                        // Logo
-                        Text(
-                                text = "STAR",
-                                fontSize = 56.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                        )
-                        Text(
-                                text = "Financial",
-                                fontSize = 24.sp,
-                                color = Color.White.copy(alpha = 0.8f),
-                        )
-
-                        Spacer(modifier = Modifier.height(48.dp))
-
-                        // Welcome Card
-                        Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        ) {
-                                Column(
-                                        modifier = Modifier.fillMaxWidth().padding(32.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                        if (uiState.isLoggedIn) {
-                                                // Logged In State
-                                                Box(
-                                                        modifier =
-                                                                Modifier.size(80.dp)
-                                                                        .clip(CircleShape)
-                                                                        .background(Indigo100),
-                                                        contentAlignment = Alignment.Center,
-                                                ) {
-                                                        Icon(
-                                                                imageVector =
-                                                                        Icons.Default.AccountCircle,
-                                                                contentDescription = null,
-                                                                modifier = Modifier.size(60.dp),
-                                                                tint = Indigo600,
-                                                        )
-                                                }
-
-                                                Spacer(modifier = Modifier.height(16.dp))
-
-                                                Text(
-                                                        text = "Welcome back!",
-                                                        fontSize = 24.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Gray700,
-                                                )
-
-                                                if (uiState.username != null) {
-                                                        Text(
-                                                                text = uiState.username!!,
-                                                                fontSize = 16.sp,
-                                                                color = Indigo600,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
-                                                }
-
-                                                Spacer(modifier = Modifier.height(8.dp))
-
-                                                Text(
-                                                        text =
-                                                                "You are successfully logged in to STAR Financial.",
-                                                        fontSize = 14.sp,
-                                                        color = Gray500,
-                                                        textAlign = TextAlign.Center,
-                                                )
-
-                                                Spacer(modifier = Modifier.height(24.dp))
-
-                                                // Logout Button
-                                                Button(
-                                                        onClick = { viewModel.logout() },
-                                                        modifier =
-                                                                Modifier.fillMaxWidth()
-                                                                        .height(50.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                        containerColor = Red500
-                                                                ),
-                                                ) {
-                                                        Icon(
-                                                                imageVector =
-                                                                        Icons.AutoMirrored.Filled
-                                                                                .Logout,
-                                                                contentDescription = null,
-                                                                modifier =
-                                                                        Modifier.padding(
-                                                                                end = 8.dp
-                                                                        ),
-                                                        )
-                                                        Text(
-                                                                text = "Logout",
-                                                                fontSize = 16.sp,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
-                                                }
-                                        } else {
-                                                // Not Logged In State
-                                                Icon(
-                                                        imageVector = Icons.Default.AccountCircle,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(80.dp),
-                                                        tint = Gray400,
-                                                )
-
-                                                Spacer(modifier = Modifier.height(16.dp))
-
-                                                Text(
-                                                        text = "Welcome to STAR Financial",
-                                                        fontSize = 24.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Gray700,
-                                                        textAlign = TextAlign.Center,
-                                                )
-
-                                                Spacer(modifier = Modifier.height(8.dp))
-
-                                                Text(
-                                                        text =
-                                                                "Your trusted partner for financial solutions. Sign in to access your account.",
-                                                        fontSize = 14.sp,
-                                                        color = Gray500,
-                                                        textAlign = TextAlign.Center,
-                                                )
-
-                                                Spacer(modifier = Modifier.height(24.dp))
-
-                                                // Login Button
-                                                Button(
-                                                        onClick = onNavigateToLogin,
-                                                        modifier =
-                                                                Modifier.fillMaxWidth()
-                                                                        .height(50.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                        containerColor = Indigo600
-                                                                ),
-                                                ) {
-                                                        Icon(
-                                                                imageVector =
-                                                                        Icons.AutoMirrored.Filled
-                                                                                .Login,
-                                                                contentDescription = null,
-                                                                modifier =
-                                                                        Modifier.padding(
-                                                                                end = 8.dp
-                                                                        ),
-                                                        )
-                                                        Text(
-                                                                text = "Sign In",
-                                                                fontSize = 16.sp,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
-                                                }
-                                        }
-                                }
-                        }
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        // Footer
-                        Text(
-                                text = "© 2026 STAR Financial. All rights reserved.",
-                                fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.6f),
-                        )
+            item {
+                Column {
+                    Text(
+                        text =
+                            if (uiState.isLoggedIn && uiState.username != null) {
+                                "Hi, ${uiState.username}"
+                            } else {
+                                "Hi, Guest"
+                            },
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                    Text(
+                        text = "Kelola pinjamanmu dengan lebih mudah.",
+                        fontSize = 14.sp,
+                        color = Gray400,
+                    )
                 }
+            }
+
+            item {
+                Text(
+                    text = "Pilih Produk Pinjaman",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+                ProductSelector(
+                    products = loanProducts,
+                    selectedProduct = selectedProduct,
+                    onProductSelected = { selectedProduct = it }
+                )
+            }
+
+            item {
+                LoanSimulator(
+                    product = selectedProduct,
+                    isLoggedIn = uiState.isLoggedIn,
+                    onNavigateToLogin = onNavigateToLogin,
+                    onNavigateToSubmitLoan = onNavigateToSubmitLoan
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ProductSelector(
+    products: List<LoanProduct>,
+    selectedProduct: LoanProduct,
+    onProductSelected: (LoanProduct) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        products.forEach { product ->
+            val isSelected = product.name == selectedProduct.name
+            
+            val activeColor = when (product.name) {
+                "Bronze" -> Color(0xFFCD7F32) 
+                "Silver" -> Color(0xFF64748B) 
+                "Gold" -> Color(0xFFD97706)   
+                else -> Indigo600
+            }
+
+            val backgroundColor = if (isSelected) activeColor else Color(0xFF1F2937)
+            val borderColor = if (isSelected) activeColor else Color.Transparent
+
+            Card(
+                modifier = Modifier.weight(1f).height(110.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = backgroundColor),
+                onClick = { onProductSelected(product) }
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(12.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = product.name,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${product.ratePercentPerYear}% p.a",
+                        color = if (isSelected) Color.White.copy(alpha = 0.9f) else Gray400,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoanSimulator(
+    product: LoanProduct,
+    isLoggedIn: Boolean,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToSubmitLoan: () -> Unit,
+) {
+    val formatter = remember { NumberFormat.getCurrencyInstance(Locale("in", "ID")) }
+
+    // Use derived state for initial values to update when product changes, 
+    // but separate mutable state for user edits.
+    // However, when product switches, it's often nice to reset or clamp values.
+    // Let's reset to defaults when product changes for simplicity and clarity.
+    var limitText by remember(product) { mutableStateOf(product.limitRupiah.toString()) }
+    var tenorText by remember(product) { mutableStateOf(product.maxTenorMonth.toString()) }
+
+    val limit = limitText.toLongOrNull()?.coerceAtMost(product.limitRupiah)?.coerceAtLeast(0) ?: 0
+    val tenor = tenorText.toIntOrNull()?.coerceAtMost(product.maxTenorMonth)?.coerceAtLeast(1) ?: 1
+
+    val yearlyRate = product.ratePercentPerYear / 100.0
+    val totalInterest = limit * yearlyRate * (tenor / 12.0)
+    val totalPayment = limit + totalInterest
+    val monthlyInstallment = if (tenor > 0) totalPayment / tenor else 0.0
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF111827).copy(alpha = 0.95f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Simulasi ${product.name}",
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                )
+                Text(
+                    text = "Max Limit: ${formatter.format(product.limitRupiah)}",
+                    color = Color(0xFF6EE7B7),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            // Inputs
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Pinjaman (Rp)",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = limitText,
+                        onValueChange = { value ->
+                            if (value.all { it.isDigit() }) {
+                                limitText = value
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Indigo600,
+                            unfocusedBorderColor = Gray500,
+                            cursorColor = Color.White,
+                            focusedLabelColor = Indigo600,
+                            unfocusedLabelColor = Gray500,
+                        )
+                    )
+                }
+                Column(modifier = Modifier.weight(0.7f)) {
+                    Text(
+                        text = "Tenor (Bulan)",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = tenorText,
+                        onValueChange = { value ->
+                            if (value.all { it.isDigit() }) {
+                                tenorText = value
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Indigo600,
+                            unfocusedBorderColor = Gray500,
+                            cursorColor = Color.White,
+                            focusedLabelColor = Indigo600,
+                            unfocusedLabelColor = Gray500,
+                        )
+                    )
+                    Text(
+                        text = "Max: ${product.maxTenorMonth} bln",
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+
+            // Result
+            Crossfade(targetState = monthlyInstallment) { installment ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF1F2937), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Estimasi Cicilan per Bulan",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = formatter.format(installment),
+                        color = Color(0xFF4ADE80),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            
+            Button(
+                onClick = {
+                    if (isLoggedIn) {
+                        onNavigateToSubmitLoan()
+                    } else {
+                        onNavigateToLogin()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
+            ) {
+                Text(
+                    text = "Ajukan Sekarang",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
 }

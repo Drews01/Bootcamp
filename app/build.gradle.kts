@@ -52,7 +52,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.material.icons.extended)
-    
+
+    //Debugging
+    debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)

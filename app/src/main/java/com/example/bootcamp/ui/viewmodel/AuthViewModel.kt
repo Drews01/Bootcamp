@@ -25,6 +25,8 @@ data class AuthUiState(
         val isLoading: Boolean = false,
         val isLoggedIn: Boolean = false,
         val username: String? = null,
+        val userId: String? = null,
+        val email: String? = null,
 
         // Messages
         val errorMessage: String? = null,
@@ -80,6 +82,16 @@ constructor(
         viewModelScope.launch {
             authRepository.getUsernameFlow().collect { username ->
                 _uiState.update { it.copy(username = username) }
+            }
+        }
+        viewModelScope.launch {
+            authRepository.getUserIdFlow().collect { userId ->
+                _uiState.update { it.copy(userId = userId) }
+            }
+        }
+        viewModelScope.launch {
+            authRepository.getEmailFlow().collect { email ->
+                _uiState.update { it.copy(email = email) }
             }
         }
     }

@@ -87,4 +87,14 @@ interface AuthService {
          * @return ApiResponse with no data (cookies are set in response)
          */
         @GET("api/csrf-token") suspend fun getCsrfToken(): Response<ApiResponse<Unit>>
+
+        /**
+         * Get user profile details.
+         * @param token Authorization token
+         * @return ApiResponse with UserProfileDto
+         */
+        @GET("api/user-profiles/me")
+        suspend fun getUserProfile(
+                @Header("Authorization") token: String
+        ): Response<ApiResponse<com.example.bootcamp.data.remote.dto.UserProfileDto>>
 }

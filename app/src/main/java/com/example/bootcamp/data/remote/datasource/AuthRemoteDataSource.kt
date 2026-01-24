@@ -86,4 +86,15 @@ class AuthRemoteDataSource @Inject constructor(private val authService: AuthServ
     suspend fun refreshToken(token: String): ApiResult<LoginData> {
         return ApiResponseHandler.safeApiCall { authService.refreshToken("Bearer $token") }
     }
+
+    /**
+     * Get user profile details.
+     * @param token Authorization token
+     * @return ApiResult with UserProfileDto on success
+     */
+    suspend fun getUserProfile(
+            token: String
+    ): ApiResult<com.example.bootcamp.data.remote.dto.UserProfileDto> {
+        return ApiResponseHandler.safeApiCall { authService.getUserProfile("Bearer $token") }
+    }
 }

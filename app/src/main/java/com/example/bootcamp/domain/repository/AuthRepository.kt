@@ -49,4 +49,22 @@ interface AuthRepository {
      * @return Flow emitting the current username or null
      */
     fun getUsernameFlow(): Flow<String?>
+
+    /**
+     * Get the current user ID as a Flow.
+     * @return Flow emitting the current user ID or null
+     */
+    fun getUserIdFlow(): Flow<String?>
+
+    /**
+     * Get the current email as a Flow.
+     * @return Flow emitting the current email or null
+     */
+    fun getEmailFlow(): Flow<String?>
+
+    /**
+     * Get user profile details.
+     * @return Result with UserProfile on success
+     */
+    suspend fun getUserProfile(): Result<com.example.bootcamp.domain.model.UserProfile>
 }

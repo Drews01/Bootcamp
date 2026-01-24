@@ -112,6 +112,46 @@ constructor(
 
     override fun getUsernameFlow(): Flow<String?> = tokenManager.username
 
+    override fun getUserIdFlow(): Flow<String?> = tokenManager.userId
+
+    override fun getEmailFlow(): Flow<String?> = tokenManager.email
+
+    override suspend fun getUserProfile(): Result<com.example.bootcamp.domain.model.UserProfile> {
+        val token = tokenManager.token.first()
+        if (token == null) {
+            return Result.failure(IllegalStateException("User not logged in"))
+        }
+        
+        val result = authRemoteDataSource.getUserProfile(token)
+        return when (result) {
+            is ApiResult.Success -> {
+                val dto = result.data
+                Result.success(
+                    com.example.bootcamp.domain.model.UserProfile(
+                        username = dto.username,
+                        email = dto.email,
+                        address = dto.address,
+                        nik = dto.nik,
+                        ktpPath = dto.ktpPath,
+                        phoneNumber = dto.phoneNumber,
+                        accountNumber = dto.accountNumber,
+                        bankName = dto.bankName,
+                        updatedAt = dto.updatedAt
+                    )
+                )
+            }
+            is ApiResult.Error -> {
+                Result.failure(
+                    ApiException(
+                        message = result.message,
+                        errorDetails = result.errorDetails,
+                        statusCode = result.statusCode
+                    )
+                )
+            }
+        }
+    }
+
     /**
      * Get login result with full ApiResult for UI handling. Useful when you need access to field
      * errors.

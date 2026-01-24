@@ -1,11 +1,17 @@
 package com.example.bootcamp.di
 
+import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.chuckerteam.chucker.api.RetentionManager
 import com.example.bootcamp.data.remote.api.AuthService
+import com.example.bootcamp.data.remote.api.LoanService
 import com.example.bootcamp.data.remote.cookie.PersistentCookieJar
 import com.example.bootcamp.data.remote.interceptor.CsrfInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -21,6 +27,32 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
+    @Provides
+    @Singleton
+    fun provideChunkerCollector(
+            @ApplicationContext context: Context
+    ): com.chuckerteam.chucker.api.ChuckerCollector {
+        return ChuckerCollector(
+                context = context,
+                showNotification = true,
+                retentionPeriod = RetentionManager.Period.ONE_HOUR
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideChuckerInterceptor(
+            @ApplicationContext context: Context,
+            chuckerCollector: ChuckerCollector
+    ): com.chuckerteam.chucker.api.ChuckerInterceptor {
+        return ChuckerInterceptor.Builder(context)
+                .collector(chuckerCollector)
+                .maxContentLength(250_000L)
+                .redactHeaders("Auth-Token", "Bearer", "X-CSRF-TOKEN")
+                .alwaysReadResponseBody(true)
+                .build()
+    }
 
     private const val BASE_URL = "http://10.242.47.131:8081"
     private const val TIMEOUT_SECONDS = 30L
@@ -45,9 +77,11 @@ object NetworkModule {
     fun provideOkHttpClient(
             loggingInterceptor: HttpLoggingInterceptor,
             csrfInterceptor: CsrfInterceptor,
-            cookieJar: PersistentCookieJar
+            cookieJar: PersistentCookieJar,
+            chuckerInterceptor: ChuckerInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
+                .addInterceptor(chuckerInterceptor)
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(csrfInterceptor)
                 .cookieJar(cookieJar)
@@ -73,5 +107,12 @@ object NetworkModule {
     @Singleton
     fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
+    }
+
+    /** Provides LoanService API interface. */
+    @Provides
+    @Singleton
+    fun provideLoanService(retrofit: Retrofit): LoanService {
+        return retrofit.create(LoanService::class.java)
     }
 }
