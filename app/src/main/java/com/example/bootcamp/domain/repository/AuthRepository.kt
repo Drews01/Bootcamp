@@ -67,4 +67,16 @@ interface AuthRepository {
      * @return Result with UserProfile on success
      */
     suspend fun getUserProfile(): Result<com.example.bootcamp.domain.model.UserProfile>
+
+    /**
+     * Update user profile.
+     * @return Result with success message
+     */
+    suspend fun updateProfile(
+        address: String,
+        nik: String,
+        phoneNumber: String,
+        accountNumber: String,
+        bankName: String
+    ): Result<String>
 }

@@ -34,8 +34,13 @@ constructor(
             tenureMonths: Int,
             branchId: Long
     ): Result<String> {
+        val token = tokenManager.token.firstOrNull()
+        if (token.isNullOrBlank()) {
+            return Result.failure(IllegalStateException("User not logged in"))
+        }
+        
         return loanRemoteDataSource
-                .submitLoan(amount, tenureMonths, branchId)
+                .submitLoan(token, amount, tenureMonths, branchId)
                 .map { data ->
                     "Loan submitted successfully. Reference: ${data.referenceNumber ?: data.id}"
                 }
@@ -63,6 +68,17 @@ constructor(
                     )
                 }
             }
+            .asResult()
+    }
+
+    override suspend fun getUserAvailableCredit(): Result<Double> {
+        val token = tokenManager.token.firstOrNull()
+        if (token.isNullOrBlank()) {
+            return Result.failure(IllegalStateException("User not logged in"))
+        }
+
+        return loanRemoteDataSource.getUserTier(token)
+            .map { tierDto -> tierDto.availableCredit }
             .asResult()
     }
 }

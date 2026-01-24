@@ -73,4 +73,12 @@ object ErrorCode {
     const val TOKEN_EXPIRED = "TOKEN_EXPIRED"
     const val FORBIDDEN = "FORBIDDEN"
     const val NOT_FOUND = "NOT_FOUND"
+    
+    // Loan Workflow Errors
+    const val PROFILE_INCOMPLETE = "PROFILE_INCOMPLETE"
+    const val ACTIVE_LOAN_EXISTS = "ACTIVE_LOAN_EXISTS"
+    const val CREDIT_LIMIT_EXCEEDED = "CREDIT_LIMIT_EXCEEDED"
+    const val BRANCH_REQUIRED = "BRANCH_REQUIRED"
+    const val BRANCH_NOT_FOUND = "BRANCH_NOT_FOUND"
+    const val NO_TIER_AVAILABLE = "NO_TIER_AVAILABLE"
 }

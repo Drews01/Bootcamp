@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
+import com.example.bootcamp.ui.viewmodel.LoanErrorType
 import com.example.bootcamp.ui.viewmodel.LoanViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +54,8 @@ import com.example.bootcamp.ui.viewmodel.LoanViewModel
 fun SubmitLoanScreen(
         viewModel: LoanViewModel,
         modifier: Modifier = Modifier,
-        onSubmitSuccess: () -> Unit = {}
+        onSubmitSuccess: () -> Unit = {},
+        onNavigateToEditProfile: () -> Unit = {}
 ) {
         val uiState by viewModel.uiState.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -67,11 +69,21 @@ fun SubmitLoanScreen(
                 }
         }
 
-        LaunchedEffect(uiState.errorMessage) {
-                uiState.errorMessage?.let {
-                        snackbarHostState.showSnackbar(it)
-                        viewModel.clearErrorMessage()
+        // Show error dialog when errorType is present
+        uiState.errorType?.let { errorType ->
+            LoanErrorDialog(
+                errorType = errorType,
+                errorMessage = uiState.errorMessage ?: "",
+                onDismiss = { viewModel.clearErrorMessage() },
+                onNavigateToEditProfile = {
+                    viewModel.clearErrorMessage()
+                    onNavigateToEditProfile()
+                },
+                onRefreshBranches = {
+                    viewModel.clearErrorMessage()
+                    viewModel.loadBranches()
                 }
+            )
         }
 
         Scaffold(
@@ -317,3 +329,120 @@ fun SubmitLoanScreen(
                 }
         }
 }
+
+/**
+ * Error dialog that shows error-specific content and actions based on error type.
+ */
+@Composable
+fun LoanErrorDialog(
+    errorType: LoanErrorType,
+    errorMessage: String,
+    onDismiss: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
+    onRefreshBranches: () -> Unit
+) {
+    val (title, content, primaryAction, primaryLabel) = when (errorType) {
+        is LoanErrorType.IncompleteProfile -> {
+            Quadruple(
+                "Profile Incomplete",
+                "Silahkan Lengkapi Data Anda terlebih dahulu",
+                onNavigateToEditProfile,
+                "Complete Profile"
+            )
+        }
+        is LoanErrorType.ActiveLoanExists -> {
+            Quadruple(
+                "Active Loan Exists",
+                "Cannot submit new loan. You already have an active loan application that is being processed. Please wait for your current loan to be disbursed, paid, or rejected before submitting a new one.",
+                onDismiss,
+                "OK"
+            )
+        }
+        is LoanErrorType.ExceedsLimit -> {
+            Quadruple(
+                "Exceeds Credit Limit",
+                "Loan amount exceeds remaining credit limit of Rp ${errorType.remainingLimit} for ${errorType.tier} tier. Please lower the amount.",
+                onDismiss,
+                "OK"
+            )
+        }
+        is LoanErrorType.BranchRequired -> {
+            Quadruple(
+                "Branch Required",
+                "Branch ID is required for loan submission. Please select a branch.",
+                onDismiss,
+                "OK"
+            )
+        }
+        is LoanErrorType.BranchNotFound -> {
+            Quadruple(
+                "Branch Not Found",
+                "The selected branch was not found. Please refresh and select another branch.",
+                onRefreshBranches,
+                "Refresh Branches"
+            )
+        }
+        is LoanErrorType.NoTierAvailable -> {
+            Quadruple(
+                "System Error",
+                "No tier product available for user. Please contact support.",
+                onDismiss,
+                "OK"
+            )
+        }
+        is LoanErrorType.Generic -> {
+            Quadruple(
+                "Error",
+                errorType.message,
+                onDismiss,
+                "OK"
+            )
+        }
+    }
+
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        },
+        text = {
+            Text(
+                text = content,
+                color = Gray500
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = primaryAction,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Indigo600
+                )
+            ) {
+                Text(primaryLabel)
+            }
+        },
+        dismissButton = {
+            if (errorType !is LoanErrorType.Generic && 
+                errorType !is LoanErrorType.ActiveLoanExists &&
+                errorType !is LoanErrorType.BranchRequired) {
+                androidx.compose.material3.TextButton(onClick = onDismiss) {
+                    Text("Cancel", color = Gray500)
+                }
+            }
+        },
+        containerColor = Color(0xFF1E293B),
+        tonalElevation = 8.dp
+    )
+}
+
+/** Helper data class for dialog content */
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

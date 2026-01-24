@@ -38,9 +38,23 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideLoanRepository(
-        loanRemoteDataSource: LoanRemoteDataSource,
-        tokenManager: TokenManager
+            loanRemoteDataSource: LoanRemoteDataSource,
+            tokenManager: TokenManager
     ): LoanRepository {
         return LoanRepositoryImpl(loanRemoteDataSource, tokenManager)
+    }
+
+    /** Provides UserProfileRepository implementation. */
+    @Provides
+    @Singleton
+    fun provideUserProfileRepository(
+            userProfileRemoteDataSource:
+                    com.example.bootcamp.data.remote.datasource.UserProfileRemoteDataSource,
+            tokenManager: TokenManager
+    ): com.example.bootcamp.domain.repository.UserProfileRepository {
+        return com.example.bootcamp.data.repository.UserProfileRepositoryImpl(
+                userProfileRemoteDataSource,
+                tokenManager
+        )
     }
 }

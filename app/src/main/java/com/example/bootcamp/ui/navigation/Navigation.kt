@@ -37,6 +37,7 @@ object Routes {
     const val FORGOT_PASSWORD = "forgot_password"
     const val PROFILE_DETAILS = "profile_details"
     const val LOAN_HISTORY = "loan_history"
+    const val EDIT_PROFILE = "edit_profile"
 }
 
 /** Main navigation composable setting up the NavHost. */
@@ -107,6 +108,9 @@ private fun AppNavHost(
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.HOME) { inclusive = true }
                         }
+                    },
+                    onNavigateToEditProfile = {
+                        navController.navigate(Routes.EDIT_PROFILE)
                     }
             )
         }
@@ -123,13 +127,25 @@ private fun AppNavHost(
 
         composable(Routes.PROFILE_DETAILS) {
             com.example.bootcamp.ui.screens.ProfileDetailsScreen(
-                onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
+            )
+        }
+
+        composable(Routes.EDIT_PROFILE) {
+            com.example.bootcamp.ui.screens.EditProfileScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onSaveSuccess = {
+                        navController.navigate(Routes.PROFILE_DETAILS) {
+                            popUpTo(Routes.EDIT_PROFILE) { inclusive = true }
+                        }
+                    }
             )
         }
 
         composable(Routes.LOAN_HISTORY) {
             com.example.bootcamp.ui.screens.LoanHistoryScreen(
-                onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() }
             )
         }
 

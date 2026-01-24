@@ -107,10 +107,13 @@ object ApiResponseHandler {
                     // Success but no data (e.g., logout, delete operations)
                     @Suppress("UNCHECKED_CAST") ApiResult.success(Unit as T)
                 } else {
-                    // Backend returned success=false
+                    // Backend returned success=false — prefer message for Generic; errorCode in
+                    // errorDetails is still used for dialog matching.
                     logError(body)
+                    val msg = if (!body.message.isNullOrBlank()) body.message!!
+                    else body.getErrorMessage()
                     ApiResult.error(
-                            message = body.getErrorMessage(),
+                            message = msg,
                             errorDetails = body.error,
                             statusCode = body.statusCode
                     )
@@ -119,11 +122,21 @@ object ApiResponseHandler {
                 ApiResult.error(message = "Empty response body", statusCode = response.code())
             }
         } else {
-            // HTTP error (4xx, 5xx)
+            // HTTP error (4xx, 5xx) — prefer backend message when present so errorCode matching
+            // and fallback message parsing work; errorDetails.errorCode is still used for dialogs.
             val errorBody = parseErrorBody(response)
+            if (isDebugBuild) {
+                Log.d(TAG, "HTTP Error ${response.code()}: Parsed errorBody=$errorBody")
+                Log.d(TAG, "ErrorDetails: ${errorBody?.error}")
+                Log.d(TAG, "ErrorCode: ${errorBody?.error?.errorCode}")
+            }
+            val message = when {
+                !errorBody?.message.isNullOrBlank() -> errorBody!!.message!!
+                errorBody != null -> errorBody.getErrorMessage()
+                else -> "HTTP ${response.code()}: ${response.message()}"
+            }
             ApiResult.error(
-                    message = errorBody?.getErrorMessage()
-                                    ?: "HTTP ${response.code()}: ${response.message()}",
+                    message = message,
                     errorDetails = errorBody?.error,
                     statusCode = response.code()
             )
@@ -135,9 +148,16 @@ object ApiResponseHandler {
     private fun <T> parseErrorBody(response: Response<T>): ApiResponse<Any>? {
         return try {
             val errorString = response.errorBody()?.string()
+            if (isDebugBuild) {
+                Log.d(TAG, "Raw error body: $errorString")
+            }
             if (!errorString.isNullOrEmpty()) {
-                com.google.gson.Gson().fromJson(errorString, ApiResponse::class.java) as?
+                val parsed = com.google.gson.Gson().fromJson(errorString, ApiResponse::class.java) as?
                         ApiResponse<Any>
+                if (isDebugBuild) {
+                    Log.d(TAG, "Parsed ApiResponse: success=${parsed?.success}, message=${parsed?.message}, error=${parsed?.error}")
+                }
+                parsed
             } else null
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse error body: ${e.message}")

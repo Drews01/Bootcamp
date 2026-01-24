@@ -29,7 +29,10 @@ interface LoanService {
      * @return ApiResponse with SubmitLoanData on success
      */
     @POST("api/loan-workflow/submit")
-    suspend fun submitLoan(@Body request: SubmitLoanRequest): Response<ApiResponse<SubmitLoanData>>
+    suspend fun submitLoan(
+        @retrofit2.http.Header("Authorization") token: String,
+        @Body request: SubmitLoanRequest
+    ): Response<ApiResponse<SubmitLoanData>>
 
     /**
      * Get loan application history for the current user.
@@ -37,4 +40,11 @@ interface LoanService {
      */
     @GET("api/loan-applications/my-history")
     suspend fun getLoanHistory(@retrofit2.http.Header("Authorization") token: String): Response<ApiResponse<List<LoanApplicationDto>>>
+
+    /**
+     * Get user's current tier and credit information.
+     * @return ApiResponse with UserTierDto
+     */
+    @GET("api/user-products/my-tier")
+    suspend fun getUserTier(@retrofit2.http.Header("Authorization") token: String): Response<ApiResponse<com.example.bootcamp.data.remote.dto.UserTierDto>>
 }

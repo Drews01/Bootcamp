@@ -37,12 +37,14 @@ class LoanRemoteDataSource @Inject constructor(
      * @return ApiResult with SubmitLoanData on success
      */
     suspend fun submitLoan(
+        token: String,
         amount: Long,
         tenureMonths: Int,
         branchId: Long
     ): ApiResult<SubmitLoanData> {
         return ApiResponseHandler.safeApiCall {
             loanService.submitLoan(
+                "Bearer $token",
                 SubmitLoanRequest(
                     amount = amount,
                     tenureMonths = tenureMonths,
@@ -60,6 +62,17 @@ class LoanRemoteDataSource @Inject constructor(
     suspend fun getLoanHistory(token: String): ApiResult<List<LoanApplicationDto>> {
         return ApiResponseHandler.safeApiCall {
             loanService.getLoanHistory("Bearer $token")
+        }
+    }
+
+    /**
+     * Get user's current tier and credit information.
+     * @param token Authentication token
+     * @return ApiResult with UserTierDto
+     */
+    suspend fun getUserTier(token: String): ApiResult<com.example.bootcamp.data.remote.dto.UserTierDto> {
+        return ApiResponseHandler.safeApiCall {
+            loanService.getUserTier("Bearer $token")
         }
     }
 }

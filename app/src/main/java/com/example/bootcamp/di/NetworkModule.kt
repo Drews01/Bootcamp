@@ -54,7 +54,7 @@ object NetworkModule {
                 .build()
     }
 
-    private const val BASE_URL = "http://10.242.47.131:8081"
+    private const val BASE_URL = "http://192.168.100.4:8081"
     private const val TIMEOUT_SECONDS = 30L
 
     /** Provides logging interceptor for debugging network requests. */
@@ -114,5 +114,14 @@ object NetworkModule {
     @Singleton
     fun provideLoanService(retrofit: Retrofit): LoanService {
         return retrofit.create(LoanService::class.java)
+    }
+
+    /** Provides UserProfileService API interface. */
+    @Provides
+    @Singleton
+    fun provideUserProfileService(
+            retrofit: Retrofit
+    ): com.example.bootcamp.data.remote.api.UserProfileService {
+        return retrofit.create(com.example.bootcamp.data.remote.api.UserProfileService::class.java)
     }
 }

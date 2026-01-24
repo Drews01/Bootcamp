@@ -28,4 +28,10 @@ interface LoanRepository {
      * @return Result with list of LoanApplication
      */
     suspend fun getLoanHistory(): Result<List<com.example.bootcamp.domain.model.LoanApplication>>
+
+    /**
+     * Get user's current tier and available credit.
+     * @return Result with available credit amount
+     */
+    suspend fun getUserAvailableCredit(): Result<Double>
 }
