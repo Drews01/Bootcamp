@@ -427,6 +427,24 @@ fun LoginScreen(
                                                                 fontWeight = FontWeight.SemiBold,
                                                         )
                                                 }
+
+                                                Spacer(modifier = Modifier.height(16.dp))
+
+                                                // Guest Mode Link
+                                                TextButton(
+                                                    onClick = {
+                                                        viewModel.clearMessages()
+                                                        onLoginSuccess()
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                ) {
+                                                    Text(
+                                                        text = "Continue as Guest",
+                                                        color = Color.White.copy(alpha = 0.7f),
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Normal
+                                                    )
+                                                }
                                         }
                                 }
                         }
