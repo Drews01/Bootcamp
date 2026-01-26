@@ -49,13 +49,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
+import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
-import com.example.bootcamp.ui.theme.Gray400
-import com.example.bootcamp.ui.theme.Gray500
-import com.example.bootcamp.ui.theme.Gray700
-import com.example.bootcamp.ui.theme.Indigo600
-import com.example.bootcamp.ui.theme.Indigo700
+import com.example.bootcamp.ui.theme.MutedGray
 import com.example.bootcamp.ui.theme.Red500
+import com.example.bootcamp.ui.theme.SpaceIndigo
+import com.example.bootcamp.ui.theme.SpaceViolet
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
 
 @Suppress("UNUSED_PARAMETER")
@@ -87,20 +87,7 @@ fun RegisterScreen(
                         password.length >= 8 &&
                         password == confirmPassword
 
-        Box(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .background(
-                                        brush =
-                                                Brush.verticalGradient(
-                                                        colors =
-                                                                listOf(
-                                                                        Indigo600,
-                                                                        Indigo700,
-                                                                )
-                                                )
-                                ),
-        ) {
+        AuthBackground { glowAlpha ->
                 Column(
                         modifier =
                                 Modifier.fillMaxSize()
@@ -125,14 +112,17 @@ fun RegisterScreen(
                         // Logo/Title
                         Text(
                                 text = "STAR",
-                                fontSize = 40.sp,
+                                fontSize = 56.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
+                                letterSpacing = 8.sp,
+                                modifier = Modifier.graphicsLayer { shadowElevation = 40f * glowAlpha }
                         )
                         Text(
                                 text = "Financial",
-                                fontSize = 18.sp,
-                                color = Color.White.copy(alpha = 0.8f),
+                                fontSize = 20.sp,
+                                color = MutedGray,
+                                letterSpacing = 4.sp,
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -140,312 +130,360 @@ fun RegisterScreen(
                         // Register Card
                         Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White.copy(alpha = 0.1f)
+                                ),
                         ) {
-                                Column(
-                                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.White.copy(alpha = 0.15f),
+                                                    Color.White.copy(alpha = 0.05f)
+                                                )
+                                            )
+                                        )
                                 ) {
-                                        Text(
-                                                text = "Create Account",
-                                                fontSize = 24.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Gray700,
-                                        )
-                                        Text(
-                                                text = "Join STAR Financial today",
-                                                fontSize = 14.sp,
-                                                color = Gray500,
-                                        )
+                                    Column(
+                                            modifier = Modifier.fillMaxWidth().padding(28.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                            Text(
+                                                    text = "Create Account",
+                                                    fontSize = 28.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color.White,
+                                                    letterSpacing = 1.sp,
+                                            )
+                                            Text(
+                                                    text = "Join STAR Financial today",
+                                                    fontSize = 14.sp,
+                                                    color = MutedGray,
+                                            )
 
-                                        Spacer(modifier = Modifier.height(24.dp))
+                                            Spacer(modifier = Modifier.height(28.dp))
 
-                                        // Username Field
-                                        OutlinedTextField(
-                                                value = username,
-                                                onValueChange = { username = it },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                label = { Text("Username") },
-                                                leadingIcon = {
-                                                        Icon(
-                                                                imageVector = Icons.Default.Person,
-                                                                contentDescription = null,
-                                                                tint = Gray400,
-                                                        )
-                                                },
-                                                isError = usernameError,
-                                                supportingText =
-                                                        if (usernameError) {
-                                                                {
-                                                                        Text(
-                                                                                "Username must be 3-50 characters"
-                                                                        )
-                                                                }
-                                                        } else null,
-                                                keyboardOptions =
-                                                        KeyboardOptions(
-                                                                keyboardType = KeyboardType.Text,
-                                                                imeAction = ImeAction.Next,
+                                            // Username Field
+                                            OutlinedTextField(
+                                                    value = username,
+                                                    onValueChange = { username = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    label = { Text("Username", color = MutedGray) },
+                                                    leadingIcon = {
+                                                            Icon(
+                                                                    imageVector = Icons.Default.Person,
+                                                                    contentDescription = null,
+                                                                    tint = MutedGray,
+                                                            )
+                                                    },
+                                                    isError = usernameError,
+                                                    supportingText =
+                                                            if (usernameError) {
+                                                                    {
+                                                                            Text(
+                                                                                    "Username must be 3-50 characters",
+                                                                                    color = Red500
+                                                                            )
+                                                                    }
+                                                            } else null,
+                                                    keyboardOptions =
+                                                            KeyboardOptions(
+                                                                    keyboardType = KeyboardType.Text,
+                                                                    imeAction = ImeAction.Next,
+                                                            ),
+                                                    singleLine = true,
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    colors = OutlinedTextFieldDefaults.colors(
+                                                        focusedBorderColor = SpaceIndigo,
+                                                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                                                        focusedTextColor = Color.White,
+                                                        unfocusedTextColor = Color.White,
+                                                        cursorColor = SpaceIndigo,
+                                                        focusedLabelColor = SpaceIndigo,
+                                                        unfocusedLabelColor = MutedGray,
+                                                        errorBorderColor = Red500,
+                                                        errorLabelColor = Red500
+                                                    ),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(12.dp))
+
+                                            // Email Field
+                                            OutlinedTextField(
+                                                    value = email,
+                                                    onValueChange = { email = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    label = { Text("Email", color = MutedGray) },
+                                                    leadingIcon = {
+                                                            Icon(
+                                                                    imageVector = Icons.Default.Email,
+                                                                    contentDescription = null,
+                                                                    tint = MutedGray,
+                                                            )
+                                                    },
+                                                    isError = emailError,
+                                                    supportingText =
+                                                            if (emailError) {
+                                                                    {
+                                                                            Text(
+                                                                                    "Please enter a valid email",
+                                                                                    color = Red500
+                                                                            )
+                                                                    }
+                                                            } else null,
+                                                    keyboardOptions =
+                                                            KeyboardOptions(
+                                                                    keyboardType = KeyboardType.Email,
+                                                                    imeAction = ImeAction.Next,
+                                                            ),
+                                                    singleLine = true,
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    colors = OutlinedTextFieldDefaults.colors(
+                                                        focusedBorderColor = SpaceIndigo,
+                                                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                                                        focusedTextColor = Color.White,
+                                                        unfocusedTextColor = Color.White,
+                                                        cursorColor = SpaceIndigo,
+                                                        focusedLabelColor = SpaceIndigo,
+                                                        unfocusedLabelColor = MutedGray,
+                                                        errorBorderColor = Red500,
+                                                        errorLabelColor = Red500
+                                                    ),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(12.dp))
+
+                                            // Password Field
+                                            OutlinedTextField(
+                                                    value = password,
+                                                    onValueChange = { password = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    label = { Text("Password", color = MutedGray) },
+                                                    leadingIcon = {
+                                                            Icon(
+                                                                    imageVector = Icons.Default.Lock,
+                                                                    contentDescription = null,
+                                                                    tint = MutedGray,
+                                                            )
+                                                    },
+                                                    trailingIcon = {
+                                                            IconButton(
+                                                                    onClick = {
+                                                                            passwordVisible =
+                                                                                    !passwordVisible
+                                                                    }
+                                                            ) {
+                                                                    Icon(
+                                                                            imageVector =
+                                                                                    if (passwordVisible)
+                                                                                            Icons.Default
+                                                                                                    .Visibility
+                                                                                    else
+                                                                                            Icons.Default
+                                                                                                    .VisibilityOff,
+                                                                            contentDescription =
+                                                                                    if (passwordVisible)
+                                                                                            "Hide password"
+                                                                                    else
+                                                                                            "Show password",
+                                                                            tint = MutedGray,
+                                                                    )
+                                                            }
+                                                    },
+                                                    isError = passwordError,
+                                                    supportingText =
+                                                            if (passwordError) {
+                                                                    {
+                                                                            Text(
+                                                                                    "Password must be at least 8 characters",
+                                                                                    color = Red500
+                                                                            )
+                                                                    }
+                                                            } else null,
+                                                    visualTransformation =
+                                                            if (passwordVisible)
+                                                                    VisualTransformation.None
+                                                            else PasswordVisualTransformation(),
+                                                    keyboardOptions =
+                                                            KeyboardOptions(
+                                                                    keyboardType =
+                                                                            KeyboardType.Password,
+                                                                    imeAction = ImeAction.Next,
+                                                            ),
+                                                    singleLine = true,
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    colors = OutlinedTextFieldDefaults.colors(
+                                                        focusedBorderColor = SpaceIndigo,
+                                                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                                                        focusedTextColor = Color.White,
+                                                        unfocusedTextColor = Color.White,
+                                                        cursorColor = SpaceIndigo,
+                                                        focusedLabelColor = SpaceIndigo,
+                                                        unfocusedLabelColor = MutedGray,
+                                                        errorBorderColor = Red500,
+                                                        errorLabelColor = Red500
+                                                    ),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(12.dp))
+
+                                            // Confirm Password Field
+                                            OutlinedTextField(
+                                                    value = confirmPassword,
+                                                    onValueChange = { confirmPassword = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    label = { Text("Confirm Password", color = MutedGray) },
+                                                    leadingIcon = {
+                                                            Icon(
+                                                                    imageVector = Icons.Default.Lock,
+                                                                    contentDescription = null,
+                                                                    tint = MutedGray,
+                                                            )
+                                                    },
+                                                    trailingIcon = {
+                                                            IconButton(
+                                                                    onClick = {
+                                                                            confirmPasswordVisible =
+                                                                                    !confirmPasswordVisible
+                                                                    }
+                                                            ) {
+                                                                    Icon(
+                                                                            imageVector =
+                                                                                    if (confirmPasswordVisible
+                                                                                    )
+                                                                                            Icons.Default
+                                                                                                    .Visibility
+                                                                                    else
+                                                                                            Icons.Default
+                                                                                                    .VisibilityOff,
+                                                                            contentDescription =
+                                                                                    if (confirmPasswordVisible
+                                                                                    )
+                                                                                            "Hide password"
+                                                                                    else
+                                                                                            "Show password",
+                                                                            tint = MutedGray,
+                                                                    )
+                                                            }
+                                                    },
+                                                    isError = confirmPasswordError,
+                                                    supportingText =
+                                                            if (confirmPasswordError) {
+                                                                    { Text("Passwords do not match", color = Red500) }
+                                                            } else null,
+                                                    visualTransformation =
+                                                            if (confirmPasswordVisible)
+                                                                    VisualTransformation.None
+                                                            else PasswordVisualTransformation(),
+                                                    keyboardOptions =
+                                                            KeyboardOptions(
+                                                                    keyboardType =
+                                                                            KeyboardType.Password,
+                                                                    imeAction = ImeAction.Done,
+                                                            ),
+                                                    singleLine = true,
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    colors = OutlinedTextFieldDefaults.colors(
+                                                        focusedBorderColor = SpaceIndigo,
+                                                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                                                        focusedTextColor = Color.White,
+                                                        unfocusedTextColor = Color.White,
+                                                        cursorColor = SpaceIndigo,
+                                                        focusedLabelColor = SpaceIndigo,
+                                                        unfocusedLabelColor = MutedGray,
+                                                        errorBorderColor = Red500,
+                                                        errorLabelColor = Red500
+                                                    ),
+                                            )
+
+                                            Spacer(modifier = Modifier.height(16.dp))
+
+                                            // Error Message
+                                            if (uiState.errorMessage != null) {
+                                                    Text(
+                                                            text = uiState.errorMessage!!,
+                                                            color = Red500,
+                                                            fontSize = 14.sp,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.padding(bottom = 16.dp),
+                                                    )
+                                            }
+
+                                            // Success Message
+                                            if (uiState.successMessage != null) {
+                                                    Text(
+                                                            text = uiState.successMessage!!,
+                                                            color = Emerald500,
+                                                            fontSize = 14.sp,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.padding(bottom = 16.dp),
+                                                    )
+                                            }
+
+                                            // Register Button
+                                            Button(
+                                                    onClick = {
+                                                            viewModel.clearMessages()
+                                                            viewModel.register(
+                                                                    username,
+                                                                    email,
+                                                                    password
+                                                            )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                                                    enabled = !uiState.isLoading && isFormValid,
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = Color.Transparent,
+                                                        disabledContainerColor = Color.Gray.copy(alpha = 0.3f)
+                                                    ),
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize()
+                                                        .background(
+                                                            brush = Brush.horizontalGradient(
+                                                                colors = listOf(SpaceIndigo, SpaceViolet)
+                                                            ),
+                                                            shape = RoundedCornerShape(14.dp)
                                                         ),
-                                                singleLine = true,
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors =
-                                                        OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor = Indigo600,
-                                                                unfocusedBorderColor = Gray400,
-                                                                errorBorderColor = Red500,
-                                                        ),
-                                        )
-
-                                        Spacer(modifier = Modifier.height(12.dp))
-
-                                        // Email Field
-                                        OutlinedTextField(
-                                                value = email,
-                                                onValueChange = { email = it },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                label = { Text("Email") },
-                                                leadingIcon = {
-                                                        Icon(
-                                                                imageVector = Icons.Default.Email,
-                                                                contentDescription = null,
-                                                                tint = Gray400,
-                                                        )
-                                                },
-                                                isError = emailError,
-                                                supportingText =
-                                                        if (emailError) {
-                                                                {
-                                                                        Text(
-                                                                                "Please enter a valid email"
-                                                                        )
-                                                                }
-                                                        } else null,
-                                                keyboardOptions =
-                                                        KeyboardOptions(
-                                                                keyboardType = KeyboardType.Email,
-                                                                imeAction = ImeAction.Next,
-                                                        ),
-                                                singleLine = true,
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors =
-                                                        OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor = Indigo600,
-                                                                unfocusedBorderColor = Gray400,
-                                                                errorBorderColor = Red500,
-                                                        ),
-                                        )
-
-                                        Spacer(modifier = Modifier.height(12.dp))
-
-                                        // Password Field
-                                        OutlinedTextField(
-                                                value = password,
-                                                onValueChange = { password = it },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                label = { Text("Password") },
-                                                leadingIcon = {
-                                                        Icon(
-                                                                imageVector = Icons.Default.Lock,
-                                                                contentDescription = null,
-                                                                tint = Gray400,
-                                                        )
-                                                },
-                                                trailingIcon = {
-                                                        IconButton(
-                                                                onClick = {
-                                                                        passwordVisible =
-                                                                                !passwordVisible
-                                                                }
-                                                        ) {
-                                                                Icon(
-                                                                        imageVector =
-                                                                                if (passwordVisible)
-                                                                                        Icons.Default
-                                                                                                .Visibility
-                                                                                else
-                                                                                        Icons.Default
-                                                                                                .VisibilityOff,
-                                                                        contentDescription =
-                                                                                if (passwordVisible)
-                                                                                        "Hide password"
-                                                                                else
-                                                                                        "Show password",
-                                                                        tint = Gray400,
-                                                                )
-                                                        }
-                                                },
-                                                isError = passwordError,
-                                                supportingText =
-                                                        if (passwordError) {
-                                                                {
-                                                                        Text(
-                                                                                "Password must be at least 8 characters"
-                                                                        )
-                                                                }
-                                                        } else null,
-                                                visualTransformation =
-                                                        if (passwordVisible)
-                                                                VisualTransformation.None
-                                                        else PasswordVisualTransformation(),
-                                                keyboardOptions =
-                                                        KeyboardOptions(
-                                                                keyboardType =
-                                                                        KeyboardType.Password,
-                                                                imeAction = ImeAction.Next,
-                                                        ),
-                                                singleLine = true,
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors =
-                                                        OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor = Indigo600,
-                                                                unfocusedBorderColor = Gray400,
-                                                                errorBorderColor = Red500,
-                                                        ),
-                                        )
-
-                                        Spacer(modifier = Modifier.height(12.dp))
-
-                                        // Confirm Password Field
-                                        OutlinedTextField(
-                                                value = confirmPassword,
-                                                onValueChange = { confirmPassword = it },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                label = { Text("Confirm Password") },
-                                                leadingIcon = {
-                                                        Icon(
-                                                                imageVector = Icons.Default.Lock,
-                                                                contentDescription = null,
-                                                                tint = Gray400,
-                                                        )
-                                                },
-                                                trailingIcon = {
-                                                        IconButton(
-                                                                onClick = {
-                                                                        confirmPasswordVisible =
-                                                                                !confirmPasswordVisible
-                                                                }
-                                                        ) {
-                                                                Icon(
-                                                                        imageVector =
-                                                                                if (confirmPasswordVisible
-                                                                                )
-                                                                                        Icons.Default
-                                                                                                .Visibility
-                                                                                else
-                                                                                        Icons.Default
-                                                                                                .VisibilityOff,
-                                                                        contentDescription =
-                                                                                if (confirmPasswordVisible
-                                                                                )
-                                                                                        "Hide password"
-                                                                                else
-                                                                                        "Show password",
-                                                                        tint = Gray400,
-                                                                )
-                                                        }
-                                                },
-                                                isError = confirmPasswordError,
-                                                supportingText =
-                                                        if (confirmPasswordError) {
-                                                                { Text("Passwords do not match") }
-                                                        } else null,
-                                                visualTransformation =
-                                                        if (confirmPasswordVisible)
-                                                                VisualTransformation.None
-                                                        else PasswordVisualTransformation(),
-                                                keyboardOptions =
-                                                        KeyboardOptions(
-                                                                keyboardType =
-                                                                        KeyboardType.Password,
-                                                                imeAction = ImeAction.Done,
-                                                        ),
-                                                singleLine = true,
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors =
-                                                        OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor = Indigo600,
-                                                                unfocusedBorderColor = Gray400,
-                                                                errorBorderColor = Red500,
-                                                        ),
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        // Error Message
-                                        if (uiState.errorMessage != null) {
-                                                Text(
-                                                        text = uiState.errorMessage!!,
-                                                        color = Red500,
-                                                        fontSize = 14.sp,
-                                                        textAlign = TextAlign.Center,
-                                                        modifier = Modifier.padding(bottom = 16.dp),
-                                                )
-                                        }
-
-                                        // Success Message
-                                        if (uiState.successMessage != null) {
-                                                Text(
-                                                        text = uiState.successMessage!!,
-                                                        color = Emerald500,
-                                                        fontSize = 14.sp,
-                                                        textAlign = TextAlign.Center,
-                                                        modifier = Modifier.padding(bottom = 16.dp),
-                                                )
-                                        }
-
-                                        // Register Button
-                                        Button(
-                                                onClick = {
-                                                        viewModel.clearMessages()
-                                                        viewModel.register(
-                                                                username,
-                                                                email,
-                                                                password
-                                                        )
-                                                },
-                                                modifier = Modifier.fillMaxWidth().height(50.dp),
-                                                enabled = !uiState.isLoading && isFormValid,
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors =
-                                                        ButtonDefaults.buttonColors(
-                                                                containerColor = Indigo600,
-                                                                disabledContainerColor = Gray400,
-                                                        ),
-                                        ) {
-                                                if (uiState.isLoading) {
-                                                        CircularProgressIndicator(
-                                                                modifier = Modifier.size(24.dp),
-                                                                color = Color.White,
-                                                                strokeWidth = 2.dp,
-                                                        )
-                                                } else {
-                                                        Text(
-                                                                text = "Create Account",
-                                                                fontSize = 16.sp,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    if (uiState.isLoading) {
+                                                            CircularProgressIndicator(
+                                                                    modifier = Modifier.size(24.dp),
+                                                                    color = Color.White,
+                                                                    strokeWidth = 2.dp,
+                                                            )
+                                                    } else {
+                                                            Text(
+                                                                    text = "Create Account",
+                                                                    fontSize = 16.sp,
+                                                                    fontWeight = FontWeight.SemiBold,
+                                                                    color = Color.White
+                                                            )
+                                                    }
                                                 }
-                                        }
+                                            }
 
-                                        Spacer(modifier = Modifier.height(16.dp))
+                                            Spacer(modifier = Modifier.height(20.dp))
 
-                                        // Login Link
-                                        TextButton(onClick = onNavigateToLogin) {
-                                                Text(
-                                                        text = "Already have an account? ",
-                                                        color = Gray500,
-                                                        fontSize = 14.sp,
-                                                )
-                                                Text(
-                                                        text = "Sign In",
-                                                        color = Indigo600,
-                                                        fontSize = 14.sp,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                )
-                                        }
+                                            // Login Link
+                                            TextButton(onClick = onNavigateToLogin) {
+                                                    Text(
+                                                            text = "Already have an account? ",
+                                                            color = MutedGray,
+                                                            fontSize = 14.sp,
+                                                    )
+                                                    Text(
+                                                            text = "Sign In",
+                                                            color = SpaceIndigo,
+                                                            fontSize = 14.sp,
+                                                            fontWeight = FontWeight.SemiBold,
+                                                    )
+                                            }
+                                    }
                                 }
                         }
 
