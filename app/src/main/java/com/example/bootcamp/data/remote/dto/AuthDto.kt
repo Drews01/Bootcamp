@@ -59,3 +59,15 @@ data class UserData(
         @SerializedName("createdAt") val createdAt: String? = null,
         @SerializedName("updatedAt") val updatedAt: String? = null
 )
+
+/**
+ * CSRF Token response data. Contains the **masked** token from GET /api/csrf-token.
+ * IMPORTANT: This masked token is what should be used in the X-XSRF-TOKEN header.
+ * The raw token in the XSRF-TOKEN cookie is different (BREACH protection).
+ */
+data class CsrfTokenData(
+        @SerializedName("token") val token: String,
+        @SerializedName("headerName") val headerName: String? = null, // Usually "X-XSRF-TOKEN"
+        @SerializedName("parameterName") val parameterName: String? = null // Usually "_csrf"
+)
+

@@ -36,7 +36,11 @@ class TokenManager @Inject constructor(private val dataStore: DataStore<Preferen
     /** Flow of the current email. */
     val email: Flow<String?> = dataStore.data.map { preferences -> preferences[EMAIL_KEY] }
 
-    /** Flow of the current XSRF token. */
+    /** 
+     * Flow of the current XSRF token.
+     * IMPORTANT: This stores the **MASKED** CSRF token from the API response body,
+     * NOT the raw cookie value. Use this value for the X-XSRF-TOKEN header.
+     */
     val xsrfToken: Flow<String?> = dataStore.data.map { preferences -> preferences[XSRF_TOKEN_KEY] }
 
     /** Save the authentication token. */
@@ -59,7 +63,11 @@ class TokenManager @Inject constructor(private val dataStore: DataStore<Preferen
         dataStore.edit { preferences -> preferences[EMAIL_KEY] = email }
     }
 
-    /** Save the XSRF token. */
+    /** 
+     * Save the MASKED XSRF token from the API response body.
+     * IMPORTANT: This should be the token value from GET /api/csrf-token response,
+     * NOT the XSRF-TOKEN cookie value (BREACH protection).
+     */
     suspend fun saveXsrfToken(token: String) {
         dataStore.edit { preferences -> preferences[XSRF_TOKEN_KEY] = token }
     }

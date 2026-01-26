@@ -54,7 +54,7 @@ object NetworkModule {
                 .build()
     }
 
-    private const val BASE_URL = "http://192.168.100.4:8081"
+    private const val BASE_URL = "http://10.10.13.123:8081"
 //    private const val BASE_URL = "http://10.0.2.2:8081"
     private const val TIMEOUT_SECONDS = 30L
 
@@ -65,11 +65,17 @@ object NetworkModule {
         return HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
     }
 
-    /** Provides CSRF interceptor for adding X-XSRF-TOKEN header. */
+    /** 
+     * Provides CSRF interceptor that fetches fresh token before each protected request.
+     * Uses Provider<Retrofit> for lazy initialization to avoid circular dependency.
+     */
     @Provides
     @Singleton
-    fun provideCsrfInterceptor(cookieJar: PersistentCookieJar): CsrfInterceptor {
-        return CsrfInterceptor(cookieJar)
+    fun provideCsrfInterceptor(
+        tokenManager: com.example.bootcamp.data.local.TokenManager,
+        retrofitProvider: javax.inject.Provider<Retrofit>
+    ): CsrfInterceptor {
+        return CsrfInterceptor(tokenManager, retrofitProvider)
     }
 
     /** Provides configured OkHttpClient with logging, cookies, CSRF protection, and timeouts. */

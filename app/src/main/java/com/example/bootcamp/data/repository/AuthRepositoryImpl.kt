@@ -58,6 +58,11 @@ constructor(
                         userId = loginData.userId,
                         email = loginData.email
                 )
+                
+                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
+                // The X-XSRF-TOKEN header must use this masked value, not the cookie value
+                fetchAndStoreCsrfToken()
+                
                 Result.success("Login successful!")
             }
             is ApiResult.Error -> {
@@ -69,6 +74,29 @@ constructor(
                         )
                 )
             }
+        }
+    }
+    
+    /**
+     * Fetch the MASKED CSRF token from the server and store it.
+     * IMPORTANT: This is required for BREACH protection - the masked token from response body
+     * must be used for X-XSRF-TOKEN header, not the raw cookie value.
+     */
+    private suspend fun fetchAndStoreCsrfToken() {
+        try {
+            val csrfResult = authRemoteDataSource.fetchCsrfToken()
+            when (csrfResult) {
+                is ApiResult.Success -> {
+                    val maskedToken = csrfResult.data.token
+                    tokenManager.saveXsrfToken(maskedToken)
+                    android.util.Log.d("AuthRepositoryImpl", "Stored MASKED CSRF token: ${maskedToken.take(30)}...")
+                }
+                is ApiResult.Error -> {
+                    android.util.Log.e("AuthRepositoryImpl", "Failed to fetch CSRF token: ${csrfResult.message}")
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepositoryImpl", "Exception fetching CSRF token", e)
         }
     }
 
@@ -168,6 +196,10 @@ constructor(
                         userId = loginData.userId,
                         email = loginData.email
                 )
+                
+                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
+                fetchAndStoreCsrfToken()
+                
                 ApiResult.success("Login successful!")
             }
             is ApiResult.Error -> {

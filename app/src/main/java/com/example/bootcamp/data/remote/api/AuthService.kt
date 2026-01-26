@@ -1,6 +1,7 @@
 package com.example.bootcamp.data.remote.api
 
 import com.example.bootcamp.data.remote.base.ApiResponse
+import com.example.bootcamp.data.remote.dto.CsrfTokenData
 import com.example.bootcamp.data.remote.dto.ForgotPasswordRequest
 import com.example.bootcamp.data.remote.dto.LoginData
 import com.example.bootcamp.data.remote.dto.LoginRequest
@@ -83,10 +84,17 @@ interface AuthService {
         ): Response<ApiResponse<LoginData>>
 
         /**
-         * Get a fresh CSRF token. Useful if the XSRF-TOKEN cookie expires or is missing.
-         * @return ApiResponse with no data (cookies are set in response)
+         * Get a fresh CSRF token. Returns the **masked** token in the response body.
+         * IMPORTANT: The X-XSRF-TOKEN header must use this masked token, NOT the cookie value.
+         * The cookie contains the raw token, the response body contains the masked token (BREACH protection).
+         * 
+         * NOTE: This endpoint returns direct JSON { "token": "...", "headerName": "..." },
+         * NOT wrapped in ApiResponse.
+         * 
+         * @return CsrfTokenData containing the masked token
          */
-        @GET("api/csrf-token") suspend fun getCsrfToken(): Response<ApiResponse<Unit>>
+        @GET("api/csrf-token") 
+        suspend fun getCsrfToken(): Response<CsrfTokenData>
 
         /**
          * Get user profile details.

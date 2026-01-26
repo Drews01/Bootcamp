@@ -37,7 +37,7 @@ class PersistentCookieJar @Inject constructor(
             
             // Update or add new cookies
             for (newCookie in cookies) {
-                Log.d("PersistentCookieJar", "Received cookie: ${newCookie.name} = ${newCookie.value}")
+                Log.d("PersistentCookieJar", "Received cookie: ${newCookie.name} = ${newCookie.value.take(20)}...")
                 val index = existingCookies.indexOfFirst { it.name == newCookie.name }
                 if (index != -1) {
                     existingCookies[index] = newCookie
@@ -47,31 +47,37 @@ class PersistentCookieJar @Inject constructor(
             }
             cookieStore[host] = existingCookies
             persistCookies(host, existingCookies)
-
-            // Find XSRF-TOKEN and persist it to TokenManager as well (for backward compatibility/other flows)
-            cookies.find { it.name == "XSRF-TOKEN" }?.let { xsrfCookie ->
-                Log.d("PersistentCookieJar", "Found XSRF-TOKEN cookie, raw value: ${xsrfCookie.value}")
-                Log.d("PersistentCookieJar", "Persisting XSRF-TOKEN to DataStore: ${xsrfCookie.value}")
-                // Using runBlocking here to ensure persistence as per original design requirement
-                try {
-                    runBlocking { tokenManager.saveXsrfToken(xsrfCookie.value) }
-                } catch (e: Exception) {
-                    Log.e("PersistentCookieJar", "Failed to save XSRF token to DataStore", e)
-                }
-            }
+            
+            // NOTE: We no longer save XSRF-TOKEN cookie value to TokenManager.
+            // The masked token from GET /api/csrf-token response body is used instead (BREACH protection).
+            // The cookie is still sent automatically by OkHttp's CookieJar for server-side validation.
         }
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        val cookies = cookieStore[url.host] ?: return emptyList()
+        Log.d("PersistentCookieJar", "loadForRequest called for host: ${url.host}, path: ${url.encodedPath}")
+        Log.d("PersistentCookieJar", "Available hosts in cookieStore: ${cookieStore.keys}")
+        
+        val cookies = cookieStore[url.host] ?: run {
+            Log.w("PersistentCookieJar", "No cookies found for host: ${url.host}")
+            return emptyList()
+        }
+        
         // Filter expired cookies
         val validCookies = cookies.filter { it.expiresAt >= System.currentTimeMillis() }
         
         if (validCookies.size != cookies.size) {
+            Log.d("PersistentCookieJar", "Removed ${cookies.size - validCookies.size} expired cookies")
             // Some cookies expired, update store
             cookieStore[url.host] = validCookies.toMutableList()
             persistCookies(url.host, validCookies)
         }
+        
+        // Log all cookies being sent
+        validCookies.forEach { cookie ->
+            Log.d("PersistentCookieJar", "Sending cookie: ${cookie.name}=${cookie.value.take(20)}...")
+        }
+        
         return validCookies
     }
 
@@ -118,23 +124,91 @@ class PersistentCookieJar @Inject constructor(
 
     /**
      * Helper to retrieve XSRF-TOKEN specifically for the Interceptor. Checks memory first, then
-     * DataStore if missing.
+     * DataStore if missing. Also ensures that if loaded from DataStore, the cookie is reconstructed
+     * so it can be sent with the request.
      */
     fun getXsrfToken(): String? {
-        // 1. Try memory
-        val memoryToken = cookieStore.values.flatten().find { it.name == "XSRF-TOKEN" }?.value
-        if (memoryToken != null) return memoryToken
+        Log.d("PersistentCookieJar", "getXsrfToken() called")
+        Log.d("PersistentCookieJar", "cookieStore hosts: ${cookieStore.keys}")
+        
+        // 1. Try memory - look for XSRF-TOKEN in any host's cookies
+        for ((host, cookies) in cookieStore) {
+            val xsrfCookie = cookies.find { it.name == "XSRF-TOKEN" }
+            if (xsrfCookie != null) {
+                Log.d("PersistentCookieJar", "Found XSRF-TOKEN in memory for host: $host, value: ${xsrfCookie.value.take(20)}...")
+                return xsrfCookie.value
+            }
+        }
+        
+        Log.d("PersistentCookieJar", "XSRF-TOKEN not found in memory, checking DataStore...")
 
         // 2. Try persistence (lazy load from TokenManager)
         return try {
             val persistedToken = runBlocking { tokenManager.xsrfToken.firstOrNull() }
             if (persistedToken != null) {
-                Log.d("PersistentCookieJar", "Loaded XSRF-TOKEN from DataStore: $persistedToken")
+                Log.d("PersistentCookieJar", "Loaded XSRF-TOKEN from DataStore: ${persistedToken.take(20)}...")
+                
+                // CRITICAL FIX: Reconstruct the cookie and add it to cookieStore
+                // so that loadForRequest() will include it in the Cookie header
+                val existingHost = cookieStore.keys.firstOrNull()
+                if (existingHost != null) {
+                    Log.d("PersistentCookieJar", "Reconstructing XSRF-TOKEN cookie for host: $existingHost")
+                    val reconstructedCookie = Cookie.Builder()
+                        .name("XSRF-TOKEN")
+                        .value(persistedToken)
+                        .domain(existingHost)
+                        .path("/")
+                        .expiresAt(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // 24 hours
+                        .httpOnly()
+                        .build()
+                    
+                    val existingCookies = cookieStore[existingHost] ?: mutableListOf()
+                    existingCookies.add(reconstructedCookie)
+                    cookieStore[existingHost] = existingCookies
+                    Log.d("PersistentCookieJar", "Added reconstructed XSRF-TOKEN cookie to memory")
+                } else {
+                    Log.w("PersistentCookieJar", "No existing host in cookieStore to attach XSRF cookie to")
+                }
+            } else {
+                Log.w("PersistentCookieJar", "No XSRF-TOKEN found in DataStore either!")
             }
             persistedToken
         } catch (e: Exception) {
             Log.e("PersistentCookieJar", "Failed to load XSRF token", e)
             null
+        }
+    }
+
+    /**
+     * Ensure XSRF cookie exists for a given host. Call this to sync token from DataStore to cookie.
+     */
+    fun ensureXsrfCookieForHost(host: String) {
+        val existingXsrf = cookieStore[host]?.find { it.name == "XSRF-TOKEN" }
+        if (existingXsrf != null) {
+            Log.d("PersistentCookieJar", "XSRF cookie already exists for $host")
+            return
+        }
+        
+        // Try to load from DataStore and create cookie
+        try {
+            val persistedToken = runBlocking { tokenManager.xsrfToken.firstOrNull() }
+            if (persistedToken != null) {
+                Log.d("PersistentCookieJar", "Creating XSRF cookie for $host from DataStore")
+                val cookie = Cookie.Builder()
+                    .name("XSRF-TOKEN")
+                    .value(persistedToken)
+                    .domain(host)
+                    .path("/")
+                    .expiresAt(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+                    .httpOnly()
+                    .build()
+                
+                val cookies = cookieStore[host] ?: mutableListOf()
+                cookies.add(cookie)
+                cookieStore[host] = cookies
+            }
+        } catch (e: Exception) {
+            Log.e("PersistentCookieJar", "Failed to ensure XSRF cookie for $host", e)
         }
     }
 

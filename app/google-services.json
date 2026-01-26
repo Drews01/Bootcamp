@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "bootcamp-placeholder",
-    "storage_bucket": "bootcamp-placeholder.appspot.com"
+    "project_number": "263350232250",
+    "project_id": "starloan-9ac93",
+    "storage_bucket": "starloan-9ac93.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:263350232250:android:37a38bcced5f2df8a90e83",
         "android_client_info": {
           "package_name": "com.example.bootcamp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyPlaceholderKeyForDevelopment"
+          "current_key": "AIzaSyDJhdLvfavp9vvnb_jJUD-GZpGEU_voPd4"
         }
       ],
       "services": {

@@ -97,4 +97,32 @@ class AuthRemoteDataSource @Inject constructor(private val authService: AuthServ
     ): ApiResult<com.example.bootcamp.data.remote.dto.UserProfileDto> {
         return ApiResponseHandler.safeApiCall { authService.getUserProfile("Bearer $token") }
     }
+
+    /**
+     * Fetch a fresh CSRF token from the server.
+     * IMPORTANT: This returns the **MASKED** token from the response body.
+     * The masked token must be stored and used for the X-XSRF-TOKEN header.
+     * The raw token in the XSRF-TOKEN cookie is different (BREACH protection).
+     * 
+     * NOTE: This endpoint returns direct JSON, not wrapped in ApiResponse.
+     * 
+     * @return ApiResult with CsrfTokenData containing the masked token
+     */
+    suspend fun fetchCsrfToken(): ApiResult<com.example.bootcamp.data.remote.dto.CsrfTokenData> {
+        return try {
+            val response = authService.getCsrfToken()
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    ApiResult.success(body)
+                } else {
+                    ApiResult.error(message = "CSRF token response body is null")
+                }
+            } else {
+                ApiResult.error(message = "Failed to fetch CSRF token: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            ApiResult.error(message = "Exception fetching CSRF token: ${e.message}")
+        }
+    }
 }

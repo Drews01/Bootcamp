@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.bootcamp" />
-                  <option name="mobileSdkAppId" value="1:000000000000:android:0000000000000000000000" />
-                  <option name="projectId" value="bootcamp-placeholder" />
-                  <option name="projectNumber" value="000000000000" />
+                  <option name="mobileSdkAppId" value="1:263350232250:android:37a38bcced5f2df8a90e83" />
+                  <option name="projectId" value="starloan-9ac93" />
+                  <option name="projectNumber" value="263350232250" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
