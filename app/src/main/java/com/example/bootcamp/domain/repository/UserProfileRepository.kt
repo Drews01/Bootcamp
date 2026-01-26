@@ -20,4 +20,10 @@ interface UserProfileRepository {
      * @return Result containing the KTP path on success or failure
      */
     suspend fun uploadKtp(imageUri: Uri): Result<String>
+
+    /**
+     * Get user profile.
+     * @return Result containing UserProfile on success or failure
+     */
+    suspend fun getUserProfile(): Result<UserProfile>
 }

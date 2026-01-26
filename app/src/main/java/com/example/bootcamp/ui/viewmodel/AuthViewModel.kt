@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /** UI state for authentication screens. Includes field-specific errors for form validation. */
 data class AuthUiState(
@@ -138,7 +139,19 @@ constructor(
                 )
             }
 
-            loginUseCase(LoginParams(usernameOrEmail, password))
+            // Fetch FCM token for push notification registration
+            val fcmToken = try {
+                com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                    .await()
+            } catch (e: Exception) {
+                android.util.Log.w("AuthViewModel", "Failed to get FCM token", e)
+                null
+            }
+
+            val deviceName = android.os.Build.MODEL
+            val platform = "ANDROID"
+
+            loginUseCase(LoginParams(usernameOrEmail, password, fcmToken, deviceName, platform))
                     .onSuccess { message ->
                         _uiState.update {
                             it.copy(

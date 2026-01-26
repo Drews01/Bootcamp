@@ -145,6 +145,58 @@ fun ProfileDetailsScreen(
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // KTP Section
+                            SectionTitle("ID Card (KTP)")
+                            
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+                            ) {
+                                val ktpPath = profile.ktpPath
+                                if (!ktpPath.isNullOrBlank()) {
+                                    coil.compose.SubcomposeAsyncImage(
+                                        model = ktpPath,
+                                        contentDescription = "KTP Photo",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                        loading = {
+                                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                                CircularProgressIndicator(color = Indigo600)
+                                            }
+                                        },
+                                        error = {
+                                            Column(
+                                                modifier = Modifier.fillMaxSize(),
+                                                verticalArrangement = Arrangement.Center,
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
+                                                Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
+                                            }
+                                        }
+                                    )
+                                } else {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Badge,
+                                            contentDescription = null,
+                                            tint = Gray500,
+                                            modifier = Modifier.size(48.dp)
+                                        )
+                                        Text("No KTP Uploaded", color = Gray500, fontSize = 14.sp)
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             // Bank Info Section
                             SectionTitle("Bank Information")

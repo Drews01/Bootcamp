@@ -4,8 +4,14 @@ import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.usecase.base.UseCaseWithParams
 import javax.inject.Inject
 
-/** Parameters for login operation. */
-data class LoginParams(val usernameOrEmail: String, val password: String)
+/** Parameters for login operation. Includes optional FCM token for push notification registration. */
+data class LoginParams(
+    val usernameOrEmail: String,
+    val password: String,
+    val fcmToken: String? = null,
+    val deviceName: String? = null,
+    val platform: String = "ANDROID"
+)
 
 /** Use case for user login. Encapsulates login business logic and validation. */
 class LoginUseCase @Inject constructor(private val authRepository: AuthRepository) :
@@ -25,6 +31,12 @@ class LoginUseCase @Inject constructor(private val authRepository: AuthRepositor
             )
         }
 
-        return authRepository.login(params.usernameOrEmail, params.password)
+        return authRepository.login(
+            params.usernameOrEmail,
+            params.password,
+            params.fcmToken,
+            params.deviceName,
+            params.platform
+        )
     }
 }

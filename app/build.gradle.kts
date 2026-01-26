@@ -57,6 +57,9 @@ dependencies {
     debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
 
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)

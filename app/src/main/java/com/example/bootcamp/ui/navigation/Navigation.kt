@@ -95,6 +95,7 @@ private fun AppNavHost(
                     modifier = androidx.compose.ui.Modifier.padding(paddingValues),
                     onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
                     onNavigateToSubmitLoan = { navController.navigate(Routes.SUBMIT_LOAN) },
+                    onNavigateToProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             )
         }
 

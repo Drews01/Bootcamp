@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.domain.model.UserProfile
-import com.example.bootcamp.domain.repository.AuthRepository
+import com.example.bootcamp.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ data class ProfileDetailsUiState(
 )
 
 @HiltViewModel
-class ProfileDetailsViewModel @Inject constructor(private val authRepository: AuthRepository) :
+class ProfileDetailsViewModel @Inject constructor(private val userProfileRepository: UserProfileRepository) :
         ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileDetailsUiState())
@@ -37,7 +37,7 @@ class ProfileDetailsViewModel @Inject constructor(private val authRepository: Au
                 it.copy(isLoading = true, errorMessage = null, profileNotFound = false)
             }
 
-            authRepository
+            userProfileRepository
                     .getUserProfile()
                     .onSuccess { profile ->
                         _uiState.update { it.copy(isLoading = false, profile = profile) }

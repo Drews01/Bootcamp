@@ -131,4 +131,22 @@ object NetworkModule {
     ): com.example.bootcamp.data.remote.api.UserProfileService {
         return retrofit.create(com.example.bootcamp.data.remote.api.UserProfileService::class.java)
     }
+
+    /** Provides FCMApiService API interface for push notification management. */
+    @Provides
+    @Singleton
+    fun provideFCMApiService(
+            retrofit: Retrofit
+    ): com.example.bootcamp.data.remote.api.FCMApiService {
+        return retrofit.create(com.example.bootcamp.data.remote.api.FCMApiService::class.java)
+    }
+
+    /** Provides UserProductService API interface. */
+    @Provides
+    @Singleton
+    fun provideUserProductService(
+        retrofit: Retrofit
+    ): com.example.bootcamp.data.remote.api.UserProductService {
+        return retrofit.create(com.example.bootcamp.data.remote.api.UserProductService::class.java)
+    }
 }

@@ -11,10 +11,13 @@ data class RegisterRequest(
         @SerializedName("password") val password: String,
 )
 
-/** Request body for user login. */
+/** Request body for user login. Includes optional FCM token for push notification registration. */
 data class LoginRequest(
         @SerializedName("usernameOrEmail") val usernameOrEmail: String,
         @SerializedName("password") val password: String,
+        @SerializedName("fcmToken") val fcmToken: String? = null,
+        @SerializedName("deviceName") val deviceName: String? = null,
+        @SerializedName("platform") val platform: String = "ANDROID"
 )
 
 /** Request body for forgot password. */

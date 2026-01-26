@@ -39,11 +39,20 @@ class AuthRemoteDataSource @Inject constructor(private val authService: AuthServ
      * Login with username/email and password.
      * @param usernameOrEmail Username or email
      * @param password Password
+     * @param fcmToken Optional FCM device token for push notifications
+     * @param deviceName Optional device name for identification
+     * @param platform Device platform (default ANDROID)
      * @return ApiResult with LoginData on success
      */
-    suspend fun login(usernameOrEmail: String, password: String): ApiResult<LoginData> {
+    suspend fun login(
+        usernameOrEmail: String,
+        password: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): ApiResult<LoginData> {
         return ApiResponseHandler.safeApiCall {
-            authService.login(LoginRequest(usernameOrEmail, password))
+            authService.login(LoginRequest(usernameOrEmail, password, fcmToken, deviceName, platform))
         }
     }
 

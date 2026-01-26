@@ -45,8 +45,14 @@ constructor(
         }
     }
 
-    override suspend fun login(usernameOrEmail: String, password: String): Result<String> {
-        val result = authRemoteDataSource.login(usernameOrEmail, password)
+    override suspend fun login(
+        usernameOrEmail: String,
+        password: String,
+        fcmToken: String?,
+        deviceName: String?,
+        platform: String
+    ): Result<String> {
+        val result = authRemoteDataSource.login(usernameOrEmail, password, fcmToken, deviceName, platform)
 
         return when (result) {
             is ApiResult.Success -> {
@@ -184,8 +190,14 @@ constructor(
      * Get login result with full ApiResult for UI handling. Useful when you need access to field
      * errors.
      */
-    suspend fun loginWithResult(usernameOrEmail: String, password: String): ApiResult<String> {
-        val result = authRemoteDataSource.login(usernameOrEmail, password)
+    suspend fun loginWithResult(
+        usernameOrEmail: String,
+        password: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): ApiResult<String> {
+        val result = authRemoteDataSource.login(usernameOrEmail, password, fcmToken, deviceName, platform)
 
         return when (result) {
             is ApiResult.Success -> {

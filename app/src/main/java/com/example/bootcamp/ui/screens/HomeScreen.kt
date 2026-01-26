@@ -78,11 +78,22 @@ private val loanProducts =
 @Composable
 fun HomeScreen(
     viewModel: AuthViewModel,
+    homeViewModel: com.example.bootcamp.ui.viewmodel.HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit,
     onNavigateToSubmitLoan: () -> Unit,
+    onNavigateToProfile: () -> Unit = {} // Default empty for now to avoid breaking changes immediately, user can wire up later
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val homeUiState by homeViewModel.uiState.collectAsState()
+    
+    // Fetch data when logged in
+    androidx.compose.runtime.LaunchedEffect(uiState.isLoggedIn) {
+        if (uiState.isLoggedIn) {
+            homeViewModel.loadData()
+        }
+    }
+
     // Select the first product by default
     var selectedProduct by remember { mutableStateOf(loanProducts.first()) }
 
@@ -124,6 +135,22 @@ fun HomeScreen(
                         fontSize = 14.sp,
                         color = Gray400,
                     )
+                }
+            }
+
+            // Tier Card or Empty State
+            if (uiState.isLoggedIn) {
+                item {
+                    if (homeUiState.userTier != null) {
+                        com.example.bootcamp.ui.components.UserProductTierCard(
+                            tierDTO = homeUiState.userTier!!
+                        )
+                    } else if (!homeUiState.isTierLoading && !homeUiState.isProfileLoading) {
+                        // If logic: Profile matches "New User" / 404 (implied by null tier + loaded) -> Show Empty State
+                         com.example.bootcamp.ui.components.EmptyStateCard(
+                            onGetStartedClick = onNavigateToProfile
+                        )
+                    }
                 }
             }
 

@@ -79,4 +79,41 @@ constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun getUserProfile(): Result<UserProfile> {
+        return try {
+            val token =
+                tokenManager.token.first()
+                    ?: return Result.failure(Exception("Not authenticated"))
+
+            val response = remoteDataSource.getUserProfile(token)
+
+            if (response.isSuccessful) {
+                val apiResponse = response.body()
+                if (apiResponse?.success == true && apiResponse.data != null) {
+                    val dto = apiResponse.data
+                    val profile =
+                        UserProfile(
+                            username = dto.username ?: "",
+                            email = dto.email ?: "",
+                            address = dto.address,
+                            nik = dto.nik,
+                            ktpPath = dto.ktpPath,
+                            phoneNumber = dto.phoneNumber,
+                            accountNumber = dto.accountNumber,
+                            bankName = dto.bankName,
+                            updatedAt = dto.updatedAt
+                        )
+                    Result.success(profile)
+                } else {
+                    Result.failure(Exception(apiResponse?.message ?: "Failed to get profile"))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Result.failure(Exception(errorBody ?: "Failed to get profile"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

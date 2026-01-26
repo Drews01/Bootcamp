@@ -63,4 +63,13 @@ constructor(
 
         return userProfileService.uploadKtp("Bearer $token", multipartBody)
     }
+
+    /**
+     * Get user profile.
+     * @param token Authorization token
+     * @return Response with ApiResponse<UserProfileDto>
+     */
+    suspend fun getUserProfile(token: String): Response<ApiResponse<UserProfileDto>> {
+        return userProfileService.getUserProfile("Bearer $token")
+    }
 }

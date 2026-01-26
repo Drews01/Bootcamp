@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,12 +38,63 @@ fun EditProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
+    // Temporary URI for Camera capture
+    var tempCameraUri by remember { androidx.compose.runtime.mutableStateOf<android.net.Uri?>(null) }
+
+    // Helper to create temp URI
+    fun createTempUri(): android.net.Uri {
+        val tempFile = java.io.File.createTempFile("ktp_capture_", ".jpg", context.cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+        return androidx.core.content.FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            tempFile
+        )
+    }
+
+    // Camera Launcher
+    val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraUri != null) {
+            viewModel.onKtpFileSelected(tempCameraUri!!)
+        }
+    }
+    
+    // Permission Launcher
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val uri = createTempUri()
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        } else {
+            // Show permission denied message
+            // Ideally scope.launch { snackbarHostState.showSnackbar("Camera permission needed") }
+        }
+    }
+
+    // Gallery Launcher
+    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        uri?.let { viewModel.onKtpFileSelected(it) }
+    }
 
     LaunchedEffect(uiState.successMessage) {
         uiState.successMessage?.let {
             snackbarHostState.showSnackbar(it)
+            // Do not clear immediately if it's "KTP uploaded", maybe just show it
+            // checking if it's the save profile success
+            if (it.contains("Profile updated")) {
+                 onSaveSuccess()
+            }
             viewModel.clearMessages()
-            onSaveSuccess()
         }
     }
 
@@ -102,6 +154,117 @@ fun EditProfileScreen(
                         color = Gray500,
                         fontSize = 14.sp
                     )
+                    
+                    // --- KTP Photo Section ---
+                    Text(
+                        text = "ID Card (KTP) *",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .background(Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                            .padding(2.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val imageModifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black, RoundedCornerShape(10.dp))
+                        
+                        // Priority: 1. Selected URI (Preview), 2. Existing Path (Server), 3. Placeholder
+                        val displayModel = uiState.ktpUri ?: uiState.ktpPath.takeIf { it.isNotBlank() }
+                        
+                        if (displayModel != null) {
+                             // Assuming ktpPath is a full URL or user understands; 
+                             // if it is a relative path, we might need to prepend base url in ViewModel. 
+                             // But let's assume Coil handles paths if local, urls if remote.
+                             // For now validation assumed UserProfileDto returns valid URLs or local paths.
+                             
+                             coil.compose.SubcomposeAsyncImage(
+                                model = displayModel,
+                                contentDescription = "KTP Photo",
+                                modifier = imageModifier,
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop, // Changed from Fit to Crop for better look, or use Fit to show full document
+                                loading = {
+                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                         CircularProgressIndicator(color = Indigo600)
+                                     }
+                                },
+                                error = {
+                                     Column(
+                                         modifier = Modifier.fillMaxSize(),
+                                         verticalArrangement = Arrangement.Center,
+                                         horizontalAlignment = Alignment.CenterHorizontally
+                                     ) {
+                                         Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
+                                         Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
+                                     }
+                                }
+                             )
+                        } else {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Default.Badge,
+                                    contentDescription = null,
+                                    tint = Gray500,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Text("No KTP Uploaded", color = Gray500)
+                            }
+                        }
+                        
+                        // Overlay Loading for upload
+                        if (uiState.isUploadingKtp) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.5f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = Color.White)
+                            }
+                        }
+                    }
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { 
+                                val permission = android.Manifest.permission.CAMERA
+                                if (androidx.core.content.ContextCompat.checkSelfPermission(context, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                    val uri = createTempUri()
+                                    tempCameraUri = uri
+                                    cameraLauncher.launch(uri)
+                                } else {
+                                    permissionLauncher.launch(permission)
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155))
+                        ) {
+                            Icon(Icons.Default.CameraAlt, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Camera")
+                        }
+                        
+                        Button(
+                            onClick = { galleryLauncher.launch("image/*") },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155))
+                        ) {
+                            Icon(Icons.Default.Image, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Gallery")
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     // Address
                     OutlinedTextField(
@@ -223,7 +386,7 @@ fun EditProfileScreen(
                     // Save Button
                     Button(
                         onClick = { viewModel.saveProfile() },
-                        enabled = !uiState.isSaving,
+                        enabled = !uiState.isSaving && !uiState.isUploadingKtp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),

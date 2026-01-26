@@ -21,9 +21,18 @@ interface AuthRepository {
      * Login with username/email and password.
      * @param usernameOrEmail The username or email to login with
      * @param password The password to authenticate
+     * @param fcmToken Optional FCM device token for push notifications
+     * @param deviceName Optional device name for identification
+     * @param platform Device platform (default ANDROID)
      * @return Result containing success message or failure
      */
-    suspend fun login(usernameOrEmail: String, password: String): Result<String>
+    suspend fun login(
+        usernameOrEmail: String,
+        password: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): Result<String>
 
     /**
      * Request password reset for the given email.
