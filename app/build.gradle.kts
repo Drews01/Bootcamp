@@ -1,3 +1,9 @@
+
+import java.net.NetworkInterface
+import java.net.Inet4Address
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,9 +13,40 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+fun getLocalIp(): String {
+    try {
+        val interfaces = NetworkInterface.getNetworkInterfaces()
+        while (interfaces.hasMoreElements()) {
+            val iface = interfaces.nextElement()
+            if (iface.isLoopback || !iface.isUp) continue
+            val addresses = iface.inetAddresses
+            while (addresses.hasMoreElements()) {
+                val addr = addresses.nextElement()
+                if (addr is Inet4Address && !addr.isLoopbackAddress && addr.hostAddress != "127.0.0.1") {
+                    return addr.hostAddress
+                }
+            }
+        }
+    } catch (e: Exception) {
+        println("Failed to get local IP: ${e.message}")
+    }
+    return "10.0.2.2"
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace = "com.example.bootcamp"
     compileSdk = 35
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.bootcamp"
@@ -19,6 +56,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        val baseUrl = localProperties.getProperty("BASE_URL") ?: "http://${getLocalIp()}:8081"
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        println("Using BASE_URL: $baseUrl")
     }
 
     buildTypes {
@@ -30,15 +71,13 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 

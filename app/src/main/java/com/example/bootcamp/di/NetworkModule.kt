@@ -54,8 +54,6 @@ object NetworkModule {
                 .build()
     }
 
-    private const val BASE_URL = "http://10.10.13.123:8081"
-//    private const val BASE_URL = "http://10.0.2.2:8081"
     private const val TIMEOUT_SECONDS = 30L
 
     /** Provides logging interceptor for debugging network requests. */
@@ -103,7 +101,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(com.example.bootcamp.BuildConfig.BASE_URL)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
