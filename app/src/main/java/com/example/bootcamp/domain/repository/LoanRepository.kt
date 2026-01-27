@@ -1,6 +1,8 @@
 package com.example.bootcamp.domain.repository
 
 import com.example.bootcamp.domain.model.Branch
+import com.example.bootcamp.domain.model.PendingLoan
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for loan-related operations. Follows the repository pattern from Clean
@@ -16,12 +18,14 @@ interface LoanRepository {
 
     /**
      * Submit a loan application.
+     * If online, submits directly. If offline, queues for later sync.
      * @param amount Loan amount
      * @param tenureMonths Loan tenure in months
      * @param branchId Selected branch ID
+     * @param branchName Selected branch name (for offline display)
      * @return Result with success message on success
      */
-    suspend fun submitLoan(amount: Long, tenureMonths: Int, branchId: Long): Result<String>
+    suspend fun submitLoan(amount: Long, tenureMonths: Int, branchId: Long, branchName: String): Result<String>
 
     /**
      * Get loan application history.
@@ -34,4 +38,24 @@ interface LoanRepository {
      * @return Result with available credit amount
      */
     suspend fun getUserAvailableCredit(): Result<Double>
+
+    /**
+     * Get all pending loans as observable Flow.
+     * @return Flow of pending loan list
+     */
+    fun getPendingLoans(): Flow<List<PendingLoan>>
+
+    /**
+     * Retry syncing a specific pending loan.
+     * @param id Pending loan ID
+     * @return Result indicating success or failure
+     */
+    suspend fun retryPendingLoan(id: Long): Result<Unit>
+
+    /**
+     * Delete a pending loan.
+     * @param id Pending loan ID
+     * @return Result indicating success or failure
+     */
+    suspend fun deletePendingLoan(id: Long): Result<Unit>
 }

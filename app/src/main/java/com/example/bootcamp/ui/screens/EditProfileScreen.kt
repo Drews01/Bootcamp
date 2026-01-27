@@ -41,13 +41,13 @@ fun EditProfileScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     
     // Temporary URI for Camera capture
-    var tempCameraUri by remember { androidx.compose.runtime.mutableStateOf<android.net.Uri?>(null) }
+    var tempCameraUri by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
     // Helper to create temp URI
     fun createTempUri(): android.net.Uri {
         val tempFile = java.io.File.createTempFile("ktp_capture_", ".jpg", context.cacheDir).apply {
             createNewFile()
-            deleteOnExit()
+            // deleteOnExit() removed to prevent file loss on process death
         }
         return androidx.core.content.FileProvider.getUriForFile(
             context,
@@ -61,7 +61,8 @@ fun EditProfileScreen(
         contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && tempCameraUri != null) {
-            viewModel.onKtpFileSelected(tempCameraUri!!)
+            val uri = android.net.Uri.parse(tempCameraUri)
+            viewModel.onKtpFileSelected(uri)
         }
     }
     
@@ -71,7 +72,7 @@ fun EditProfileScreen(
     ) { isGranted ->
         if (isGranted) {
             val uri = createTempUri()
-            tempCameraUri = uri
+            tempCameraUri = uri.toString()
             cameraLauncher.launch(uri)
         } else {
             // Show permission denied message
@@ -239,7 +240,7 @@ fun EditProfileScreen(
                                 val permission = android.Manifest.permission.CAMERA
                                 if (androidx.core.content.ContextCompat.checkSelfPermission(context, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                                     val uri = createTempUri()
-                                    tempCameraUri = uri
+                                    tempCameraUri = uri.toString()
                                     cameraLauncher.launch(uri)
                                 } else {
                                     permissionLauncher.launch(permission)

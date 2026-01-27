@@ -12,5 +12,7 @@ data class UserProfile(
     val phoneNumber: String?,
     val accountNumber: String?,
     val bankName: String?,
-    val updatedAt: String?
+    val updatedAt: String?,
+    /** True if this profile is pending sync (queued offline). */
+    val isPending: Boolean = false
 )

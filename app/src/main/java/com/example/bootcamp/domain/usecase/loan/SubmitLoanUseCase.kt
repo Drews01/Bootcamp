@@ -5,11 +5,16 @@ import com.example.bootcamp.domain.usecase.base.UseCaseWithParams
 import javax.inject.Inject
 
 /** Parameters for loan submission. */
-data class SubmitLoanParams(val amount: Long, val tenureMonths: Int, val branchId: Long)
+data class SubmitLoanParams(
+    val amount: Long,
+    val tenureMonths: Int,
+    val branchId: Long,
+    val branchName: String
+)
 
 /** UseCase to submit a loan application. Validates input before submission. */
 class SubmitLoanUseCase @Inject constructor(private val loanRepository: LoanRepository) :
-        UseCaseWithParams<SubmitLoanParams, Result<String>> {
+    UseCaseWithParams<SubmitLoanParams, Result<String>> {
 
     override suspend fun invoke(params: SubmitLoanParams): Result<String> {
         // Validation
@@ -21,9 +26,10 @@ class SubmitLoanUseCase @Inject constructor(private val loanRepository: LoanRepo
         }
 
         return loanRepository.submitLoan(
-                amount = params.amount,
-                tenureMonths = params.tenureMonths,
-                branchId = params.branchId
+            amount = params.amount,
+            tenureMonths = params.tenureMonths,
+            branchId = params.branchId,
+            branchName = params.branchName
         )
     }
 }

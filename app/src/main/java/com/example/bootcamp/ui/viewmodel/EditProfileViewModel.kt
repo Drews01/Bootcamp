@@ -103,9 +103,9 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun onKtpFileSelected(uri: Uri) {
-        // Validate image size (e.g. max 2MB)
+        // Validate image size (max 5MB)
         if (!isValidImageSize(uri)) {
-            _uiState.update { it.copy(errorMessage = "Image size is too large. Max 2MB allowed.") }
+            _uiState.update { it.copy(errorMessage = "Image size is too large. Max 5MB allowed.") }
             return
         }
         
@@ -118,19 +118,28 @@ class EditProfileViewModel @Inject constructor(
     
     private fun isValidImageSize(uri: Uri): Boolean {
         return try {
+            // First try to get size from ContentResolver query (works for gallery/content URIs)
             val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
+            val sizeFromCursor = cursor?.use {
                 if (it.moveToFirst()) {
                     val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
                     if (sizeIndex != -1) {
-                        val size = it.getLong(sizeIndex)
-                        return size <= 2 * 1024 * 1024 // 2MB
-                    }
-                }
+                        it.getLong(sizeIndex).takeIf { size -> size > 0 }
+                    } else null
+                } else null
             }
-            true // Unable to check size, assume valid
+            
+            // If cursor didn't return a valid size, read from InputStream (works for FileProvider URIs)
+            val fileSize = sizeFromCursor ?: run {
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    inputStream.available().toLong().takeIf { it > 0 }
+                        ?: inputStream.readBytes().size.toLong()
+                } ?: 0L
+            }
+            
+            fileSize <= 5 * 1024 * 1024 // 5MB
         } catch (e: Exception) {
-            true
+            true // Unable to check size, assume valid
         }
     }
 
@@ -140,20 +149,28 @@ class EditProfileViewModel @Inject constructor(
             
             userProfileRepository.uploadKtp(uri)
                 .onSuccess { path ->
-                    _uiState.update { 
-                        it.copy(
-                            isUploadingKtp = false,
-                            ktpPath = path,
-                            successMessage = "KTP uploaded successfully"
-                        ) 
+                    if (!path.isNullOrBlank()) {
+                        _uiState.update { 
+                            it.copy(
+                                isUploadingKtp = false,
+                                ktpPath = path,
+                                successMessage = "KTP uploaded successfully"
+                            ) 
+                        }
+                    } else {
+                        // Path missing in response but upload succeeded. 
+                        // Reload profile to fetch the updated path from server.
+                        _uiState.update { it.copy(isUploadingKtp = false) }
+                        loadProfile()
                     }
                 }
                 .onFailure { exception ->
+                    android.util.Log.e("EditProfileVM", "Upload failed", exception)
                     _uiState.update { 
                         it.copy(
                             isUploadingKtp = false, 
                             errorMessage = "Failed to upload KTP: ${exception.message}",
-                            ktpUri = null // Revert preview on failure
+                            ktpUri = null 
                         ) 
                     }
                 }

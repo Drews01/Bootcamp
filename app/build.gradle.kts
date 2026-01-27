@@ -124,6 +124,11 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     
+    // WorkManager - Background Sync
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
+    
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)

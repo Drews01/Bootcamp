@@ -135,12 +135,13 @@ constructor(
             }
 
             submitLoanUseCase(
-                            SubmitLoanParams(
-                                    amount = amountLong,
-                                    tenureMonths = tenureInt,
-                                    branchId = branchId
-                            )
-                    )
+                SubmitLoanParams(
+                    amount = amountLong,
+                    tenureMonths = tenureInt,
+                    branchId = branchId,
+                    branchName = currentState.selectedBranch?.name ?: "Unknown"
+                )
+            )
                     .onSuccess { message ->
                         _uiState.update {
                             it.copy(
