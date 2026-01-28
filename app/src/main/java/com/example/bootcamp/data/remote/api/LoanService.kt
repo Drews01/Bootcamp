@@ -21,7 +21,9 @@ interface LoanService {
      * @return ApiResponse with list of BranchDropdownItem
      */
     @GET("api/branches/dropdown")
-    suspend fun getBranchesDropdown(@retrofit2.http.Header("Authorization") token: String): Response<ApiResponse<List<BranchDropdownItem>>>
+    suspend fun getBranchesDropdown(
+        @retrofit2.http.Header("Authorization") token: String
+    ): Response<ApiResponse<List<BranchDropdownItem>>>
 
     /**
      * Submit a new loan application.
@@ -39,12 +41,16 @@ interface LoanService {
      * @return ApiResponse with list of LoanApplicationDto
      */
     @GET("api/loan-applications/my-history")
-    suspend fun getLoanHistory(@retrofit2.http.Header("Authorization") token: String): Response<ApiResponse<List<LoanApplicationDto>>>
+    suspend fun getLoanHistory(
+        @retrofit2.http.Header("Authorization") token: String
+    ): Response<ApiResponse<List<LoanApplicationDto>>>
 
     /**
      * Get user's current tier and credit information.
      * @return ApiResponse with UserTierDto
      */
     @GET("api/user-products/my-tier")
-    suspend fun getUserTier(@retrofit2.http.Header("Authorization") token: String): Response<ApiResponse<com.example.bootcamp.data.remote.dto.UserTierDto>>
+    suspend fun getUserTier(
+        @retrofit2.http.Header("Authorization") token: String
+    ): Response<ApiResponse<com.example.bootcamp.data.remote.dto.UserTierDto>>
 }

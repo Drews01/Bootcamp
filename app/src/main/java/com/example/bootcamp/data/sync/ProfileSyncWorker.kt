@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.firstOrNull
 /**
  * WorkManager worker for syncing pending profile updates to the server.
  * Uses HiltWorker for dependency injection.
- * 
+ *
  * Distinguishes between:
  * - Retryable errors: Network issues, server errors (5xx)
  * - Permanent errors: Validation errors, auth errors
@@ -53,10 +53,12 @@ class ProfileSyncWorker @AssistedInject constructor(
 
         try {
             // Update status to syncing
-            pendingProfileDao.update(pendingProfile.copy(
-                syncStatus = SyncStatus.SYNCING,
-                lastAttemptAt = System.currentTimeMillis()
-            ))
+            pendingProfileDao.update(
+                pendingProfile.copy(
+                    syncStatus = SyncStatus.SYNCING,
+                    lastAttemptAt = System.currentTimeMillis()
+                )
+            )
 
             // Create request from pending profile
             val request = UserProfileRequest(
@@ -74,50 +76,58 @@ class ProfileSyncWorker @AssistedInject constructor(
 
             return if (response.isSuccessful && response.body()?.success == true) {
                 // Mark as synced
-                pendingProfileDao.update(pendingProfile.copy(
-                    syncStatus = SyncStatus.SYNCED,
-                    errorMessage = null,
-                    lastAttemptAt = System.currentTimeMillis()
-                ))
+                pendingProfileDao.update(
+                    pendingProfile.copy(
+                        syncStatus = SyncStatus.SYNCED,
+                        errorMessage = null,
+                        lastAttemptAt = System.currentTimeMillis()
+                    )
+                )
                 // Clean up synced profiles
                 pendingProfileDao.deleteSynced()
                 Result.success()
             } else {
                 // Extract error message
-                val errorMessage = response.body()?.message 
-                    ?: response.errorBody()?.string() 
+                val errorMessage = response.body()?.message
+                    ?: response.errorBody()?.string()
                     ?: "Unknown error"
-                
+
                 val isPermanent = isPermanentError(errorMessage, statusCode)
-                
+
                 if (isPermanent) {
                     // Permanent error - don't retry
-                    pendingProfileDao.update(pendingProfile.copy(
-                        syncStatus = SyncStatus.FAILED,
-                        errorMessage = errorMessage,
-                        retryCount = 999, // Prevent further retries
-                        lastAttemptAt = System.currentTimeMillis()
-                    ))
+                    pendingProfileDao.update(
+                        pendingProfile.copy(
+                            syncStatus = SyncStatus.FAILED,
+                            errorMessage = errorMessage,
+                            retryCount = 999, // Prevent further retries
+                            lastAttemptAt = System.currentTimeMillis()
+                        )
+                    )
                     Result.success() // Don't retry permanent errors
                 } else {
                     // Retryable error
-                    pendingProfileDao.update(pendingProfile.copy(
-                        syncStatus = SyncStatus.FAILED,
-                        errorMessage = errorMessage,
-                        retryCount = pendingProfile.retryCount + 1,
-                        lastAttemptAt = System.currentTimeMillis()
-                    ))
+                    pendingProfileDao.update(
+                        pendingProfile.copy(
+                            syncStatus = SyncStatus.FAILED,
+                            errorMessage = errorMessage,
+                            retryCount = pendingProfile.retryCount + 1,
+                            lastAttemptAt = System.currentTimeMillis()
+                        )
+                    )
                     Result.retry()
                 }
             }
         } catch (e: Exception) {
             // Network errors are retryable
-            pendingProfileDao.update(pendingProfile.copy(
-                syncStatus = SyncStatus.FAILED,
-                errorMessage = e.message ?: "Network error",
-                retryCount = pendingProfile.retryCount + 1,
-                lastAttemptAt = System.currentTimeMillis()
-            ))
+            pendingProfileDao.update(
+                pendingProfile.copy(
+                    syncStatus = SyncStatus.FAILED,
+                    errorMessage = e.message ?: "Network error",
+                    retryCount = pendingProfile.retryCount + 1,
+                    lastAttemptAt = System.currentTimeMillis()
+                )
+            )
             return Result.retry()
         }
     }
@@ -127,8 +137,8 @@ class ProfileSyncWorker @AssistedInject constructor(
      */
     private fun isPermanentError(message: String, statusCode: Int): Boolean {
         // 4xx errors (except 408 timeout, 429 rate limit) are usually permanent
-        val isPermanentStatusCode = statusCode in 400..499 && 
-            statusCode != 408 && 
+        val isPermanentStatusCode = statusCode in 400..499 &&
+            statusCode != 408 &&
             statusCode != 429
 
         // Check error message patterns
@@ -139,4 +149,3 @@ class ProfileSyncWorker @AssistedInject constructor(
         return isPermanentStatusCode || matchesPermanentPattern
     }
 }
-

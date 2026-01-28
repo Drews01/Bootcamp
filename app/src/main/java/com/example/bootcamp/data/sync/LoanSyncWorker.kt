@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.util.ApiResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.firstOrNull
 /**
  * WorkManager worker for syncing pending loan submissions to the server.
  * Uses HiltWorker for dependency injection.
- * 
+ *
  * Distinguishes between:
  * - Retryable errors: Network issues, server errors (5xx)
  * - Permanent errors: Business logic errors (profile incomplete, active loan, credit limit)
@@ -52,7 +52,7 @@ class LoanSyncWorker @AssistedInject constructor(
         }
 
         val pendingLoans = pendingLoanDao.getPendingForSync()
-        
+
         if (pendingLoans.isEmpty()) {
             return Result.success()
         }
@@ -62,10 +62,12 @@ class LoanSyncWorker @AssistedInject constructor(
         for (loan in pendingLoans) {
             try {
                 // Update status to syncing
-                pendingLoanDao.update(loan.copy(
-                    syncStatus = SyncStatus.SYNCING,
-                    lastAttemptAt = System.currentTimeMillis()
-                ))
+                pendingLoanDao.update(
+                    loan.copy(
+                        syncStatus = SyncStatus.SYNCING,
+                        lastAttemptAt = System.currentTimeMillis()
+                    )
+                )
 
                 // Attempt to submit loan
                 val apiResult = loanRemoteDataSource.submitLoan(
@@ -78,44 +80,52 @@ class LoanSyncWorker @AssistedInject constructor(
                 when (apiResult) {
                     is ApiResult.Success -> {
                         // Mark as synced
-                        pendingLoanDao.update(loan.copy(
-                            syncStatus = SyncStatus.SYNCED,
-                            errorMessage = null,
-                            lastAttemptAt = System.currentTimeMillis()
-                        ))
+                        pendingLoanDao.update(
+                            loan.copy(
+                                syncStatus = SyncStatus.SYNCED,
+                                errorMessage = null,
+                                lastAttemptAt = System.currentTimeMillis()
+                            )
+                        )
                     }
                     is ApiResult.Error -> {
                         val isPermanentError = isPermanentError(apiResult.message, apiResult.statusCode)
-                        
+
                         if (isPermanentError) {
                             // Permanent error - mark as FAILED, don't retry
                             // User needs to take action (complete profile, wait for loan, etc.)
-                            pendingLoanDao.update(loan.copy(
-                                syncStatus = SyncStatus.FAILED,
-                                errorMessage = apiResult.message,
-                                retryCount = 999, // Prevent further retries
-                                lastAttemptAt = System.currentTimeMillis()
-                            ))
+                            pendingLoanDao.update(
+                                loan.copy(
+                                    syncStatus = SyncStatus.FAILED,
+                                    errorMessage = apiResult.message,
+                                    retryCount = 999, // Prevent further retries
+                                    lastAttemptAt = System.currentTimeMillis()
+                                )
+                            )
                         } else {
                             // Retryable error - increment retry count
-                            pendingLoanDao.update(loan.copy(
-                                syncStatus = SyncStatus.FAILED,
-                                errorMessage = apiResult.message,
-                                retryCount = loan.retryCount + 1,
-                                lastAttemptAt = System.currentTimeMillis()
-                            ))
+                            pendingLoanDao.update(
+                                loan.copy(
+                                    syncStatus = SyncStatus.FAILED,
+                                    errorMessage = apiResult.message,
+                                    retryCount = loan.retryCount + 1,
+                                    lastAttemptAt = System.currentTimeMillis()
+                                )
+                            )
                             hasRetryableFailure = true
                         }
                     }
                 }
             } catch (e: Exception) {
                 // Network/unexpected errors are retryable
-                pendingLoanDao.update(loan.copy(
-                    syncStatus = SyncStatus.FAILED,
-                    errorMessage = e.message ?: "Network error",
-                    retryCount = loan.retryCount + 1,
-                    lastAttemptAt = System.currentTimeMillis()
-                ))
+                pendingLoanDao.update(
+                    loan.copy(
+                        syncStatus = SyncStatus.FAILED,
+                        errorMessage = e.message ?: "Network error",
+                        retryCount = loan.retryCount + 1,
+                        lastAttemptAt = System.currentTimeMillis()
+                    )
+                )
                 hasRetryableFailure = true
             }
         }
@@ -131,9 +141,9 @@ class LoanSyncWorker @AssistedInject constructor(
      */
     private fun isPermanentError(message: String, statusCode: Int?): Boolean {
         // 4xx errors (except 408 timeout, 429 rate limit) are usually permanent
-        val isPermanentStatusCode = statusCode != null && 
-            statusCode in 400..499 && 
-            statusCode != 408 && 
+        val isPermanentStatusCode = statusCode != null &&
+            statusCode in 400..499 &&
+            statusCode != 408 &&
             statusCode != 429
 
         // Check error message patterns
@@ -144,4 +154,3 @@ class LoanSyncWorker @AssistedInject constructor(
         return isPermanentStatusCode || matchesPermanentPattern
     }
 }
-

@@ -24,8 +24,8 @@ interface UserProfileService {
      */
     @POST("api/user-profiles")
     suspend fun submitProfile(
-            @Header("Authorization") token: String,
-            @Body request: UserProfileRequest
+        @Header("Authorization") token: String,
+        @Body request: UserProfileRequest
     ): Response<ApiResponse<UserProfileDto>>
 
     /**
@@ -37,12 +37,10 @@ interface UserProfileService {
     @Multipart
     @POST("api/user-profiles/upload-ktp")
     suspend fun uploadKtp(
-            @Header("Authorization") token: String,
-            @Part file: MultipartBody.Part
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
     ): Response<ApiResponse<KtpUploadResponse>>
 
     @GET("api/user-profiles/me")
-    suspend fun getUserProfile(
-        @Header("Authorization") token: String
-    ): Response<ApiResponse<UserProfileDto>>
+    suspend fun getUserProfile(@Header("Authorization") token: String): Response<ApiResponse<UserProfileDto>>
 }

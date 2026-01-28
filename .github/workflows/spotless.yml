@@ -1,0 +1,38 @@
+name: Spotless Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  spotless:
+    name: Check Code Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck --no-daemon
+
+      - name: Upload Spotless Report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotless-report
+          path: |
+            **/build/reports/spotless/
+          retention-days: 7

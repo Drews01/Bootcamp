@@ -1,13 +1,13 @@
 package com.example.bootcamp.data.repository
 
 import android.net.Uri
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.dao.UserProfileCacheDao
 import com.example.bootcamp.data.local.entity.PendingProfileEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.local.entity.UserProfileCacheEntity
-import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.PendingProfile
@@ -55,10 +55,10 @@ class UserProfileRepositoryImpl @Inject constructor(
                             bankName = dto.bankName,
                             updatedAt = dto.updatedAt
                         )
-                        
+
                         // Cache the profile
                         cacheProfile(profile)
-                        
+
                         return Result.success(profile)
                     }
                 }
@@ -80,18 +80,20 @@ class UserProfileRepositoryImpl @Inject constructor(
             syncManager.scheduleProfileSync()
 
             // Return a "queued" profile for UI display
-            Result.success(UserProfile(
-                username = "",
-                email = "",
-                address = request.address,
-                nik = request.nik,
-                ktpPath = request.ktpPath,
-                phoneNumber = request.phoneNumber,
-                accountNumber = request.accountNumber,
-                bankName = request.bankName,
-                updatedAt = null,
-                isPending = true
-            ))
+            Result.success(
+                UserProfile(
+                    username = "",
+                    email = "",
+                    address = request.address,
+                    nik = request.nik,
+                    ktpPath = request.ktpPath,
+                    phoneNumber = request.phoneNumber,
+                    accountNumber = request.accountNumber,
+                    bankName = request.bankName,
+                    updatedAt = null,
+                    isPending = true
+                )
+            )
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -144,10 +146,10 @@ class UserProfileRepositoryImpl @Inject constructor(
                             bankName = dto.bankName,
                             updatedAt = dto.updatedAt
                         )
-                        
+
                         // Cache the profile
                         cacheProfile(profile)
-                        
+
                         return Result.success(profile)
                     } else {
                         // Remote returned error, try cache
@@ -201,23 +203,21 @@ class UserProfileRepositoryImpl @Inject constructor(
         return Result.success(profile)
     }
 
-    override fun getPendingProfile(): Flow<PendingProfile?> {
-        return pendingProfileDao.observePendingProfile().map { entity ->
-            entity?.let {
-                PendingProfile(
-                    id = it.id,
-                    address = it.address,
-                    nik = it.nik,
-                    ktpPath = it.ktpPath,
-                    phoneNumber = it.phoneNumber,
-                    accountNumber = it.accountNumber,
-                    bankName = it.bankName,
-                    syncStatus = it.syncStatus,
-                    errorMessage = it.errorMessage,
-                    retryCount = it.retryCount,
-                    createdAt = it.createdAt
-                )
-            }
+    override fun getPendingProfile(): Flow<PendingProfile?> = pendingProfileDao.observePendingProfile().map { entity ->
+        entity?.let {
+            PendingProfile(
+                id = it.id,
+                address = it.address,
+                nik = it.nik,
+                ktpPath = it.ktpPath,
+                phoneNumber = it.phoneNumber,
+                accountNumber = it.accountNumber,
+                bankName = it.bankName,
+                syncStatus = it.syncStatus,
+                errorMessage = it.errorMessage,
+                retryCount = it.retryCount,
+                createdAt = it.createdAt
+            )
         }
     }
 
@@ -226,11 +226,13 @@ class UserProfileRepositoryImpl @Inject constructor(
             val profile = pendingProfileDao.getPendingProfile()
                 ?: return Result.failure(IllegalArgumentException("No pending profile found"))
 
-            pendingProfileDao.update(profile.copy(
-                syncStatus = SyncStatus.PENDING,
-                retryCount = 0,
-                errorMessage = null
-            ))
+            pendingProfileDao.update(
+                profile.copy(
+                    syncStatus = SyncStatus.PENDING,
+                    retryCount = 0,
+                    errorMessage = null
+                )
+            )
             syncManager.scheduleProfileSync()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -238,13 +240,11 @@ class UserProfileRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun clearPendingProfile(): Result<Unit> {
-        return try {
-            pendingProfileDao.clear()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    override suspend fun clearPendingProfile(): Result<Unit> = try {
+        pendingProfileDao.clear()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
     /** Clear cached profile data (e.g., on logout). */
@@ -252,4 +252,3 @@ class UserProfileRepositoryImpl @Inject constructor(
         userProfileCacheDao.clear()
     }
 }
-

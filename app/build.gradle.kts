@@ -1,8 +1,8 @@
 
-import java.net.NetworkInterface
-import java.net.Inet4Address
-import java.util.Properties
 import java.io.FileInputStream
+import java.net.Inet4Address
+import java.net.NetworkInterface
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -56,7 +56,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         val baseUrl = localProperties.getProperty("BASE_URL") ?: "http://${getLocalIp()}:8081"
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         println("Using BASE_URL: $baseUrl")
@@ -92,7 +92,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.material.icons.extended)
 
-    //Debugging
+    // Debugging
     debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
 
@@ -104,36 +104,36 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
-    
+
     // Navigation
     implementation(libs.navigation.compose)
-    
+
     // DataStore
     implementation(libs.datastore.preferences)
-    
+
     // ViewModel
     implementation(libs.lifecycle.viewmodel.compose)
-    
+
     // Hilt - Dependency Injection
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-    
+
     // Room - Local Database
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-    
+
     // WorkManager - Background Sync
     implementation(libs.work.runtime.ktx)
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
-    
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
-    
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -141,6 +141,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-
 }

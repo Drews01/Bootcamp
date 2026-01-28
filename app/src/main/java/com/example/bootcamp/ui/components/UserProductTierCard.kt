@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,10 +28,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun UserProductTierCard(
-    tierDTO: UserTierLimitDTO,
-    modifier: Modifier = Modifier
-) {
+fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier) {
     // Determine colors based on tier code
     val tierCode = tierDTO.tierCode?.uppercase() ?: ""
     val (startColor, endColor) = when {
@@ -78,7 +73,7 @@ fun UserProductTierCard(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
-                    
+
                     Box(
                         modifier = Modifier
                             .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
@@ -172,7 +167,7 @@ fun UserProductTierCard(
                                 )
                             }
                         }
-                        
+
                         LinearProgressIndicator(
                             progress = animatedProgress,
                             modifier = Modifier

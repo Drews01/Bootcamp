@@ -1,7 +1,6 @@
 package com.example.bootcamp.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
@@ -27,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,13 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.graphicsLayer
 import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
 import com.example.bootcamp.ui.theme.MutedGray
@@ -54,14 +50,11 @@ import com.example.bootcamp.ui.theme.SpaceViolet
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
 
 @Composable
-fun ForgotPasswordScreen(
-        viewModel: AuthViewModel,
-        onNavigateToLogin: () -> Unit,
-) {
+fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit,) {
     val uiState by viewModel.uiState.collectAsState()
     var email by remember { mutableStateOf("") }
     val emailError =
-            email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
 
     AuthBackground { glowAlpha ->
         Column(
@@ -156,7 +149,9 @@ fun ForgotPasswordScreen(
                                         color = Red500
                                     )
                                 }
-                            } else null,
+                            } else {
+                                null
+                            },
                             keyboardOptions =
                             KeyboardOptions(
                                 keyboardType = KeyboardType.Email,
@@ -210,8 +205,8 @@ fun ForgotPasswordScreen(
                             modifier = Modifier.fillMaxWidth().height(54.dp),
                             enabled =
                             !uiState.isLoading &&
-                                    email.isNotBlank() &&
-                                    !emailError,
+                                email.isNotBlank() &&
+                                !emailError,
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent,

@@ -22,4 +22,3 @@ data class UserTierEntity(
     val status: String?,
     val lastUpdated: Long = System.currentTimeMillis()
 )
-

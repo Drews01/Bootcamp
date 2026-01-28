@@ -1,8 +1,6 @@
 package com.example.bootcamp.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.example.bootcamp.ui.theme.Indigo600
 
 @Composable
-fun EmptyStateCard(
-    modifier: Modifier = Modifier,
-    onGetStartedClick: () -> Unit
-) {
+fun EmptyStateCard(modifier: Modifier = Modifier, onGetStartedClick: () -> Unit) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -47,18 +42,18 @@ fun EmptyStateCard(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Complete your profile and apply for a loan to start your journey.",
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Button(
                 onClick = onGetStartedClick,
                 modifier = Modifier

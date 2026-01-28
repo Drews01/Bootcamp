@@ -28,38 +28,38 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun GlassCard(
-        modifier: Modifier = Modifier,
-        cornerRadius: Dp = 20.dp,
-        contentPadding: Dp = 28.dp,
-        content: @Composable ColumnScope.() -> Unit
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 20.dp,
+    contentPadding: Dp = 28.dp,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-            modifier = modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(cornerRadius),
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(cornerRadius),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
     ) {
         Box(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .background(
-                                        brush =
-                                                Brush.verticalGradient(
-                                                        colors =
-                                                                listOf(
-                                                                        Color.White.copy(
-                                                                                alpha = 0.15f
-                                                                        ),
-                                                                        Color.White.copy(
-                                                                                alpha = 0.05f
-                                                                        )
-                                                                )
-                                                )
-                                )
+            modifier =
+            Modifier.fillMaxWidth()
+                .background(
+                    brush =
+                    Brush.verticalGradient(
+                        colors =
+                        listOf(
+                            Color.White.copy(
+                                alpha = 0.15f
+                            ),
+                            Color.White.copy(
+                                alpha = 0.05f
+                            )
+                        )
+                    )
+                )
         ) {
             Column(
-                    modifier = Modifier.fillMaxWidth().padding(contentPadding),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    content = content
+                modifier = Modifier.fillMaxWidth().padding(contentPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                content = content
             )
         }
     }

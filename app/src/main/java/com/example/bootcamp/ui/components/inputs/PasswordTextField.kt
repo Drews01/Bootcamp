@@ -41,63 +41,69 @@ import com.example.bootcamp.ui.theme.SpaceIndigo
  */
 @Composable
 fun PasswordTextField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        modifier: Modifier = Modifier,
-        label: String = "Password",
-        enabled: Boolean = true,
-        isError: Boolean = false,
-        imeAction: ImeAction = ImeAction.Done
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "Password",
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    imeAction: ImeAction = ImeAction.Done
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier.fillMaxWidth(),
-            label = { Text(label, color = MutedGray) },
-            leadingIcon = {
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        label = { Text(label, color = MutedGray) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = null,
+                tint = MutedGray,
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
                 Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null,
-                        tint = MutedGray,
+                    imageVector =
+                    if (passwordVisible) {
+                        Icons.Default.Visibility
+                    } else {
+                        Icons.Default.VisibilityOff
+                    },
+                    contentDescription =
+                    if (passwordVisible) "Hide password" else "Show password",
+                    tint = MutedGray,
                 )
-            },
-            trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                            imageVector =
-                                    if (passwordVisible) Icons.Default.Visibility
-                                    else Icons.Default.VisibilityOff,
-                            contentDescription =
-                                    if (passwordVisible) "Hide password" else "Show password",
-                            tint = MutedGray,
-                    )
-                }
-            },
-            visualTransformation =
-                    if (passwordVisible) VisualTransformation.None
-                    else PasswordVisualTransformation(),
-            keyboardOptions =
-                    KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = imeAction,
-                    ),
-            singleLine = true,
-            enabled = enabled,
-            isError = isError,
-            shape = RoundedCornerShape(14.dp),
-            colors =
-                    OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = SpaceIndigo,
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            cursorColor = SpaceIndigo,
-                            focusedLabelColor = SpaceIndigo,
-                            unfocusedLabelColor = MutedGray,
-                            errorBorderColor = Color.Red,
-                            errorLabelColor = Color.Red,
-                    ),
+            }
+        },
+        visualTransformation =
+        if (passwordVisible) {
+            VisualTransformation.None
+        } else {
+            PasswordVisualTransformation()
+        },
+        keyboardOptions =
+        KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = imeAction,
+        ),
+        singleLine = true,
+        enabled = enabled,
+        isError = isError,
+        shape = RoundedCornerShape(14.dp),
+        colors =
+        OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = SpaceIndigo,
+            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            cursorColor = SpaceIndigo,
+            focusedLabelColor = SpaceIndigo,
+            unfocusedLabelColor = MutedGray,
+            errorBorderColor = Color.Red,
+            errorLabelColor = Color.Red,
+        ),
     )
 }

@@ -5,16 +5,11 @@ import com.example.bootcamp.domain.usecase.base.UseCaseWithParams
 import javax.inject.Inject
 
 /** Parameters for registration operation. */
-data class RegisterParams(
-        val username: String,
-        val email: String,
-        val password: String,
-        val confirmPassword: String
-)
+data class RegisterParams(val username: String, val email: String, val password: String, val confirmPassword: String)
 
 /** Use case for user registration. Encapsulates registration business logic and validation. */
 class RegisterUseCase @Inject constructor(private val authRepository: AuthRepository) :
-        UseCaseWithParams<RegisterParams, Result<String>> {
+    UseCaseWithParams<RegisterParams, Result<String>> {
 
     private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
@@ -25,7 +20,7 @@ class RegisterUseCase @Inject constructor(private val authRepository: AuthReposi
         }
         if (params.username.length < 3) {
             return Result.failure(
-                    IllegalArgumentException("Username must be at least 3 characters")
+                IllegalArgumentException("Username must be at least 3 characters")
             )
         }
         if (params.email.isBlank()) {
@@ -39,7 +34,7 @@ class RegisterUseCase @Inject constructor(private val authRepository: AuthReposi
         }
         if (params.password.length < 6) {
             return Result.failure(
-                    IllegalArgumentException("Password must be at least 6 characters")
+                IllegalArgumentException("Password must be at least 6 characters")
             )
         }
         if (params.password != params.confirmPassword) {

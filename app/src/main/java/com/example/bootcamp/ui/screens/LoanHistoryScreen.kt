@@ -29,10 +29,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoanHistoryScreen(
-    viewModel: LoanHistoryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
-) {
+fun LoanHistoryScreen(viewModel: LoanHistoryViewModel = hiltViewModel(), onNavigateBack: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -126,7 +123,7 @@ fun LoanHistoryScreen(
 @Composable
 fun LoanHistoryItem(loan: LoanApplication) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -152,9 +149,9 @@ fun LoanHistoryItem(loan: LoanApplication) {
                 )
                 StatusChip(status = loan.displayStatus, color = getStatusColor(loan.status))
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -197,12 +194,10 @@ fun StatusChip(status: String, color: Color) {
     }
 }
 
-fun getStatusColor(status: String): Color {
-    return when (status.uppercase()) {
-        "SUBMITTED" -> Color(0xFFFBBF24) // Amber
-        "APPROVED" -> Color(0xFF34D399) // Green
-        "REJECTED" -> Color(0xFFF87171) // Red
-        "PAID" -> Color(0xFF60A5FA) // Blue
-        else -> Color.Gray
-    }
+fun getStatusColor(status: String): Color = when (status.uppercase()) {
+    "SUBMITTED" -> Color(0xFFFBBF24) // Amber
+    "APPROVED" -> Color(0xFF34D399) // Green
+    "REJECTED" -> Color(0xFFF87171) // Red
+    "PAID" -> Color(0xFF60A5FA) // Blue
+    else -> Color.Gray
 }

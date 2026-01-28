@@ -4,10 +4,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Manages JWT token and user preferences persistence using DataStore. Injected via Hilt for proper
@@ -36,7 +36,7 @@ class TokenManager @Inject constructor(private val dataStore: DataStore<Preferen
     /** Flow of the current email. */
     val email: Flow<String?> = dataStore.data.map { preferences -> preferences[EMAIL_KEY] }
 
-    /** 
+    /**
      * Flow of the current XSRF token.
      * IMPORTANT: This stores the **MASKED** CSRF token from the API response body,
      * NOT the raw cookie value. Use this value for the X-XSRF-TOKEN header.
@@ -63,7 +63,7 @@ class TokenManager @Inject constructor(private val dataStore: DataStore<Preferen
         dataStore.edit { preferences -> preferences[EMAIL_KEY] = email }
     }
 
-    /** 
+    /**
      * Save the MASKED XSRF token from the API response body.
      * IMPORTANT: This should be the token value from GET /api/csrf-token response,
      * NOT the XSRF-TOKEN cookie value (BREACH protection).
@@ -73,12 +73,7 @@ class TokenManager @Inject constructor(private val dataStore: DataStore<Preferen
     }
 
     /** Save all user data at once. */
-    suspend fun saveUserData(
-            token: String,
-            username: String,
-            userId: String? = null,
-            email: String? = null
-    ) {
+    suspend fun saveUserData(token: String, username: String, userId: String? = null, email: String? = null) {
         dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
             preferences[USERNAME_KEY] = username

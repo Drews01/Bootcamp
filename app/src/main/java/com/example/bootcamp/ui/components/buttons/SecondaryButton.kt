@@ -28,31 +28,34 @@ import com.example.bootcamp.ui.theme.SpaceViolet
  */
 @Composable
 fun SecondaryButton(
-        text: String,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier,
-        enabled: Boolean = true,
-        height: Dp = 54.dp,
-        cornerRadius: Dp = 14.dp
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 54.dp,
+    cornerRadius: Dp = 14.dp
 ) {
     OutlinedButton(
-            onClick = onClick,
-            modifier = modifier.fillMaxWidth().height(height),
-            enabled = enabled,
-            shape = RoundedCornerShape(cornerRadius),
-            border =
-                    BorderStroke(
-                            width = 1.dp,
-                            color =
-                                    if (enabled) SpaceViolet.copy(alpha = 0.5f)
-                                    else Color.Gray.copy(alpha = 0.3f)
-                    )
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().height(height),
+        enabled = enabled,
+        shape = RoundedCornerShape(cornerRadius),
+        border =
+        BorderStroke(
+            width = 1.dp,
+            color =
+            if (enabled) {
+                SpaceViolet.copy(alpha = 0.5f)
+            } else {
+                Color.Gray.copy(alpha = 0.3f)
+            }
+        )
     ) {
         Text(
-                text = text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (enabled) SpaceViolet else Color.Gray,
+            text = text,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (enabled) SpaceViolet else Color.Gray,
         )
     }
 }

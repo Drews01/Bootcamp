@@ -1,18 +1,17 @@
 package com.example.bootcamp.firebase
 
 import android.os.Build
-import com.example.bootcamp.data.remote.api.FCMApiService
 import com.example.bootcamp.data.local.TokenManager
-import com.example.bootcamp.util.ApiResponseHandler
+import com.example.bootcamp.data.remote.api.FCMApiService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Firebase Cloud Messaging service for handling push notifications. Handles incoming messages and
@@ -22,7 +21,9 @@ import kotlinx.coroutines.launch
 class BootcampFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject lateinit var notificationHelper: NotificationHelper
+
     @Inject lateinit var fcmApiService: FCMApiService
+
     @Inject lateinit var tokenManager: TokenManager
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -34,7 +35,7 @@ class BootcampFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         android.util.Log.d(TAG, "New FCM token: $token")
-        
+
         // Send token to backend if user is logged in
         serviceScope.launch {
             sendTokenToServer(token)
@@ -56,7 +57,7 @@ class BootcampFirebaseMessagingService : FirebaseMessagingService() {
 
             val deviceName = Build.MODEL
             val response = fcmApiService.registerToken(fcmToken, deviceName, "ANDROID")
-            
+
             if (response.isSuccessful) {
                 android.util.Log.d(TAG, "FCM token registered successfully")
             } else {
@@ -76,9 +77,9 @@ class BootcampFirebaseMessagingService : FirebaseMessagingService() {
         // Handle notification payload
         remoteMessage.notification?.let { notification ->
             notificationHelper.showNotification(
-                    title = notification.title ?: "Bootcamp",
-                    message = notification.body ?: "",
-                    data = remoteMessage.data
+                title = notification.title ?: "Bootcamp",
+                message = notification.body ?: "",
+                data = remoteMessage.data
             )
         }
 

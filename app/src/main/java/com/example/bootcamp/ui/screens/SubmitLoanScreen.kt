@@ -52,22 +52,22 @@ import com.example.bootcamp.ui.viewmodel.LoanViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubmitLoanScreen(
-        viewModel: LoanViewModel,
-        modifier: Modifier = Modifier,
-        onSubmitSuccess: () -> Unit = {},
-        onNavigateToEditProfile: () -> Unit = {}
+    viewModel: LoanViewModel,
+    modifier: Modifier = Modifier,
+    onSubmitSuccess: () -> Unit = {},
+    onNavigateToEditProfile: () -> Unit = {}
 ) {
-        val uiState by viewModel.uiState.collectAsState()
-        val snackbarHostState = remember { SnackbarHostState() }
-        var expanded by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var expanded by remember { mutableStateOf(false) }
 
-        LaunchedEffect(uiState.successMessage) {
-                uiState.successMessage?.let {
-                        snackbarHostState.showSnackbar(it)
-                        viewModel.clearSuccessMessage()
-                        onSubmitSuccess()
-                }
+    LaunchedEffect(uiState.successMessage) {
+        uiState.successMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearSuccessMessage()
+            onSubmitSuccess()
         }
+    }
 
     // State for preview dialog
     var showPreviewDialog by remember { mutableStateOf(false) }
@@ -176,7 +176,7 @@ fun SubmitLoanScreen(
                                     ) {
                                         Icon(
                                             Icons.Default
-                                            .ArrowDropDown,
+                                                .ArrowDropDown,
                                             contentDescription =
                                             "Expand"
                                         )
@@ -216,8 +216,9 @@ fun SubmitLoanScreen(
                                 ), // Adjust for label
                             color = Color.Transparent,
                             onClick = {
-                                if (!uiState.isBranchesLoading)
+                                if (!uiState.isBranchesLoading) {
                                     expanded = true
+                                }
                             }
                         ) {}
 
@@ -375,11 +376,18 @@ fun LoanPreviewDialog(
                     color = Gray500,
                     fontSize = 14.sp
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 PreviewRow(label = "Cabang", value = branchName)
-                PreviewRow(label = "Jumlah Pinjaman", value = "Rp " + java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(amount.toLongOrNull() ?: 0))
+                PreviewRow(
+                    label = "Jumlah Pinjaman",
+                    value =
+                    "Rp " +
+                        java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(
+                            amount.toLongOrNull() ?: 0
+                        )
+                )
                 PreviewRow(label = "Tenor", value = "$tenure Bulan")
             }
         },
@@ -506,9 +514,10 @@ fun LoanErrorDialog(
             }
         },
         dismissButton = {
-            if (errorType !is LoanErrorType.Generic && 
+            if (errorType !is LoanErrorType.Generic &&
                 errorType !is LoanErrorType.ActiveLoanExists &&
-                errorType !is LoanErrorType.BranchRequired) {
+                errorType !is LoanErrorType.BranchRequired
+            ) {
                 androidx.compose.material3.TextButton(onClick = onDismiss) {
                     Text("Cancel", color = Gray500)
                 }
@@ -520,9 +529,4 @@ fun LoanErrorDialog(
 }
 
 /** Helper data class for dialog content */
-private data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)
+private data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

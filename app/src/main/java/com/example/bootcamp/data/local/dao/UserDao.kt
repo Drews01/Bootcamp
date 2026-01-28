@@ -14,7 +14,8 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao {
 
     /** Insert a user into the database. If conflict, replace the existing user. */
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertUser(user: UserEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: UserEntity)
 
     /** Update an existing user. */
     @Update suspend fun updateUser(user: UserEntity)
@@ -28,7 +29,7 @@ interface UserDao {
 
     /** Get a user by username or email. */
     @Query(
-            "SELECT * FROM users WHERE username = :usernameOrEmail OR email = :usernameOrEmail LIMIT 1"
+        "SELECT * FROM users WHERE username = :usernameOrEmail OR email = :usernameOrEmail LIMIT 1"
     )
     suspend fun getUserByUsernameOrEmail(usernameOrEmail: String): UserEntity?
 
@@ -41,8 +42,10 @@ interface UserDao {
     fun getAllUsers(): Flow<List<UserEntity>>
 
     /** Clear all users from the database. */
-    @Query("DELETE FROM users") suspend fun clearAllUsers()
+    @Query("DELETE FROM users")
+    suspend fun clearAllUsers()
 
     /** Clear the token for all users (logout). */
-    @Query("UPDATE users SET token = NULL") suspend fun clearAllTokens()
+    @Query("UPDATE users SET token = NULL")
+    suspend fun clearAllTokens()
 }

@@ -19,9 +19,7 @@ data class LoanHistoryUiState(
 )
 
 @HiltViewModel
-class LoanHistoryViewModel @Inject constructor(
-    private val getLoanHistoryUseCase: GetLoanHistoryUseCase
-) : ViewModel() {
+class LoanHistoryViewModel @Inject constructor(private val getLoanHistoryUseCase: GetLoanHistoryUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanHistoryUiState())
     val uiState: StateFlow<LoanHistoryUiState> = _uiState.asStateFlow()
@@ -33,14 +31,14 @@ class LoanHistoryViewModel @Inject constructor(
     fun loadHistory() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            
+
             getLoanHistoryUseCase()
                 .onSuccess { loans ->
                     _uiState.update { it.copy(isLoading = false, loans = loans) }
                 }
                 .onFailure { exception ->
-                    _uiState.update { 
-                        it.copy(isLoading = false, errorMessage = exception.message) 
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = exception.message)
                     }
                 }
         }

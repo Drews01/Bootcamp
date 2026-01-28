@@ -12,10 +12,7 @@ import com.google.gson.annotations.SerializedName
  * Branch item from dropdown API.
  * GET /api/branches/dropdown
  */
-data class BranchDropdownItem(
-    @SerializedName("id") val id: Long,
-    @SerializedName("name") val name: String
-)
+data class BranchDropdownItem(@SerializedName("id") val id: Long, @SerializedName("name") val name: String)
 
 // ============== Submit Loan ==============
 

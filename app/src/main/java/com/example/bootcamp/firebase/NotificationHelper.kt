@@ -34,46 +34,46 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Default channel for general notifications
             val defaultChannel =
-                    NotificationChannel(
-                                    CHANNEL_DEFAULT,
-                                    "General Notifications",
-                                    NotificationManager.IMPORTANCE_DEFAULT
-                            )
-                            .apply {
-                                description = "General app notifications"
-                                enableLights(true)
-                                enableVibration(true)
-                            }
+                NotificationChannel(
+                    CHANNEL_DEFAULT,
+                    "General Notifications",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
+                    .apply {
+                        description = "General app notifications"
+                        enableLights(true)
+                        enableVibration(true)
+                    }
 
             // High priority channel for important notifications
             val highPriorityChannel =
-                    NotificationChannel(
-                                    CHANNEL_HIGH_PRIORITY,
-                                    "Important Notifications",
-                                    NotificationManager.IMPORTANCE_HIGH
-                            )
-                            .apply {
-                                description =
-                                        "Important notifications that require immediate attention"
-                                enableLights(true)
-                                enableVibration(true)
-                            }
+                NotificationChannel(
+                    CHANNEL_HIGH_PRIORITY,
+                    "Important Notifications",
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+                    .apply {
+                        description =
+                            "Important notifications that require immediate attention"
+                        enableLights(true)
+                        enableVibration(true)
+                    }
 
             // Transaction channel for financial notifications
             val transactionChannel =
-                    NotificationChannel(
-                                    CHANNEL_TRANSACTIONS,
-                                    "Transaction Notifications",
-                                    NotificationManager.IMPORTANCE_HIGH
-                            )
-                            .apply {
-                                description = "Notifications about financial transactions"
-                                enableLights(true)
-                                enableVibration(true)
-                            }
+                NotificationChannel(
+                    CHANNEL_TRANSACTIONS,
+                    "Transaction Notifications",
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+                    .apply {
+                        description = "Notifications about financial transactions"
+                        enableLights(true)
+                        enableVibration(true)
+                    }
 
             notificationManager.createNotificationChannels(
-                    listOf(defaultChannel, highPriorityChannel, transactionChannel)
+                listOf(defaultChannel, highPriorityChannel, transactionChannel)
             )
         }
     }
@@ -87,36 +87,36 @@ class NotificationHelper @Inject constructor(@ApplicationContext private val con
      * @param channelId Channel to use for the notification
      */
     fun showNotification(
-            title: String,
-            message: String,
-            data: Map<String, String> = emptyMap(),
-            channelId: String = CHANNEL_DEFAULT
+        title: String,
+        message: String,
+        data: Map<String, String> = emptyMap(),
+        channelId: String = CHANNEL_DEFAULT
     ) {
         val intent =
-                Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    // Add data extras for deep linking
-                    data.forEach { (key, value) -> putExtra(key, value) }
-                }
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                // Add data extras for deep linking
+                data.forEach { (key, value) -> putExtra(key, value) }
+            }
 
         val pendingIntent =
-                PendingIntent.getActivity(
-                        context,
-                        0,
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
+            PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
         val notification =
-                NotificationCompat.Builder(context, channelId)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setContentTitle(title)
-                        .setContentText(message)
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .build()
+            NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
 
         val notificationId = Random.nextInt()
         notificationManager.notify(notificationId, notification)

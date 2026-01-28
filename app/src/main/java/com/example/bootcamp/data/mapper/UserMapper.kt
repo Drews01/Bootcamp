@@ -10,29 +10,23 @@ import com.example.bootcamp.domain.model.User
 object UserMapper {
 
     /** Convert UserEntity (data layer) to User (domain layer). */
-    fun UserEntity.toDomain(): User {
-        return User(
-                id = this.id,
-                username = this.username,
-                email = this.email,
-                token = this.token,
-                isLoggedIn = this.token != null
-        )
-    }
+    fun UserEntity.toDomain(): User = User(
+        id = this.id,
+        username = this.username,
+        email = this.email,
+        token = this.token,
+        isLoggedIn = this.token != null
+    )
 
     /** Convert User (domain layer) to UserEntity (data layer). */
-    fun User.toEntity(): UserEntity {
-        return UserEntity(
-                id = this.id,
-                username = this.username,
-                email = this.email,
-                token = this.token,
-                lastUpdated = System.currentTimeMillis()
-        )
-    }
+    fun User.toEntity(): UserEntity = UserEntity(
+        id = this.id,
+        username = this.username,
+        email = this.email,
+        token = this.token,
+        lastUpdated = System.currentTimeMillis()
+    )
 
     /** Convert list of UserEntity to list of User. */
-    fun List<UserEntity>.toDomainList(): List<User> {
-        return this.map { it.toDomain() }
-    }
+    fun List<UserEntity>.toDomainList(): List<User> = this.map { it.toDomain() }
 }

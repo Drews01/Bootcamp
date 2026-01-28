@@ -665,9 +665,9 @@ Provide KDoc comments for all public members, except for overrides that do not r
 
 
 //
-UI -> ViewModel -> UseCase -> Repository -> Data Source 
+UI -> ViewModel -> UseCase -> Repository -> Data Source
 Dependency Injection --> Koin / Hilt
-Apprefrences --> Data persistance --> Local Data Storage --> Room Database  
+Apprefrences --> Data persistance --> Local Data Storage --> Room Database
 
 Ensure this project every component is reusable
 Ensure this project every component is testable
@@ -677,7 +677,6 @@ Ensure this project using mvvm architecture
 Ensure this project using offline first logic
 Ensure this project integrate with firebase for push notifications
 Ensure this project using hilt for dependency injection
-Ensure this project using room for local database   
-Ensure this project using coroutines for background operations  
-Ensure this project using retrofit for network operations   
-
+Ensure this project using room for local database
+Ensure this project using coroutines for background operations
+Ensure this project using retrofit for network operations

@@ -47,7 +47,6 @@ interface AuthRepository {
      */
     suspend fun logout(): Result<String>
 
-
     /**
      * Get the authentication token as a Flow.
      * @return Flow emitting the current token or null

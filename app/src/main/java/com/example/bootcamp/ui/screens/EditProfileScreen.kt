@@ -13,9 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -39,9 +39,11 @@ fun EditProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = androidx.compose.ui.platform.LocalContext.current
-    
+
     // Temporary URI for Camera capture
-    var tempCameraUri by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    var tempCameraUri by androidx.compose.runtime.saveable.rememberSaveable {
+        androidx.compose.runtime.mutableStateOf<String?>(null)
+    }
 
     // Helper to create temp URI
     fun createTempUri(): android.net.Uri {
@@ -65,7 +67,7 @@ fun EditProfileScreen(
             viewModel.onKtpFileSelected(uri)
         }
     }
-    
+
     // Permission Launcher
     val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
@@ -93,7 +95,7 @@ fun EditProfileScreen(
             // Do not clear immediately if it's "KTP uploaded", maybe just show it
             // checking if it's the save profile success
             if (it.contains("Profile updated")) {
-                 onSaveSuccess()
+                onSaveSuccess()
             }
             viewModel.clearMessages()
         }
@@ -155,7 +157,7 @@ fun EditProfileScreen(
                         color = Gray500,
                         fontSize = 14.sp
                     )
-                    
+
                     // --- KTP Photo Section ---
                     Text(
                         text = "ID Card (KTP) *",
@@ -163,7 +165,7 @@ fun EditProfileScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -175,37 +177,38 @@ fun EditProfileScreen(
                         val imageModifier = Modifier
                             .fillMaxSize()
                             .background(Color.Black, RoundedCornerShape(10.dp))
-                        
+
                         // Priority: 1. Selected URI (Preview), 2. Existing Path (Server), 3. Placeholder
                         val displayModel = uiState.ktpUri ?: uiState.ktpPath.takeIf { it.isNotBlank() }
-                        
+
                         if (displayModel != null) {
-                             // Assuming ktpPath is a full URL or user understands; 
-                             // if it is a relative path, we might need to prepend base url in ViewModel. 
-                             // But let's assume Coil handles paths if local, urls if remote.
-                             // For now validation assumed UserProfileDto returns valid URLs or local paths.
-                             
-                             coil.compose.SubcomposeAsyncImage(
+                            // Assuming ktpPath is a full URL or user understands;
+                            // if it is a relative path, we might need to prepend base url in ViewModel.
+                            // But let's assume Coil handles paths if local, urls if remote.
+                            // For now validation assumed UserProfileDto returns valid URLs or local paths.
+
+                            coil.compose.SubcomposeAsyncImage(
                                 model = displayModel,
                                 contentDescription = "KTP Photo",
                                 modifier = imageModifier,
-                                contentScale = androidx.compose.ui.layout.ContentScale.Crop, // Changed from Fit to Crop for better look, or use Fit to show full document
+                                // Changed from Fit to Crop for better look, or use Fit to show full document
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                                 loading = {
-                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                         CircularProgressIndicator(color = Indigo600)
-                                     }
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(color = Indigo600)
+                                    }
                                 },
                                 error = {
-                                     Column(
-                                         modifier = Modifier.fillMaxSize(),
-                                         verticalArrangement = Arrangement.Center,
-                                         horizontalAlignment = Alignment.CenterHorizontally
-                                     ) {
-                                         Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
-                                         Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
-                                     }
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
+                                        Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
+                                    }
                                 }
-                             )
+                            )
                         } else {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
@@ -217,7 +220,7 @@ fun EditProfileScreen(
                                 Text("No KTP Uploaded", color = Gray500)
                             }
                         }
-                        
+
                         // Overlay Loading for upload
                         if (uiState.isUploadingKtp) {
                             Box(
@@ -230,15 +233,17 @@ fun EditProfileScreen(
                             }
                         }
                     }
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
-                            onClick = { 
+                            onClick = {
                                 val permission = android.Manifest.permission.CAMERA
-                                if (androidx.core.content.ContextCompat.checkSelfPermission(context, permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                if (androidx.core.content.ContextCompat.checkSelfPermission(context, permission) ==
+                                    android.content.pm.PackageManager.PERMISSION_GRANTED
+                                ) {
                                     val uri = createTempUri()
                                     tempCameraUri = uri.toString()
                                     cameraLauncher.launch(uri)
@@ -253,7 +258,7 @@ fun EditProfileScreen(
                             Spacer(Modifier.width(8.dp))
                             Text("Camera")
                         }
-                        
+
                         Button(
                             onClick = { galleryLauncher.launch("image/*") },
                             modifier = Modifier.weight(1f),
@@ -264,7 +269,7 @@ fun EditProfileScreen(
                             Text("Gallery")
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Address

@@ -7,12 +7,12 @@ import com.google.gson.annotations.SerializedName
  * errors, and general error lists.
  */
 data class ErrorDetails(
-        @SerializedName("errorCode") val errorCode: String? = null,
-        @SerializedName("fieldErrors") val fieldErrors: Map<String, String>? = null,
-        @SerializedName("errors") val errors: List<String>? = null,
-        @SerializedName("stackTrace")
-        val stackTrace: String? = null, // Only populated in debug builds
-        @SerializedName("additionalInfo") val additionalInfo: Map<String, Any>? = null
+    @SerializedName("errorCode") val errorCode: String? = null,
+    @SerializedName("fieldErrors") val fieldErrors: Map<String, String>? = null,
+    @SerializedName("errors") val errors: List<String>? = null,
+    @SerializedName("stackTrace")
+    val stackTrace: String? = null, // Only populated in debug builds
+    @SerializedName("additionalInfo") val additionalInfo: Map<String, Any>? = null
 ) {
     /**
      * Get error for a specific field (for TextInputLayout.error).
@@ -28,13 +28,12 @@ data class ErrorDetails(
     fun isValidationError(): Boolean = errorCode == ErrorCode.VALIDATION_ERROR
 
     /** Check if this is an authentication error. */
-    fun isAuthError(): Boolean =
-            errorCode in
-                    listOf(
-                            ErrorCode.INVALID_CREDENTIALS,
-                            ErrorCode.UNAUTHORIZED,
-                            ErrorCode.TOKEN_EXPIRED
-                    )
+    fun isAuthError(): Boolean = errorCode in
+        listOf(
+            ErrorCode.INVALID_CREDENTIALS,
+            ErrorCode.UNAUTHORIZED,
+            ErrorCode.TOKEN_EXPIRED
+        )
 
     /** Get root cause from additionalInfo (for database errors). */
     fun getRootCause(): String? = additionalInfo?.get("rootCause") as? String
@@ -43,13 +42,11 @@ data class ErrorDetails(
      * Get the best message to display to the user. Priority: fieldErrors summary > first general
      * error > errorCode
      */
-    fun getDisplayMessage(): String {
-        return when {
-            hasFieldErrors() -> fieldErrors!!.values.first()
-            !errors.isNullOrEmpty() -> errors.first()
-            !getRootCause().isNullOrEmpty() -> getRootCause()!!
-            else -> errorCode ?: "An error occurred"
-        }
+    fun getDisplayMessage(): String = when {
+        hasFieldErrors() -> fieldErrors!!.values.first()
+        !errors.isNullOrEmpty() -> errors.first()
+        !getRootCause().isNullOrEmpty() -> getRootCause()!!
+        else -> errorCode ?: "An error occurred"
     }
 
     /** Get all error messages as a single string. */
@@ -73,7 +70,7 @@ object ErrorCode {
     const val TOKEN_EXPIRED = "TOKEN_EXPIRED"
     const val FORBIDDEN = "FORBIDDEN"
     const val NOT_FOUND = "NOT_FOUND"
-    
+
     // Loan Workflow Errors
     const val PROFILE_INCOMPLETE = "PROFILE_INCOMPLETE"
     const val ACTIVE_LOAN_EXISTS = "ACTIVE_LOAN_EXISTS"

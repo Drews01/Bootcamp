@@ -33,87 +33,85 @@ import com.example.bootcamp.ui.theme.SpaceViolet
 import kotlin.random.Random
 
 @Composable
-fun AuthBackground(
-    content: @Composable (glowAlpha: Float) -> Unit
-) {
+fun AuthBackground(content: @Composable (glowAlpha: Float) -> Unit) {
     // Animations
     val infiniteTransition = rememberInfiniteTransition(label = "infinite")
 
     // Floating animation for shapes
     val floatOffset1 by
-    infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = -30f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float1"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = -30f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(6000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "float1"
+        )
 
     val floatOffset2 by
-    infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = -30f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float2"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = -30f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(8000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "float2"
+        )
 
     val floatOffset3 by
-    infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = -30f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float3"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = -30f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(10000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "float3"
+        )
 
     // Rotation animation for shapes
     val rotation1 by
-    infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 10f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "rotation1"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 10f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(6000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "rotation1"
+        )
 
     // Glow animation for title (passed to content)
     val glowAlpha by
-    infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.6f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(3000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glow"
+        )
 
     // Twinkle animation for stars
     val starAlpha by
-    infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.8f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "twinkle"
-    )
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.8f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(4000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "twinkle"
+        )
 
     Box(
         modifier =
@@ -153,7 +151,7 @@ fun AuthBackground(
                         Color.White.copy(
                             alpha =
                             starAlpha *
-                                    random.nextFloat()
+                                random.nextFloat()
                         ),
                         radius = starSize,
                         center = Offset(x, y)
@@ -235,7 +233,7 @@ fun AuthBackground(
                     )
                 )
         )
-        
+
         // Main Content
         content(glowAlpha)
     }

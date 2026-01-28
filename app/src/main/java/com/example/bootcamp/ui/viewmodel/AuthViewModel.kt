@@ -13,31 +13,31 @@ import com.example.bootcamp.domain.usecase.auth.LogoutUseCase
 import com.example.bootcamp.domain.usecase.auth.RegisterParams
 import com.example.bootcamp.domain.usecase.auth.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 /** UI state for authentication screens. Includes field-specific errors for form validation. */
 data class AuthUiState(
-        val isLoading: Boolean = false,
-        val isLoggedIn: Boolean = false,
-        val username: String? = null,
-        val userId: String? = null,
-        val email: String? = null,
+    val isLoading: Boolean = false,
+    val isLoggedIn: Boolean = false,
+    val username: String? = null,
+    val userId: String? = null,
+    val email: String? = null,
 
-        // Messages
-        val errorMessage: String? = null,
-        val successMessage: String? = null,
+    // Messages
+    val errorMessage: String? = null,
+    val successMessage: String? = null,
 
-        // Field-specific errors (for form validation)
-        val fieldErrors: Map<String, String> = emptyMap(),
+    // Field-specific errors (for form validation)
+    val fieldErrors: Map<String, String> = emptyMap(),
 
-        // Error details for advanced handling
-        val errorDetails: ErrorDetails? = null
+    // Error details for advanced handling
+    val errorDetails: ErrorDetails? = null
 ) {
     /** Get error for a specific field. */
     fun getFieldError(fieldName: String): String? = fieldErrors[fieldName]
@@ -60,11 +60,11 @@ data class AuthUiState(
 class AuthViewModel
 @Inject
 constructor(
-        private val loginUseCase: LoginUseCase,
-        private val registerUseCase: RegisterUseCase,
-        private val logoutUseCase: LogoutUseCase,
-        private val forgotPasswordUseCase: ForgotPasswordUseCase,
-        private val authRepository: AuthRepository
+    private val loginUseCase: LoginUseCase,
+    private val registerUseCase: RegisterUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val forgotPasswordUseCase: ForgotPasswordUseCase,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -97,33 +97,28 @@ constructor(
         }
     }
 
-    fun register(
-            username: String,
-            email: String,
-            password: String,
-            confirmPassword: String = password
-    ) {
+    fun register(username: String, email: String, password: String, confirmPassword: String = password) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                        isLoading = true,
-                        errorMessage = null,
-                        successMessage = null,
-                        fieldErrors = emptyMap(),
-                        errorDetails = null
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null,
+                    fieldErrors = emptyMap(),
+                    errorDetails = null
                 )
             }
 
             registerUseCase(RegisterParams(username, email, password, confirmPassword))
-                    .onSuccess { message ->
-                        _uiState.update {
-                            it.copy(
-                                    isLoading = false,
-                                    successMessage = message,
-                            )
-                        }
+                .onSuccess { message ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = message,
+                        )
                     }
-                    .onFailure { exception -> handleError(exception) }
+                }
+                .onFailure { exception -> handleError(exception) }
         }
     }
 
@@ -131,11 +126,11 @@ constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                        isLoading = true,
-                        errorMessage = null,
-                        successMessage = null,
-                        fieldErrors = emptyMap(),
-                        errorDetails = null
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null,
+                    fieldErrors = emptyMap(),
+                    errorDetails = null
                 )
             }
 
@@ -152,42 +147,40 @@ constructor(
             val platform = "ANDROID"
 
             loginUseCase(LoginParams(usernameOrEmail, password, fcmToken, deviceName, platform))
-                    .onSuccess { message ->
-                        _uiState.update {
-                            it.copy(
-                                    isLoading = false,
-                                    successMessage = message,
-                            )
-                        }
+                .onSuccess { message ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = message,
+                        )
                     }
-                    .onFailure { exception -> handleError(exception) }
+                }
+                .onFailure { exception -> handleError(exception) }
         }
     }
-
-
 
     fun forgotPassword(email: String) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                        isLoading = true,
-                        errorMessage = null,
-                        successMessage = null,
-                        fieldErrors = emptyMap(),
-                        errorDetails = null
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null,
+                    fieldErrors = emptyMap(),
+                    errorDetails = null
                 )
             }
 
             forgotPasswordUseCase(ForgotPasswordParams(email))
-                    .onSuccess { message ->
-                        _uiState.update {
-                            it.copy(
-                                    isLoading = false,
-                                    successMessage = message,
-                            )
-                        }
+                .onSuccess { message ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = message,
+                        )
                     }
-                    .onFailure { exception -> handleError(exception) }
+                }
+                .onFailure { exception -> handleError(exception) }
         }
     }
 
@@ -197,8 +190,8 @@ constructor(
             logoutUseCase()
             _uiState.update {
                 it.copy(
-                        isLoading = false,
-                        successMessage = "Logged out successfully",
+                    isLoading = false,
+                    successMessage = "Logged out successfully",
                 )
             }
         }
@@ -211,18 +204,18 @@ constructor(
         val errorDetails = (exception as? ApiException)?.errorDetails
         val fieldErrors = errorDetails?.fieldErrors ?: emptyMap()
         val errorMessage =
-                when {
-                    fieldErrors.isNotEmpty() -> errorDetails?.getDisplayMessage()
-                    else -> exception.message
-                }
-                        ?: "An error occurred"
+            when {
+                fieldErrors.isNotEmpty() -> errorDetails?.getDisplayMessage()
+                else -> exception.message
+            }
+                ?: "An error occurred"
 
         _uiState.update {
             it.copy(
-                    isLoading = false,
-                    errorMessage = errorMessage,
-                    fieldErrors = fieldErrors,
-                    errorDetails = errorDetails
+                isLoading = false,
+                errorMessage = errorMessage,
+                fieldErrors = fieldErrors,
+                errorDetails = errorDetails
             )
         }
     }
@@ -236,10 +229,10 @@ constructor(
     fun clearMessages() {
         _uiState.update {
             it.copy(
-                    errorMessage = null,
-                    successMessage = null,
-                    fieldErrors = emptyMap(),
-                    errorDetails = null
+                errorMessage = null,
+                successMessage = null,
+                fieldErrors = emptyMap(),
+                errorDetails = null
             )
         }
     }

@@ -7,12 +7,12 @@ import com.example.bootcamp.domain.usecase.loan.GetBranchesUseCase
 import com.example.bootcamp.domain.usecase.loan.SubmitLoanParams
 import com.example.bootcamp.domain.usecase.loan.SubmitLoanUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Sealed class representing different types of loan submission errors.
@@ -21,44 +21,44 @@ import kotlinx.coroutines.launch
 sealed class LoanErrorType {
     /** User profile is incomplete - redirect to Edit Profile */
     object IncompleteProfile : LoanErrorType()
-    
+
     /** User already has an active loan */
     object ActiveLoanExists : LoanErrorType()
-    
+
     /** Loan amount exceeds credit limit */
     data class ExceedsLimit(val remainingLimit: String, val tier: String) : LoanErrorType()
-    
+
     /** Branch not selected */
     object BranchRequired : LoanErrorType()
-    
+
     /** Branch not found - refresh list */
     object BranchNotFound : LoanErrorType()
-    
+
     /** System error - no tier available */
     object NoTierAvailable : LoanErrorType()
-    
+
     /** Generic error */
     data class Generic(val message: String) : LoanErrorType()
 }
 
 /** UI State for the Loan Submission screen. */
 data class LoanUiState(
-        val branches: List<Branch> = emptyList(),
-        val isBranchesLoading: Boolean = false,
-        val selectedBranch: Branch? = null,
-        val amount: String = "",
-        val tenure: String = "",
-        val isSubmitting: Boolean = false,
-        val errorMessage: String? = null,
-        val errorType: LoanErrorType? = null,
-        val successMessage: String? = null
+    val branches: List<Branch> = emptyList(),
+    val isBranchesLoading: Boolean = false,
+    val selectedBranch: Branch? = null,
+    val amount: String = "",
+    val tenure: String = "",
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null,
+    val errorType: LoanErrorType? = null,
+    val successMessage: String? = null
 ) {
     val isSubmitEnabled: Boolean
         get() =
-                amount.isNotBlank() &&
-                        tenure.isNotBlank() &&
-                        selectedBranch != null &&
-                        !isSubmitting
+            amount.isNotBlank() &&
+                tenure.isNotBlank() &&
+                selectedBranch != null &&
+                !isSubmitting
 }
 
 /** ViewModel for managing loan submission logic and state. */
@@ -66,9 +66,9 @@ data class LoanUiState(
 class LoanViewModel
 @Inject
 constructor(
-        private val getBranchesUseCase: GetBranchesUseCase,
-        private val submitLoanUseCase: SubmitLoanUseCase,
-        private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository
+    private val getBranchesUseCase: GetBranchesUseCase,
+    private val submitLoanUseCase: SubmitLoanUseCase,
+    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanUiState())
@@ -83,17 +83,17 @@ constructor(
             _uiState.update { it.copy(isBranchesLoading = true, errorMessage = null) }
 
             getBranchesUseCase()
-                    .onSuccess { branches ->
-                        _uiState.update { it.copy(isBranchesLoading = false, branches = branches) }
+                .onSuccess { branches ->
+                    _uiState.update { it.copy(isBranchesLoading = false, branches = branches) }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isBranchesLoading = false,
+                            errorMessage = "Failed to load branches: ${exception.message}"
+                        )
                     }
-                    .onFailure { exception ->
-                        _uiState.update {
-                            it.copy(
-                                    isBranchesLoading = false,
-                                    errorMessage = "Failed to load branches: ${exception.message}"
-                            )
-                        }
-                    }
+                }
         }
     }
 
@@ -120,10 +120,16 @@ constructor(
         val branchId = currentState.selectedBranch?.id
 
         if (amountLong == null || tenureInt == null || branchId == null) {
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
                     errorMessage = "Please fill all fields correctly",
-                    errorType = if (branchId == null) LoanErrorType.BranchRequired else LoanErrorType.Generic("Please fill all fields correctly")
+                    errorType = if (branchId ==
+                        null
+                    ) {
+                        LoanErrorType.BranchRequired
+                    } else {
+                        LoanErrorType.Generic("Please fill all fields correctly")
+                    }
                 )
             }
             return
@@ -142,28 +148,33 @@ constructor(
                     branchName = currentState.selectedBranch?.name ?: "Unknown"
                 )
             )
-                    .onSuccess { message ->
-                        _uiState.update {
-                            it.copy(
-                                    isSubmitting = false,
-                                    successMessage = message,
-                                    errorType = null,
-                                    amount = "",
-                                    tenure = "",
-                                    selectedBranch = null
-                            )
-                        }
+                .onSuccess { message ->
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            successMessage = message,
+                            errorType = null,
+                            amount = "",
+                            tenure = "",
+                            selectedBranch = null
+                        )
                     }
-                    .onFailure { exception ->
-                        val errorType = parseErrorType(exception)
-                        _uiState.update {
-                            it.copy(
-                                isSubmitting = false,
-                                errorMessage = if (errorType is LoanErrorType.Generic) exception.message ?: "Submission failed" else null,
-                                errorType = errorType
-                            )
-                        }
+                }
+                .onFailure { exception ->
+                    val errorType = parseErrorType(exception)
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            errorMessage = if (errorType is LoanErrorType.Generic) {
+                                exception.message
+                                    ?: "Submission failed"
+                            } else {
+                                null
+                            },
+                            errorType = errorType
+                        )
                     }
+                }
         }
     }
 
@@ -173,11 +184,14 @@ constructor(
     private fun parseErrorType(exception: Throwable): LoanErrorType {
         android.util.Log.d("LoanViewModel", "parseErrorType called with: $exception")
         android.util.Log.d("LoanViewModel", "Exception class: ${exception::class.simpleName}")
-        
+
         // Check for specific error codes from backend (extract errorCode from ApiException)
         if (exception is com.example.bootcamp.data.remote.base.ApiException) {
             val errorCode = exception.getErrorCode()
-            android.util.Log.d("LoanViewModel", "ApiException detected. errorCode=$errorCode, statusCode=${exception.statusCode}")
+            android.util.Log.d(
+                "LoanViewModel",
+                "ApiException detected. errorCode=$errorCode, statusCode=${exception.statusCode}"
+            )
             android.util.Log.d("LoanViewModel", "ErrorDetails: ${exception.errorDetails}")
             when (errorCode) {
                 com.example.bootcamp.data.remote.base.ErrorCode.PROFILE_INCOMPLETE -> {
@@ -215,18 +229,18 @@ constructor(
         // Fallback to message parsing
         val errorMessage = exception.message ?: ""
         android.util.Log.d("LoanViewModel", "Fallback parsing for message: $errorMessage")
-        
+
         return when {
             errorMessage.contains("profile is incomplete", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: profile is incomplete")
                 LoanErrorType.IncompleteProfile
             }
-            
+
             errorMessage.contains("active loan", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: active loan")
                 LoanErrorType.ActiveLoanExists
             }
-            
+
             errorMessage.contains("exceeds remaining credit limit", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: exceeds credit limit")
                 val tierRegex = Regex("for (\\w+) tier", RegexOption.IGNORE_CASE)
@@ -234,22 +248,22 @@ constructor(
                 fetchCreditInfo(tier)
                 LoanErrorType.ExceedsLimit(remainingLimit = "checking...", tier = tier)
             }
-            
+
             errorMessage.contains("Branch ID is required", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: Branch ID required")
                 LoanErrorType.BranchRequired
             }
-            
+
             errorMessage.contains("Branch not found", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: Branch not found")
                 LoanErrorType.BranchNotFound
             }
-            
+
             errorMessage.contains("No tier product available", ignoreCase = true) -> {
                 android.util.Log.d("LoanViewModel", "Matched message: No tier product")
                 LoanErrorType.NoTierAvailable
             }
-            
+
             else -> {
                 android.util.Log.d("LoanViewModel", "No match found, valid generic error")
                 LoanErrorType.Generic(errorMessage)
@@ -274,7 +288,9 @@ constructor(
             loanRepository.getUserAvailableCredit()
                 .onSuccess { limit ->
                     // Update the error state with the real limit
-                    val formattedLimit = java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(limit)
+                    val formattedLimit = java.text.NumberFormat.getNumberInstance(
+                        java.util.Locale("id", "ID")
+                    ).format(limit)
                     _uiState.update { state ->
                         if (state.errorType is LoanErrorType.ExceedsLimit) {
                             state.copy(

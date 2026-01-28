@@ -23,21 +23,15 @@ abstract class DataSourceModule {
     /** Binds AuthRemoteDataSource interface to its implementation. */
     @Binds
     @Singleton
-    abstract fun bindAuthRemoteDataSource(
-        impl: AuthRemoteDataSourceImpl
-    ): AuthRemoteDataSource
+    abstract fun bindAuthRemoteDataSource(impl: AuthRemoteDataSourceImpl): AuthRemoteDataSource
 
     /** Binds LoanRemoteDataSource interface to its implementation. */
     @Binds
     @Singleton
-    abstract fun bindLoanRemoteDataSource(
-        impl: LoanRemoteDataSourceImpl
-    ): LoanRemoteDataSource
+    abstract fun bindLoanRemoteDataSource(impl: LoanRemoteDataSourceImpl): LoanRemoteDataSource
 
     /** Binds UserProfileRemoteDataSource interface to its implementation. */
     @Binds
     @Singleton
-    abstract fun bindUserProfileRemoteDataSource(
-        impl: UserProfileRemoteDataSourceImpl
-    ): UserProfileRemoteDataSource
+    abstract fun bindUserProfileRemoteDataSource(impl: UserProfileRemoteDataSourceImpl): UserProfileRemoteDataSource
 }

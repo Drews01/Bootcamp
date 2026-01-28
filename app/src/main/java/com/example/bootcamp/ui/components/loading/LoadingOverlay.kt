@@ -22,13 +22,13 @@ import com.example.bootcamp.ui.theme.SpaceIndigo
 fun LoadingOverlay(isLoading: Boolean, modifier: Modifier = Modifier) {
     if (isLoading) {
         Box(
-                modifier = modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
+            modifier = modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color = SpaceIndigo,
-                    strokeWidth = 4.dp
+                modifier = Modifier.size(48.dp),
+                color = SpaceIndigo,
+                strokeWidth = 4.dp
             )
         }
     }

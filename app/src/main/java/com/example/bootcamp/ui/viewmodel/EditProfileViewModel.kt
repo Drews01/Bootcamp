@@ -22,7 +22,7 @@ data class EditProfileUiState(
     val isSaving: Boolean = false,
     val isUploadingKtp: Boolean = false,
     val profile: UserProfile? = null,
-    
+
     // Form fields
     val address: String = "",
     val nik: String = "",
@@ -30,8 +30,9 @@ data class EditProfileUiState(
     val accountNumber: String = "",
     val bankName: String = "",
     val ktpUri: Uri? = null,
-    val ktpPath: String = "", // Default to empty string instead of null to match Request object requirements if needed, or keep null logic
-    
+    // Default to empty string instead of null to match Request object requirements if needed, or keep null logic
+    val ktpPath: String = "",
+
     val errorMessage: String? = null,
     val successMessage: String? = null
 )
@@ -108,57 +109,59 @@ class EditProfileViewModel @Inject constructor(
             _uiState.update { it.copy(errorMessage = "Image size is too large. Max 5MB allowed.") }
             return
         }
-        
+
         // Update URI for preview
         _uiState.update { it.copy(ktpUri = uri) }
-        
+
         // Auto upload
         uploadKtp(uri)
     }
-    
-    private fun isValidImageSize(uri: Uri): Boolean {
-        return try {
-            // First try to get size from ContentResolver query (works for gallery/content URIs)
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            val sizeFromCursor = cursor?.use {
-                if (it.moveToFirst()) {
-                    val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
-                    if (sizeIndex != -1) {
-                        it.getLong(sizeIndex).takeIf { size -> size > 0 }
-                    } else null
-                } else null
+
+    private fun isValidImageSize(uri: Uri): Boolean = try {
+        // First try to get size from ContentResolver query (works for gallery/content URIs)
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        val sizeFromCursor = cursor?.use {
+            if (it.moveToFirst()) {
+                val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
+                if (sizeIndex != -1) {
+                    it.getLong(sizeIndex).takeIf { size -> size > 0 }
+                } else {
+                    null
+                }
+            } else {
+                null
             }
-            
-            // If cursor didn't return a valid size, read from InputStream (works for FileProvider URIs)
-            val fileSize = sizeFromCursor ?: run {
-                context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    inputStream.available().toLong().takeIf { it > 0 }
-                        ?: inputStream.readBytes().size.toLong()
-                } ?: 0L
-            }
-            
-            fileSize <= 5 * 1024 * 1024 // 5MB
-        } catch (e: Exception) {
-            true // Unable to check size, assume valid
         }
+
+        // If cursor didn't return a valid size, read from InputStream (works for FileProvider URIs)
+        val fileSize = sizeFromCursor ?: run {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                inputStream.available().toLong().takeIf { it > 0 }
+                    ?: inputStream.readBytes().size.toLong()
+            } ?: 0L
+        }
+
+        fileSize <= 5 * 1024 * 1024 // 5MB
+    } catch (e: Exception) {
+        true // Unable to check size, assume valid
     }
 
     private fun uploadKtp(uri: Uri) {
-         viewModelScope.launch {
+        viewModelScope.launch {
             _uiState.update { it.copy(isUploadingKtp = true, errorMessage = null) }
-            
+
             userProfileRepository.uploadKtp(uri)
                 .onSuccess { path ->
                     if (!path.isNullOrBlank()) {
-                        _uiState.update { 
+                        _uiState.update {
                             it.copy(
                                 isUploadingKtp = false,
                                 ktpPath = path,
                                 successMessage = "KTP uploaded successfully"
-                            ) 
+                            )
                         }
                     } else {
-                        // Path missing in response but upload succeeded. 
+                        // Path missing in response but upload succeeded.
                         // Reload profile to fetch the updated path from server.
                         _uiState.update { it.copy(isUploadingKtp = false) }
                         loadProfile()
@@ -166,24 +169,27 @@ class EditProfileViewModel @Inject constructor(
                 }
                 .onFailure { exception ->
                     android.util.Log.e("EditProfileVM", "Upload failed", exception)
-                    _uiState.update { 
+                    _uiState.update {
                         it.copy(
-                            isUploadingKtp = false, 
+                            isUploadingKtp = false,
                             errorMessage = "Failed to upload KTP: ${exception.message}",
-                            ktpUri = null 
-                        ) 
+                            ktpUri = null
+                        )
                     }
                 }
-         }
+        }
     }
 
     fun saveProfile() {
         val state = _uiState.value
-        
+
         // Validation
-        if (state.address.isBlank() || state.nik.isBlank() || 
-            state.phoneNumber.isBlank() || state.accountNumber.isBlank() || 
-            state.bankName.isBlank()) {
+        if (state.address.isBlank() ||
+            state.nik.isBlank() ||
+            state.phoneNumber.isBlank() ||
+            state.accountNumber.isBlank() ||
+            state.bankName.isBlank()
+        ) {
             _uiState.update { it.copy(errorMessage = "Please fill all required fields") }
             return
         }
@@ -192,10 +198,10 @@ class EditProfileViewModel @Inject constructor(
             _uiState.update { it.copy(errorMessage = "NIK must be 16 digits") }
             return
         }
-        
+
         if (state.ktpPath.isBlank()) {
-             _uiState.update { it.copy(errorMessage = "Please upload your KTP photo") }
-             return
+            _uiState.update { it.copy(errorMessage = "Please upload your KTP photo") }
+            return
         }
 
         viewModelScope.launch {

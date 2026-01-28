@@ -42,10 +42,7 @@ object Routes {
 
 /** Main navigation composable setting up the NavHost. */
 @Composable
-fun AppNavigation(
-        viewModel: AuthViewModel,
-        navController: NavHostController = rememberNavController(),
-) {
+fun AppNavigation(viewModel: AuthViewModel, navController: NavHostController = rememberNavController(),) {
     val uiState by viewModel.uiState.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -53,172 +50,164 @@ fun AppNavigation(
     val showBottomBar = currentRoute in setOf(Routes.HOME, Routes.SUBMIT_LOAN, Routes.USER_PROFILE)
 
     Scaffold(
-            bottomBar = {
-                if (showBottomBar) {
-                    BottomNavigationBar(
-                            currentRoute = currentRoute,
-                            isLoggedIn = uiState.isLoggedIn,
-                            onNavigate = { target ->
-                                navController.navigate(target) {
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
-                                    launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
-                                }
-                            },
-                    )
-                }
-            },
+        bottomBar = {
+            if (showBottomBar) {
+                BottomNavigationBar(
+                    currentRoute = currentRoute,
+                    isLoggedIn = uiState.isLoggedIn,
+                    onNavigate = { target ->
+                        navController.navigate(target) {
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    },
+                )
+            }
+        },
     ) { innerPadding ->
         AppNavHost(
-                viewModel = viewModel,
-                navController = navController,
-                paddingValues = innerPadding,
+            viewModel = viewModel,
+            navController = navController,
+            paddingValues = innerPadding,
         )
     }
 }
 
 @Composable
-private fun AppNavHost(
-        viewModel: AuthViewModel,
-        navController: NavHostController,
-        paddingValues: PaddingValues,
-) {
+private fun AppNavHost(viewModel: AuthViewModel, navController: NavHostController, paddingValues: PaddingValues,) {
     NavHost(
-            navController = navController,
-            startDestination = Routes.HOME,
+        navController = navController,
+        startDestination = Routes.HOME,
     ) {
         composable(Routes.HOME) {
             HomeScreen(
-                    viewModel = viewModel,
-                    modifier = androidx.compose.ui.Modifier.padding(paddingValues),
-                    onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
-                    onNavigateToSubmitLoan = { navController.navigate(Routes.SUBMIT_LOAN) },
-                    onNavigateToProfile = { navController.navigate(Routes.EDIT_PROFILE) }
+                viewModel = viewModel,
+                modifier = androidx.compose.ui.Modifier.padding(paddingValues),
+                onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
+                onNavigateToSubmitLoan = { navController.navigate(Routes.SUBMIT_LOAN) },
+                onNavigateToProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             )
         }
 
         composable(Routes.SUBMIT_LOAN) {
             val loanViewModel: com.example.bootcamp.ui.viewmodel.LoanViewModel =
-                    androidx.hilt.navigation.compose.hiltViewModel()
+                androidx.hilt.navigation.compose.hiltViewModel()
             SubmitLoanScreen(
-                    viewModel = loanViewModel,
-                    modifier = androidx.compose.ui.Modifier.padding(paddingValues),
-                    onSubmitSuccess = {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.HOME) { inclusive = true }
-                        }
-                    },
-                    onNavigateToEditProfile = {
-                        navController.navigate(Routes.EDIT_PROFILE)
+                viewModel = loanViewModel,
+                modifier = androidx.compose.ui.Modifier.padding(paddingValues),
+                onSubmitSuccess = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) { inclusive = true }
                     }
+                },
+                onNavigateToEditProfile = {
+                    navController.navigate(Routes.EDIT_PROFILE)
+                }
             )
         }
 
         composable(Routes.USER_PROFILE) {
             UserProfileScreen(
-                    viewModel = viewModel,
-                    modifier = androidx.compose.ui.Modifier.padding(paddingValues),
-                    onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
-                    onNavigateToProfileDetails = { navController.navigate(Routes.PROFILE_DETAILS) },
-                    onNavigateToLoanHistory = { navController.navigate(Routes.LOAN_HISTORY) }
+                viewModel = viewModel,
+                modifier = androidx.compose.ui.Modifier.padding(paddingValues),
+                onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
+                onNavigateToProfileDetails = { navController.navigate(Routes.PROFILE_DETAILS) },
+                onNavigateToLoanHistory = { navController.navigate(Routes.LOAN_HISTORY) }
             )
         }
 
         composable(Routes.PROFILE_DETAILS) {
             com.example.bootcamp.ui.screens.ProfileDetailsScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             )
         }
 
         composable(Routes.EDIT_PROFILE) {
             com.example.bootcamp.ui.screens.EditProfileScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onSaveSuccess = {
-                        navController.navigate(Routes.PROFILE_DETAILS) {
-                            popUpTo(Routes.EDIT_PROFILE) { inclusive = true }
-                        }
+                onNavigateBack = { navController.popBackStack() },
+                onSaveSuccess = {
+                    navController.navigate(Routes.PROFILE_DETAILS) {
+                        popUpTo(Routes.EDIT_PROFILE) { inclusive = true }
                     }
+                }
             )
         }
 
         composable(Routes.LOAN_HISTORY) {
             com.example.bootcamp.ui.screens.LoanHistoryScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
         composable(Routes.LOGIN) {
             LoginScreen(
-                    viewModel = viewModel,
-                    onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
-                    onNavigateToForgotPassword = { navController.navigate(Routes.FORGOT_PASSWORD) },
-                    onLoginSuccess = {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.HOME) { inclusive = true }
-                        }
-                    },
+                viewModel = viewModel,
+                onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
+                onNavigateToForgotPassword = { navController.navigate(Routes.FORGOT_PASSWORD) },
+                onLoginSuccess = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                },
             )
         }
 
         composable(Routes.REGISTER) {
             RegisterScreen(
-                    viewModel = viewModel,
-                    onNavigateToLogin = { navController.popBackStack() },
-                    onRegisterSuccess = {
-                        navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.REGISTER) { inclusive = true }
-                        }
-                    },
+                viewModel = viewModel,
+                onNavigateToLogin = { navController.popBackStack() },
+                onRegisterSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                },
             )
         }
 
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
-                    viewModel = viewModel,
-                    onNavigateToLogin = { navController.popBackStack() },
+                viewModel = viewModel,
+                onNavigateToLogin = { navController.popBackStack() },
             )
         }
     }
 }
 
 @Composable
-private fun BottomNavigationBar(
-        currentRoute: String?,
-        isLoggedIn: Boolean,
-        onNavigate: (String) -> Unit,
-) {
+private fun BottomNavigationBar(currentRoute: String?, isLoggedIn: Boolean, onNavigate: (String) -> Unit,) {
     val destinations =
-            if (isLoggedIn) {
-                listOf(Routes.HOME, Routes.SUBMIT_LOAN, Routes.USER_PROFILE)
-            } else {
-                listOf(Routes.HOME, Routes.USER_PROFILE)
-            }
+        if (isLoggedIn) {
+            listOf(Routes.HOME, Routes.SUBMIT_LOAN, Routes.USER_PROFILE)
+        } else {
+            listOf(Routes.HOME, Routes.USER_PROFILE)
+        }
 
     NavigationBar {
         destinations.forEach { route ->
             val selected = currentRoute == route
             val (label, icon) =
-                    when (route) {
-                        Routes.HOME -> "Home" to Icons.Filled.Home
-                        Routes.SUBMIT_LOAN -> "Ajukan" to Icons.Filled.Add
-                        Routes.USER_PROFILE -> "Profile" to Icons.Filled.AccountCircle
-                        else -> route to Icons.Filled.Home
-                    }
+                when (route) {
+                    Routes.HOME -> "Home" to Icons.Filled.Home
+                    Routes.SUBMIT_LOAN -> "Ajukan" to Icons.Filled.Add
+                    Routes.USER_PROFILE -> "Profile" to Icons.Filled.AccountCircle
+                    else -> route to Icons.Filled.Home
+                }
 
             NavigationBarItem(
-                    selected = selected,
-                    onClick = { onNavigate(route) },
-                    icon = { Icon(imageVector = icon, contentDescription = label) },
-                    label = { Text(text = label) },
+                selected = selected,
+                onClick = { onNavigate(route) },
+                icon = { Icon(imageVector = icon, contentDescription = label) },
+                label = { Text(text = label) },
             )
         }
     }

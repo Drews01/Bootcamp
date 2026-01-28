@@ -32,9 +32,7 @@ interface FCMApiService {
      * @return ApiResponse indicating success or failure
      */
     @DELETE("api/fcm/unregister")
-    suspend fun unregisterToken(
-        @Query("fcmToken") fcmToken: String
-    ): Response<ApiResponse<Unit>>
+    suspend fun unregisterToken(@Query("fcmToken") fcmToken: String): Response<ApiResponse<Unit>>
 
     /**
      * Send a test notification to the current user's registered devices.

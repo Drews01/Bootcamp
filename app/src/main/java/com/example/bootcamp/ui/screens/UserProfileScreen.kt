@@ -37,176 +37,170 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bootcamp.ui.theme.Gray400
 import com.example.bootcamp.ui.theme.Gray500
-import com.example.bootcamp.ui.theme.Gray700
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
 
 @Composable
 fun UserProfileScreen(
-        viewModel: AuthViewModel,
-        modifier: Modifier = Modifier,
-        onNavigateToLogin: () -> Unit,
-        onNavigateToProfileDetails: () -> Unit,
-        onNavigateToLoanHistory: () -> Unit
+    viewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToProfileDetails: () -> Unit,
+    onNavigateToLoanHistory: () -> Unit
 ) {
-        val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-        Box(
-                modifier =
-                        modifier
-                                .fillMaxSize()
-                                .background(
-                                        brush =
-                                                Brush.verticalGradient(
-                                                        colors =
-                                                                listOf(
-                                                                        Color(0xFF0F1020),
-                                                                        Color(0xFF111827),
-                                                                )
-                                                )
-                                ),
+    Box(
+        modifier =
+        modifier
+            .fillMaxSize()
+            .background(
+                brush =
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
+                        Color(0xFF0F1020),
+                        Color(0xFF111827),
+                    )
+                )
+            ),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors =
+                CardDefaults.cardColors(
+                    containerColor = Color(0xFF020617).copy(alpha = 0.95f),
+                ),
+            ) {
                 Column(
-                        modifier = Modifier.fillMaxSize().padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                        Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(20.dp),
-                                colors =
-                                        CardDefaults.cardColors(
-                                                containerColor = Color(0xFF020617).copy(alpha = 0.95f),
-                                        ),
+                    Box(
+                        modifier =
+                        Modifier.clip(CircleShape)
+                            .background(Color(0xFF111827))
+                            .padding(12.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = null,
+                            tint = Color(0xFFA5B4FC),
+                            modifier = Modifier.height(72.dp),
+                        )
+                    }
+
+                    if (!uiState.isLoggedIn) {
+                        Text(
+                            text = "Belum masuk",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text =
+                            "Masuk untuk melihat dan mengelola profil kamu.",
+                            fontSize = 14.sp,
+                            color = Gray500,
+                            textAlign = TextAlign.Center,
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = onNavigateToLogin,
+                            modifier =
+                            Modifier.fillMaxWidth()
+                                .height(48.dp),
+                            colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Indigo600,
+                            ),
                         ) {
-                                Column(
-                                        modifier = Modifier.padding(24.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                                ) {
-                                        Box(
-                                                modifier =
-                                                        Modifier.clip(CircleShape)
-                                                                .background(Color(0xFF111827))
-                                                                .padding(12.dp),
-                                        ) {
-                                                Icon(
-                                                        imageVector = Icons.Default.AccountCircle,
-                                                        contentDescription = null,
-                                                        tint = Color(0xFFA5B4FC),
-                                                        modifier = Modifier.height(72.dp),
-                                                )
-                                        }
-
-                                        if (!uiState.isLoggedIn) {
-                                                Text(
-                                                        text = "Belum masuk",
-                                                        fontSize = 20.sp,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        color = Color.White,
-                                                )
-                                                Text(
-                                                        text =
-                                                                "Masuk untuk melihat dan mengelola profil kamu.",
-                                                        fontSize = 14.sp,
-                                                        color = Gray500,
-                                                        textAlign = TextAlign.Center,
-                                                )
-
-                                                Spacer(modifier = Modifier.height(16.dp))
-
-                                                Button(
-                                                        onClick = onNavigateToLogin,
-                                                        modifier =
-                                                                Modifier.fillMaxWidth()
-                                                                        .height(48.dp),
-                                                        colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                        containerColor = Indigo600,
-                                                                ),
-                                                ) {
-                                                        Icon(
-                                                                imageVector =
-                                                                        Icons.AutoMirrored.Filled
-                                                                                .Login,
-                                                                contentDescription = null,
-                                                        )
-                                                        Spacer(modifier = Modifier.width(8.dp))
-                                                        Text(
-                                                                text = "Login sekarang",
-                                                                fontSize = 15.sp,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
-                                                }
-                                        } else {
-                                                Text(
-                                                        "Profil Kamu",
-                                                        fontSize = 20.sp,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        color = Color.White,
-                                                )
-
-                                                Text(
-                                                        text = uiState.username ?: "-",
-                                                        fontSize = 18.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Color(0xFFA5B4FC),
-                                                )
-
-                                                Spacer(modifier = Modifier.height(16.dp))
-
-                                                // Menu Cards
-                                                MenuCard(
-                                                    title = "Profile Details",
-                                                    icon = Icons.Default.AccountCircle,
-                                                    onClick = onNavigateToProfileDetails
-                                                )
-                                                
-                                                MenuCard(
-                                                    title = "Loan History",
-                                                    icon = Icons.Default.History,
-                                                    onClick = onNavigateToLoanHistory
-                                                )
-
-                                                Spacer(modifier = Modifier.height(24.dp))
-
-                                                Button(
-                                                        onClick = { viewModel.logout() },
-                                                        modifier =
-                                                                Modifier.fillMaxWidth()
-                                                                        .height(48.dp),
-                                                        colors =
-                                                                ButtonDefaults.buttonColors(
-                                                                        containerColor = Color.Red.copy(alpha = 0.8f),
-                                                                ),
-                                                ) {
-                                                        Icon(
-                                                                imageVector =
-                                                                        Icons.AutoMirrored.Filled.Logout,
-                                                                contentDescription = null,
-                                                        )
-                                                        Spacer(modifier = Modifier.width(8.dp))
-                                                        Text(
-                                                                text = "Keluar",
-                                                                fontSize = 15.sp,
-                                                                fontWeight = FontWeight.SemiBold,
-                                                        )
-                                                }
-                                        }
-                                }
+                            Icon(
+                                imageVector =
+                                Icons.AutoMirrored.Filled
+                                    .Login,
+                                contentDescription = null,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Login sekarang",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
                         }
+                    } else {
+                        Text(
+                            "Profil Kamu",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+
+                        Text(
+                            text = uiState.username ?: "-",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFA5B4FC),
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Menu Cards
+                        MenuCard(
+                            title = "Profile Details",
+                            icon = Icons.Default.AccountCircle,
+                            onClick = onNavigateToProfileDetails
+                        )
+
+                        MenuCard(
+                            title = "Loan History",
+                            icon = Icons.Default.History,
+                            onClick = onNavigateToLoanHistory
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Button(
+                            onClick = { viewModel.logout() },
+                            modifier =
+                            Modifier.fillMaxWidth()
+                                .height(48.dp),
+                            colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Color.Red.copy(alpha = 0.8f),
+                            ),
+                        ) {
+                            Icon(
+                                imageVector =
+                                Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = null,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Keluar",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
                 }
+            }
         }
+    }
 }
 
 @Composable
-fun MenuCard(
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
+fun MenuCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().height(60.dp),
@@ -245,4 +239,3 @@ fun MenuCard(
         }
     }
 }
-

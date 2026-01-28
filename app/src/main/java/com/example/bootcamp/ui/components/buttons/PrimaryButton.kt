@@ -34,50 +34,50 @@ import com.example.bootcamp.ui.theme.SpaceViolet
  */
 @Composable
 fun PrimaryButton(
-        text: String,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier,
-        enabled: Boolean = true,
-        height: Dp = 54.dp,
-        cornerRadius: Dp = 14.dp
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 54.dp,
+    cornerRadius: Dp = 14.dp
 ) {
     Button(
-            onClick = onClick,
-            modifier = modifier.fillMaxWidth().height(height),
-            enabled = enabled,
-            shape = RoundedCornerShape(cornerRadius),
-            colors =
-                    ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
-                    ),
-            contentPadding = PaddingValues(0.dp)
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().height(height),
+        enabled = enabled,
+        shape = RoundedCornerShape(cornerRadius),
+        colors =
+        ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
+        ),
+        contentPadding = PaddingValues(0.dp)
     ) {
         Box(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .height(height)
-                                .background(
-                                        brush =
-                                                if (enabled) {
-                                                    Brush.horizontalGradient(
-                                                            colors =
-                                                                    listOf(SpaceIndigo, SpaceViolet)
-                                                    )
-                                                } else {
-                                                    Brush.horizontalGradient(
-                                                            colors = listOf(Color.Gray, Color.Gray)
-                                                    )
-                                                },
-                                        shape = RoundedCornerShape(cornerRadius)
-                                ),
-                contentAlignment = Alignment.Center
+            modifier =
+            Modifier.fillMaxWidth()
+                .height(height)
+                .background(
+                    brush =
+                    if (enabled) {
+                        Brush.horizontalGradient(
+                            colors =
+                            listOf(SpaceIndigo, SpaceViolet)
+                        )
+                    } else {
+                        Brush.horizontalGradient(
+                            colors = listOf(Color.Gray, Color.Gray)
+                        )
+                    },
+                    shape = RoundedCornerShape(cornerRadius)
+                ),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                    text = text,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                text = text,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
             )
         }
     }

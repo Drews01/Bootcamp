@@ -1,14 +1,14 @@
 package com.example.bootcamp.di
 
+import com.example.bootcamp.data.datasource.AuthRemoteDataSource
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.BranchDao
 import com.example.bootcamp.data.local.dao.LoanHistoryDao
 import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.dao.UserProfileCacheDao
-import com.example.bootcamp.data.datasource.AuthRemoteDataSource
-import com.example.bootcamp.data.datasource.LoanRemoteDataSource
-import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.repository.AuthRepositoryImpl
 import com.example.bootcamp.data.repository.LoanRepositoryImpl
 import com.example.bootcamp.data.repository.UserProfileRepositoryImpl
@@ -37,12 +37,8 @@ object RepositoryModule {
      */
     @Provides
     @Singleton
-    fun provideAuthRepository(
-        authRemoteDataSource: AuthRemoteDataSource,
-        tokenManager: TokenManager
-    ): AuthRepository {
-        return AuthRepositoryImpl(authRemoteDataSource, tokenManager)
-    }
+    fun provideAuthRepository(authRemoteDataSource: AuthRemoteDataSource, tokenManager: TokenManager): AuthRepository =
+        AuthRepositoryImpl(authRemoteDataSource, tokenManager)
 
     /** Provides LoanRepository implementation with offline-first support. */
     @Provides
@@ -55,17 +51,15 @@ object RepositoryModule {
         loanHistoryDao: LoanHistoryDao,
         networkMonitor: NetworkMonitor,
         syncManager: SyncManager
-    ): LoanRepository {
-        return LoanRepositoryImpl(
-            loanRemoteDataSource,
-            tokenManager,
-            pendingLoanDao,
-            branchDao,
-            loanHistoryDao,
-            networkMonitor,
-            syncManager
-        )
-    }
+    ): LoanRepository = LoanRepositoryImpl(
+        loanRemoteDataSource,
+        tokenManager,
+        pendingLoanDao,
+        branchDao,
+        loanHistoryDao,
+        networkMonitor,
+        syncManager
+    )
 
     /** Provides UserProfileRepository implementation with offline-first support. */
     @Provides
@@ -77,16 +71,12 @@ object RepositoryModule {
         userProfileCacheDao: UserProfileCacheDao,
         networkMonitor: NetworkMonitor,
         syncManager: SyncManager
-    ): UserProfileRepository {
-        return UserProfileRepositoryImpl(
-            userProfileRemoteDataSource,
-            tokenManager,
-            pendingProfileDao,
-            userProfileCacheDao,
-            networkMonitor,
-            syncManager
-        )
-    }
+    ): UserProfileRepository = UserProfileRepositoryImpl(
+        userProfileRemoteDataSource,
+        tokenManager,
+        pendingProfileDao,
+        userProfileCacheDao,
+        networkMonitor,
+        syncManager
+    )
 }
-
-

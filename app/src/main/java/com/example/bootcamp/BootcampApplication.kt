@@ -9,11 +9,13 @@ import javax.inject.Inject
 /**
  * Application class annotated with @HiltAndroidApp to enable Hilt dependency injection. This
  * triggers Hilt's code generation and serves as the application-level dependency container.
- * 
+ *
  * Implements Configuration.Provider to enable HiltWorker for WorkManager.
  */
 @HiltAndroidApp
-class BootcampApplication : Application(), Configuration.Provider {
+class BootcampApplication :
+    Application(),
+    Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -28,4 +30,3 @@ class BootcampApplication : Application(), Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 }
-

@@ -58,5 +58,3 @@ abstract class AppDatabase : RoomDatabase() {
         const val DATABASE_NAME = "bootcamp_database"
     }
 }
-
-

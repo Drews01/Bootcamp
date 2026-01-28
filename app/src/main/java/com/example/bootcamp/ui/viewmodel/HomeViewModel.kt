@@ -2,17 +2,17 @@ package com.example.bootcamp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bootcamp.domain.model.UserProfile
 import com.example.bootcamp.data.remote.dto.UserTierLimitDTO
 import com.example.bootcamp.data.repository.ProductRepository
+import com.example.bootcamp.domain.model.UserProfile
 import com.example.bootcamp.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class HomeUiState(
     val isLoading: Boolean = false,
@@ -24,10 +24,10 @@ data class HomeUiState(
 ) {
     // Helper to check if we should show the "Unlock Limit" empty state
     // Show if profile exists (or maybe we show it even if profile doesn't exist? Requirement says: "Profile matches 'New User' / 404 -> Show 'Complete Your Profile'")
-    // Actually, prompt says: 
+    // Actually, prompt says:
     // Case 1: Tier Data Exists -> Show Product Tier Card
     // Case 2: Profile matches "New User" / 404 -> Show "Complete Your Profile" / CTA (Empty State Card)
-    
+
     // So if userTier is null, we show EmptyStateCard.
 }
 

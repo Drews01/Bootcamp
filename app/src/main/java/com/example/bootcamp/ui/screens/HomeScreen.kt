@@ -2,7 +2,6 @@ package com.example.bootcamp.ui.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,7 +19,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,41 +35,39 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bootcamp.ui.theme.Gray400
 import com.example.bootcamp.ui.theme.Gray500
-import com.example.bootcamp.ui.theme.Gray700
 import com.example.bootcamp.ui.theme.Indigo600
-import com.example.bootcamp.ui.theme.Indigo700
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
 private data class LoanProduct(
-        val name: String,
-        val limitRupiah: Long,
-        val maxTenorMonth: Int,
-        val ratePercentPerYear: Double,
+    val name: String,
+    val limitRupiah: Long,
+    val maxTenorMonth: Int,
+    val ratePercentPerYear: Double,
 )
 
 private val loanProducts =
-        listOf(
-                LoanProduct(
-                        name = "Bronze",
-                        limitRupiah = 10_000_000,
-                        maxTenorMonth = 36,
-                        ratePercentPerYear = 8.0,
-                ),
-                LoanProduct(
-                        name = "Silver",
-                        limitRupiah = 25_000_000,
-                        maxTenorMonth = 36,
-                        ratePercentPerYear = 7.0,
-                ),
-                LoanProduct(
-                        name = "Gold",
-                        limitRupiah = 50_000_000,
-                        maxTenorMonth = 36,
-                        ratePercentPerYear = 6.0,
-                ),
-        )
+    listOf(
+        LoanProduct(
+            name = "Bronze",
+            limitRupiah = 10_000_000,
+            maxTenorMonth = 36,
+            ratePercentPerYear = 8.0,
+        ),
+        LoanProduct(
+            name = "Silver",
+            limitRupiah = 25_000_000,
+            maxTenorMonth = 36,
+            ratePercentPerYear = 7.0,
+        ),
+        LoanProduct(
+            name = "Gold",
+            limitRupiah = 50_000_000,
+            maxTenorMonth = 36,
+            ratePercentPerYear = 6.0,
+        ),
+    )
 
 @Composable
 fun HomeScreen(
@@ -82,11 +76,12 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit,
     onNavigateToSubmitLoan: () -> Unit,
-    onNavigateToProfile: () -> Unit = {} // Default empty for now to avoid breaking changes immediately, user can wire up later
+    // Default empty for now to avoid breaking changes immediately, user can wire up later
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val homeUiState by homeViewModel.uiState.collectAsState()
-    
+
     // Fetch data when logged in
     androidx.compose.runtime.LaunchedEffect(uiState.isLoggedIn) {
         if (uiState.isLoggedIn) {
@@ -99,19 +94,19 @@ fun HomeScreen(
 
     Box(
         modifier =
-            modifier
-                .fillMaxSize()
-                .background(
-                    brush =
-                        Brush.verticalGradient(
-                            colors =
-                                listOf(
-                                    Color(0xFF0F1020),
-                                    Color(0xFF14162B),
-                                    Color(0xFF111827),
-                                )
-                        )
-                ),
+        modifier
+            .fillMaxSize()
+            .background(
+                brush =
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
+                        Color(0xFF0F1020),
+                        Color(0xFF14162B),
+                        Color(0xFF111827),
+                    )
+                )
+            ),
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 24.dp),
@@ -121,11 +116,11 @@ fun HomeScreen(
                 Column {
                     Text(
                         text =
-                            if (uiState.isLoggedIn && uiState.username != null) {
-                                "Hi, ${uiState.username}"
-                            } else {
-                                "Hi, Guest"
-                            },
+                        if (uiState.isLoggedIn && uiState.username != null) {
+                            "Hi, ${uiState.username}"
+                        } else {
+                            "Hi, Guest"
+                        },
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
@@ -147,7 +142,7 @@ fun HomeScreen(
                         )
                     } else if (!homeUiState.isTierLoading && !homeUiState.isProfileLoading) {
                         // If logic: Profile matches "New User" / 404 (implied by null tier + loaded) -> Show Empty State
-                         com.example.bootcamp.ui.components.EmptyStateCard(
+                        com.example.bootcamp.ui.components.EmptyStateCard(
                             onGetStartedClick = onNavigateToProfile
                         )
                     }
@@ -194,11 +189,11 @@ private fun ProductSelector(
     ) {
         products.forEach { product ->
             val isSelected = product.name == selectedProduct.name
-            
+
             val activeColor = when (product.name) {
-                "Bronze" -> Color(0xFFCD7F32) 
-                "Silver" -> Color(0xFF64748B) 
-                "Gold" -> Color(0xFFD97706)   
+                "Bronze" -> Color(0xFFCD7F32)
+                "Silver" -> Color(0xFF64748B)
+                "Gold" -> Color(0xFFD97706)
                 else -> Indigo600
             }
 
@@ -243,7 +238,7 @@ private fun LoanSimulator(
 ) {
     val formatter = remember { NumberFormat.getCurrencyInstance(Locale("in", "ID")) }
 
-    // Use derived state for initial values to update when product changes, 
+    // Use derived state for initial values to update when product changes,
     // but separate mutable state for user edits.
     // However, when product switches, it's often nice to reset or clamp values.
     // Let's reset to defaults when product changes for simplicity and clarity.
@@ -372,7 +367,7 @@ private fun LoanSimulator(
                     )
                 }
             }
-            
+
             Button(
                 onClick = {
                     if (isLoggedIn) {

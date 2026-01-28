@@ -37,7 +37,9 @@ interface PendingLoanDao {
     suspend fun getByStatus(status: SyncStatus): List<PendingLoanEntity>
 
     /** Get all pending loans that need to be synced (PENDING or FAILED with retry limit not exceeded). */
-    @Query("SELECT * FROM pending_loans WHERE syncStatus IN ('PENDING', 'FAILED') AND retryCount < 3 ORDER BY createdAt ASC")
+    @Query(
+        "SELECT * FROM pending_loans WHERE syncStatus IN ('PENDING', 'FAILED') AND retryCount < 3 ORDER BY createdAt ASC"
+    )
     suspend fun getPendingForSync(): List<PendingLoanEntity>
 
     /** Get all pending loans as observable Flow. */

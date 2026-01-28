@@ -9,38 +9,38 @@ import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** UI State for the Edit Profile Form screen. */
 data class EditProfileFormUiState(
-        val email: String = "",
-        val address: String = "",
-        val nik: String = "",
-        val ktpPath: String = "",
-        val phoneNumber: String = "",
-        val accountNumber: String = "",
-        val bankName: String = "",
-        val selectedImageUri: Uri? = null,
-        val isUploading: Boolean = false,
-        val isSubmitting: Boolean = false,
-        val successMessage: String? = null,
-        val errorMessage: String? = null,
-        val imageValidationError: String? = null
+    val email: String = "",
+    val address: String = "",
+    val nik: String = "",
+    val ktpPath: String = "",
+    val phoneNumber: String = "",
+    val accountNumber: String = "",
+    val bankName: String = "",
+    val selectedImageUri: Uri? = null,
+    val isUploading: Boolean = false,
+    val isSubmitting: Boolean = false,
+    val successMessage: String? = null,
+    val errorMessage: String? = null,
+    val imageValidationError: String? = null
 ) {
     val isFormValid: Boolean
         get() =
-                address.isNotBlank() &&
-                        nik.isNotBlank() &&
-                        phoneNumber.isNotBlank() &&
-                        accountNumber.isNotBlank() &&
-                        bankName.isNotBlank() &&
-                        ktpPath.isNotBlank()
+            address.isNotBlank() &&
+                nik.isNotBlank() &&
+                phoneNumber.isNotBlank() &&
+                accountNumber.isNotBlank() &&
+                bankName.isNotBlank() &&
+                ktpPath.isNotBlank()
 
     val isSubmitEnabled: Boolean
         get() = isFormValid && !isSubmitting && !isUploading
@@ -53,9 +53,9 @@ private val ALLOWED_IMAGE_TYPES = listOf("image/jpeg", "image/png", "image/jpg")
 class EditProfileFormViewModel
 @Inject
 constructor(
-        private val userProfileRepository: UserProfileRepository,
-        private val authRepository: AuthRepository,
-        @ApplicationContext private val context: Context
+    private val userProfileRepository: UserProfileRepository,
+    private val authRepository: AuthRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileFormUiState())
@@ -104,9 +104,9 @@ constructor(
         if (mimeType == null || mimeType !in ALLOWED_IMAGE_TYPES) {
             _uiState.update {
                 it.copy(
-                        imageValidationError =
-                                "Invalid image type. Only JPEG, PNG, and JPG are allowed.",
-                        selectedImageUri = null
+                    imageValidationError =
+                    "Invalid image type. Only JPEG, PNG, and JPG are allowed.",
+                    selectedImageUri = null
                 )
             }
             return
@@ -123,18 +123,18 @@ constructor(
             _uiState.update { it.copy(isUploading = true, errorMessage = null) }
 
             userProfileRepository
-                    .uploadKtp(uri)
-                    .onSuccess { ktpPath ->
-                        _uiState.update { it.copy(isUploading = false, ktpPath = ktpPath) }
+                .uploadKtp(uri)
+                .onSuccess { ktpPath ->
+                    _uiState.update { it.copy(isUploading = false, ktpPath = ktpPath) }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isUploading = false,
+                            errorMessage = "Failed to upload KTP: ${exception.message}"
+                        )
                     }
-                    .onFailure { exception ->
-                        _uiState.update {
-                            it.copy(
-                                    isUploading = false,
-                                    errorMessage = "Failed to upload KTP: ${exception.message}"
-                            )
-                        }
-                    }
+                }
         }
     }
 
@@ -146,33 +146,33 @@ constructor(
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
 
             val request =
-                    UserProfileRequest(
-                            address = state.address,
-                            nik = state.nik,
-                            ktpPath = state.ktpPath,
-                            phoneNumber = state.phoneNumber,
-                            accountNumber = state.accountNumber,
-                            bankName = state.bankName
-                    )
+                UserProfileRequest(
+                    address = state.address,
+                    nik = state.nik,
+                    ktpPath = state.ktpPath,
+                    phoneNumber = state.phoneNumber,
+                    accountNumber = state.accountNumber,
+                    bankName = state.bankName
+                )
 
             userProfileRepository
-                    .submitProfile(request)
-                    .onSuccess {
-                        _uiState.update {
-                            it.copy(
-                                    isSubmitting = false,
-                                    successMessage = "Profile saved successfully!"
-                            )
-                        }
+                .submitProfile(request)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            successMessage = "Profile saved successfully!"
+                        )
                     }
-                    .onFailure { exception ->
-                        _uiState.update {
-                            it.copy(
-                                    isSubmitting = false,
-                                    errorMessage = "Failed to save profile: ${exception.message}"
-                            )
-                        }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            errorMessage = "Failed to save profile: ${exception.message}"
+                        )
                     }
+                }
         }
     }
 

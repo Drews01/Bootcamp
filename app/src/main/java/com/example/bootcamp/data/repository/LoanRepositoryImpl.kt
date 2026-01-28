@@ -1,5 +1,6 @@
 package com.example.bootcamp.data.repository
 
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.BranchDao
 import com.example.bootcamp.data.local.dao.LoanHistoryDao
@@ -8,7 +9,6 @@ import com.example.bootcamp.data.local.entity.BranchEntity
 import com.example.bootcamp.data.local.entity.LoanHistoryEntity
 import com.example.bootcamp.data.local.entity.PendingLoanEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.Branch
 import com.example.bootcamp.domain.model.LoanApplication
@@ -44,7 +44,7 @@ class LoanRepositoryImpl @Inject constructor(
         // If online, fetch from remote and cache
         if (networkMonitor.isConnected) {
             val remoteResult = loanRemoteDataSource.getBranches(token)
-            
+
             when (remoteResult) {
                 is ApiResult.Success -> {
                     // Cache branches locally
@@ -52,10 +52,10 @@ class LoanRepositoryImpl @Inject constructor(
                         BranchEntity(id = dto.id, name = dto.name)
                     }
                     branchDao.insertAll(branchEntities)
-                    
+
                     // Return mapped branches
-                    val branches = remoteResult.data.map { dto -> 
-                        Branch(id = dto.id, name = dto.name) 
+                    val branches = remoteResult.data.map { dto ->
+                        Branch(id = dto.id, name = dto.name)
                     }
                     return Result.success(branches)
                 }
@@ -95,7 +95,7 @@ class LoanRepositoryImpl @Inject constructor(
         if (networkMonitor.isConnected) {
             val apiResult = loanRemoteDataSource
                 .submitLoan(token, amount, tenureMonths, branchId)
-            
+
             return when (apiResult) {
                 is ApiResult.Success -> {
                     val data = apiResult.data
@@ -104,8 +104,9 @@ class LoanRepositoryImpl @Inject constructor(
                 is ApiResult.Error -> {
                     // Check if this is a business logic error (4xx) that should NOT be retried
                     val statusCode = apiResult.statusCode
-                    val isBusinessError = statusCode != null && statusCode in 400..499 && statusCode != 408 && statusCode != 429
-                    
+                    val isBusinessError =
+                        statusCode != null && statusCode in 400..499 && statusCode != 408 && statusCode != 429
+
                     if (isBusinessError) {
                         // Return the actual error - don't queue for offline sync
                         apiResult.asResult()
@@ -150,7 +151,7 @@ class LoanRepositoryImpl @Inject constructor(
         // If online, fetch from remote and cache
         if (networkMonitor.isConnected) {
             val remoteResult = loanRemoteDataSource.getLoanHistory(token)
-            
+
             when (remoteResult) {
                 is ApiResult.Success -> {
                     // Cache loan history
@@ -171,7 +172,7 @@ class LoanRepositoryImpl @Inject constructor(
                         )
                     }
                     loanHistoryDao.insertAll(historyEntities)
-                    
+
                     // Return mapped loans
                     val loans = remoteResult.data.map { dto ->
                         LoanApplication(
@@ -203,7 +204,7 @@ class LoanRepositoryImpl @Inject constructor(
     private suspend fun getCachedLoanHistory(): Result<List<LoanApplication>>? {
         val cached = loanHistoryDao.getAllHistory()
         if (cached.isEmpty()) return null
-        
+
         val loans = cached.map { entity ->
             LoanApplication(
                 id = entity.loanApplicationId,
@@ -230,21 +231,19 @@ class LoanRepositoryImpl @Inject constructor(
             .asResult()
     }
 
-    override fun getPendingLoans(): Flow<List<PendingLoan>> {
-        return pendingLoanDao.getAllPendingLoans().map { entities ->
-            entities.map { entity ->
-                PendingLoan(
-                    id = entity.id,
-                    amount = entity.amount,
-                    tenureMonths = entity.tenureMonths,
-                    branchId = entity.branchId,
-                    branchName = entity.branchName,
-                    syncStatus = entity.syncStatus,
-                    errorMessage = entity.errorMessage,
-                    retryCount = entity.retryCount,
-                    createdAt = entity.createdAt
-                )
-            }
+    override fun getPendingLoans(): Flow<List<PendingLoan>> = pendingLoanDao.getAllPendingLoans().map { entities ->
+        entities.map { entity ->
+            PendingLoan(
+                id = entity.id,
+                amount = entity.amount,
+                tenureMonths = entity.tenureMonths,
+                branchId = entity.branchId,
+                branchName = entity.branchName,
+                syncStatus = entity.syncStatus,
+                errorMessage = entity.errorMessage,
+                retryCount = entity.retryCount,
+                createdAt = entity.createdAt
+            )
         }
     }
 
@@ -253,11 +252,13 @@ class LoanRepositoryImpl @Inject constructor(
             val loan = pendingLoanDao.getById(id)
                 ?: return Result.failure(IllegalArgumentException("Loan not found"))
 
-            pendingLoanDao.update(loan.copy(
-                syncStatus = SyncStatus.PENDING,
-                retryCount = 0,
-                errorMessage = null
-            ))
+            pendingLoanDao.update(
+                loan.copy(
+                    syncStatus = SyncStatus.PENDING,
+                    retryCount = 0,
+                    errorMessage = null
+                )
+            )
             syncManager.scheduleLoanSync()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -265,13 +266,11 @@ class LoanRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePendingLoan(id: Long): Result<Unit> {
-        return try {
-            pendingLoanDao.deleteById(id)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    override suspend fun deletePendingLoan(id: Long): Result<Unit> = try {
+        pendingLoanDao.deleteById(id)
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
     /** Clear all cached loan data (e.g., on logout). */
@@ -280,5 +279,3 @@ class LoanRepositoryImpl @Inject constructor(
         branchDao.clearAll()
     }
 }
-
-

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /** Extension property to create DataStore instance. */
 private val Context.dataStore: DataStore<Preferences> by
-        preferencesDataStore(name = "app_preferences")
+    preferencesDataStore(name = "app_preferences")
 
 /**
  * Hilt module providing application-wide dependencies. Installed in SingletonComponent to ensure
@@ -27,14 +27,10 @@ object AppModule {
     /** Provides the DataStore instance for preferences storage. */
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return context.dataStore
-    }
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> = context.dataStore
 
     /** Provides the TokenManager for handling authentication tokens. */
     @Provides
     @Singleton
-    fun provideTokenManager(dataStore: DataStore<Preferences>): TokenManager {
-        return TokenManager(dataStore)
-    }
+    fun provideTokenManager(dataStore: DataStore<Preferences>): TokenManager = TokenManager(dataStore)
 }

@@ -17,10 +17,10 @@ sealed class Resource<out T> {
 
     /** Represents an error state with message and optional cached data. */
     data class Error<T>(
-            val message: String,
-            val data: T? = null,
-            val errorDetails: ErrorDetails? = null,
-            val exception: Throwable? = null
+        val message: String,
+        val data: T? = null,
+        val errorDetails: ErrorDetails? = null,
+        val exception: Throwable? = null
     ) : Resource<T>()
 
     /** Returns true if this is a Loading state. */
@@ -36,27 +36,24 @@ sealed class Resource<out T> {
         get() = this is Error
 
     /** Get the data regardless of state, or null if not available. */
-    fun getDataOrNull(): T? =
-            when (this) {
-                is Loading -> data
-                is Success -> data
-                is Error -> data
-            }
+    fun getDataOrNull(): T? = when (this) {
+        is Loading -> data
+        is Success -> data
+        is Error -> data
+    }
 
     /** Get error details if in error state. */
     fun getErrorDetailsOrNull(): ErrorDetails? = (this as? Error)?.errorDetails
 
     /** Get field error for specific field if in error state. */
-    fun getFieldError(fieldName: String): String? =
-            getErrorDetailsOrNull()?.getFieldError(fieldName)
+    fun getFieldError(fieldName: String): String? = getErrorDetailsOrNull()?.getFieldError(fieldName)
 
     /** Map the data to a different type. */
-    fun <R> map(transform: (T) -> R): Resource<R> =
-            when (this) {
-                is Loading -> Loading(data?.let(transform))
-                is Success -> Success(transform(data))
-                is Error -> Error(message, data?.let(transform), errorDetails, exception)
-            }
+    fun <R> map(transform: (T) -> R): Resource<R> = when (this) {
+        is Loading -> Loading(data?.let(transform))
+        is Success -> Success(transform(data))
+        is Error -> Error(message, data?.let(transform), errorDetails, exception)
+    }
 
     companion object {
         /** Create a Loading resource. */
@@ -67,10 +64,10 @@ sealed class Resource<out T> {
 
         /** Create an Error resource. */
         fun <T> error(
-                message: String,
-                data: T? = null,
-                errorDetails: ErrorDetails? = null,
-                exception: Throwable? = null
+            message: String,
+            data: T? = null,
+            errorDetails: ErrorDetails? = null,
+            exception: Throwable? = null
         ): Resource<T> = Error(message, data, errorDetails, exception)
     }
 }

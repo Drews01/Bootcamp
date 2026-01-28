@@ -25,60 +25,43 @@ object DatabaseModule {
     /** Provides the Room database instance. */
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
             .fallbackToDestructiveMigration()
             .build()
-    }
 
     /** Provides the UserDao from the database. */
     @Provides
     @Singleton
-    fun provideUserDao(database: AppDatabase): UserDao {
-        return database.userDao()
-    }
+    fun provideUserDao(database: AppDatabase): UserDao = database.userDao()
 
     /** Provides the PendingLoanDao from the database. */
     @Provides
     @Singleton
-    fun providePendingLoanDao(database: AppDatabase): PendingLoanDao {
-        return database.pendingLoanDao()
-    }
+    fun providePendingLoanDao(database: AppDatabase): PendingLoanDao = database.pendingLoanDao()
 
     /** Provides the PendingProfileDao from the database. */
     @Provides
     @Singleton
-    fun providePendingProfileDao(database: AppDatabase): PendingProfileDao {
-        return database.pendingProfileDao()
-    }
+    fun providePendingProfileDao(database: AppDatabase): PendingProfileDao = database.pendingProfileDao()
 
     /** Provides the BranchDao from the database. */
     @Provides
     @Singleton
-    fun provideBranchDao(database: AppDatabase): BranchDao {
-        return database.branchDao()
-    }
+    fun provideBranchDao(database: AppDatabase): BranchDao = database.branchDao()
 
     /** Provides the UserTierDao for caching tier info. */
     @Provides
     @Singleton
-    fun provideUserTierDao(database: AppDatabase): UserTierDao {
-        return database.userTierDao()
-    }
+    fun provideUserTierDao(database: AppDatabase): UserTierDao = database.userTierDao()
 
     /** Provides the LoanHistoryDao for caching loan history. */
     @Provides
     @Singleton
-    fun provideLoanHistoryDao(database: AppDatabase): LoanHistoryDao {
-        return database.loanHistoryDao()
-    }
+    fun provideLoanHistoryDao(database: AppDatabase): LoanHistoryDao = database.loanHistoryDao()
 
     /** Provides the UserProfileCacheDao for caching user profile. */
     @Provides
     @Singleton
-    fun provideUserProfileCacheDao(database: AppDatabase): UserProfileCacheDao {
-        return database.userProfileCacheDao()
-    }
+    fun provideUserProfileCacheDao(database: AppDatabase): UserProfileCacheDao = database.userProfileCacheDao()
 }
-
-

@@ -7,9 +7,7 @@ import javax.inject.Inject
 
 /** UseCase to fetch list of branches. */
 class GetBranchesUseCase @Inject constructor(private val loanRepository: LoanRepository) :
-        UseCase<Result<List<Branch>>> {
+    UseCase<Result<List<Branch>>> {
 
-    override suspend fun invoke(): Result<List<Branch>> {
-        return loanRepository.getBranches()
-    }
+    override suspend fun invoke(): Result<List<Branch>> = loanRepository.getBranches()
 }

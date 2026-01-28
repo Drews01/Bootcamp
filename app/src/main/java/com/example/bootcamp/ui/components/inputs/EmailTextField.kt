@@ -31,46 +31,46 @@ import com.example.bootcamp.ui.theme.SpaceIndigo
  */
 @Composable
 fun EmailTextField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        modifier: Modifier = Modifier,
-        label: String = "Email",
-        enabled: Boolean = true,
-        isError: Boolean = false,
-        imeAction: ImeAction = ImeAction.Next
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "Email",
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    imeAction: ImeAction = ImeAction.Next
 ) {
     OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier.fillMaxWidth(),
-            label = { Text(label, color = MutedGray) },
-            leadingIcon = {
-                Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = null,
-                        tint = MutedGray,
-                )
-            },
-            keyboardOptions =
-                    KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = imeAction,
-                    ),
-            singleLine = true,
-            enabled = enabled,
-            isError = isError,
-            shape = RoundedCornerShape(14.dp),
-            colors =
-                    OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = SpaceIndigo,
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            cursorColor = SpaceIndigo,
-                            focusedLabelColor = SpaceIndigo,
-                            unfocusedLabelColor = MutedGray,
-                            errorBorderColor = Color.Red,
-                            errorLabelColor = Color.Red,
-                    ),
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        label = { Text(label, color = MutedGray) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = null,
+                tint = MutedGray,
+            )
+        },
+        keyboardOptions =
+        KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = imeAction,
+        ),
+        singleLine = true,
+        enabled = enabled,
+        isError = isError,
+        shape = RoundedCornerShape(14.dp),
+        colors =
+        OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = SpaceIndigo,
+            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            cursorColor = SpaceIndigo,
+            focusedLabelColor = SpaceIndigo,
+            unfocusedLabelColor = MutedGray,
+            errorBorderColor = Color.Red,
+            errorLabelColor = Color.Red,
+        ),
     )
 }

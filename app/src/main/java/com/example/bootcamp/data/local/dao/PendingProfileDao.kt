@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.bootcamp.data.local.entity.PendingProfileEntity
-import com.example.bootcamp.data.local.entity.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,7 +28,9 @@ interface PendingProfileDao {
     suspend fun getPendingProfile(): PendingProfileEntity?
 
     /** Get pending profile that needs to be synced. */
-    @Query("SELECT * FROM pending_profiles WHERE syncStatus IN ('PENDING', 'FAILED') AND retryCount < 3 ORDER BY createdAt DESC LIMIT 1")
+    @Query(
+        "SELECT * FROM pending_profiles WHERE syncStatus IN ('PENDING', 'FAILED') AND retryCount < 3 ORDER BY createdAt DESC LIMIT 1"
+    )
     suspend fun getPendingForSync(): PendingProfileEntity?
 
     /** Observe the current pending profile as Flow. */

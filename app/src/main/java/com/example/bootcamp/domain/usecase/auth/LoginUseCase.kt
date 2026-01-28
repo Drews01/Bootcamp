@@ -15,7 +15,7 @@ data class LoginParams(
 
 /** Use case for user login. Encapsulates login business logic and validation. */
 class LoginUseCase @Inject constructor(private val authRepository: AuthRepository) :
-        UseCaseWithParams<LoginParams, Result<String>> {
+    UseCaseWithParams<LoginParams, Result<String>> {
 
     override suspend fun invoke(params: LoginParams): Result<String> {
         // Validation
@@ -27,7 +27,7 @@ class LoginUseCase @Inject constructor(private val authRepository: AuthRepositor
         }
         if (params.password.length < 6) {
             return Result.failure(
-                    IllegalArgumentException("Password must be at least 6 characters")
+                IllegalArgumentException("Password must be at least 6 characters")
             )
         }
 
