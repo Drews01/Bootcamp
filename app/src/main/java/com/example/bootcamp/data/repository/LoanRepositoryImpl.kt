@@ -274,8 +274,9 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     /** Clear all cached loan data (e.g., on logout). */
-    suspend fun clearCache() {
+    override suspend fun clearCache() {
         loanHistoryDao.clearAll()
         branchDao.clearAll()
+        pendingLoanDao.clearAll()
     }
 }

@@ -47,4 +47,7 @@ interface UserProfileRepository {
      * @return Result indicating success or failure
      */
     suspend fun clearPendingProfile(): Result<Unit>
+
+    /** Clear cached profile data. */
+    suspend fun clearCache()
 }

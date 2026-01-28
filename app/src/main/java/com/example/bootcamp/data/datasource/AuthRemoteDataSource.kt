@@ -20,6 +20,12 @@ interface AuthRemoteDataSource {
         deviceName: String? = null,
         platform: String = "ANDROID"
     ): ApiResult<LoginData>
+    suspend fun googleLogin(
+        idToken: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): ApiResult<LoginData>
     suspend fun forgotPassword(email: String): ApiResult<Unit>
     suspend fun logout(token: String): ApiResult<Unit>
     suspend fun getCurrentUser(token: String): ApiResult<UserData>

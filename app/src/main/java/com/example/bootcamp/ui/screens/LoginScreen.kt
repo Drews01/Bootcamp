@@ -57,6 +57,16 @@ import com.example.bootcamp.ui.theme.Red500
 import com.example.bootcamp.ui.theme.SpaceIndigo
 import com.example.bootcamp.ui.theme.SpaceViolet
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.CustomCredential
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import com.example.bootcamp.BuildConfig
 
 @Composable
 fun LoginScreen(
@@ -70,6 +80,10 @@ fun LoginScreen(
     var usernameOrEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val credentialManager = remember { CredentialManager.create(context) }
 
     LaunchedEffect(uiState.isLoggedIn) {
         if (uiState.isLoggedIn) {
@@ -394,6 +408,74 @@ fun LoginScreen(
                                     )
                                 }
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Google Login Button
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    try {
+                                        val clientId = com.example.bootcamp.security.SecurityConfig.GOOGLE_WEB_CLIENT_ID
+                                        android.util.Log.d("LoginScreen", "Using Client ID: $clientId")
+
+                                        if (clientId.isEmpty() || clientId.contains("YOUR_WEB_CLIENT_ID")) {
+                                             android.util.Log.e("LoginScreen", "Invalid Client ID!")
+                                             // Show toast
+                                             android.widget.Toast.makeText(context, "Invalid Client ID config", android.widget.Toast.LENGTH_LONG).show()
+                                             return@launch
+                                        }
+
+                                        val googleIdOption = GetGoogleIdOption.Builder()
+                                            .setFilterByAuthorizedAccounts(false)
+                                            .setServerClientId(com.example.bootcamp.security.SecurityConfig.GOOGLE_WEB_CLIENT_ID)
+                                            .setAutoSelectEnabled(false)
+                                            .build()
+
+                                        val request = GetCredentialRequest.Builder()
+                                            .addCredentialOption(googleIdOption)
+                                            .build()
+
+                                        val result = credentialManager.getCredential(context, request)
+                                        val credential = result.credential
+
+                                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                                            viewModel.handleGoogleLogin(googleIdTokenCredential.idToken)
+                                        }
+                                    } catch (e: CancellationException) {
+                                         // Expecting this when navigating away
+                                         throw e
+                                    } catch (e: Exception) {
+                                         android.util.Log.e("LoginScreen", "Google Sign-In failed", e)
+                                         // Optionally show error in UI via viewModel
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(54.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black
+                            ),
+                        ) {
+                             // Placeholder for Google Icon
+                            Icon(
+                                imageVector = Icons.Default.Email, // TODO: Use actual Google Icon
+                                contentDescription = "Google Logo",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                text = "Sign in with Google",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.Black.copy(alpha = 0.8f) // Google text color
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))

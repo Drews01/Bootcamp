@@ -37,6 +37,15 @@ class AuthRemoteDataSourceImpl @Inject constructor(private val authService: Auth
         authService.login(LoginRequest(usernameOrEmail, password, fcmToken, deviceName, platform))
     }
 
+    override suspend fun googleLogin(
+        idToken: String,
+        fcmToken: String?,
+        deviceName: String?,
+        platform: String
+    ): ApiResult<LoginData> = ApiResponseHandler.safeApiCall {
+        authService.googleLogin(com.example.bootcamp.data.remote.dto.GoogleLoginRequest(idToken))
+    }
+
     override suspend fun forgotPassword(email: String): ApiResult<Unit> = ApiResponseHandler.safeApiCall {
         authService.forgotPassword(ForgotPasswordRequest(email))
     }

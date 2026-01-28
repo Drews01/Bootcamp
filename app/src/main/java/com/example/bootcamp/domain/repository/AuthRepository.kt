@@ -35,6 +35,21 @@ interface AuthRepository {
     ): Result<String>
 
     /**
+     * Login with Google ID Token.
+     * @param idToken The Google ID Token
+     * @param fcmToken Optional FCM device token for push notifications
+     * @param deviceName Optional device name for identification
+     * @param platform Device platform (default ANDROID)
+     * @return Result containing success message or failure
+     */
+    suspend fun googleLogin(
+        idToken: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): Result<String>
+
+    /**
      * Request password reset for the given email.
      * @param email The email to send reset instructions to
      * @return Result containing success message or failure

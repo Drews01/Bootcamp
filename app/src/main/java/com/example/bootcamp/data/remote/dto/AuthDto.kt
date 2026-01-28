@@ -11,6 +11,11 @@ data class RegisterRequest(
     @SerializedName("password") val password: String,
 )
 
+/** Request payload for Google Login */
+data class GoogleLoginRequest(
+    @SerializedName("idToken") val idToken: String
+)
+
 /** Request body for user login. Includes optional FCM token for push notification registration. */
 data class LoginRequest(
     @SerializedName("usernameOrEmail") val usernameOrEmail: String,
@@ -38,7 +43,11 @@ data class LoginData(
     @SerializedName("username") val username: String? = null,
     @SerializedName("email") val email: String? = null,
     @SerializedName("refreshToken") val refreshToken: String? = null,
-    @SerializedName("expiresIn") val expiresIn: Long? = null
+    @SerializedName("expiresIn") val expiresIn: Long? = null,
+    @SerializedName("tokenType") val tokenType: String? = null,
+    @SerializedName("expiresAt") val expiresAt: String? = null,
+    @SerializedName("refreshExpiresAt") val refreshExpiresAt: String? = null,
+    @SerializedName("roles") val roles: List<String>? = null
 )
 
 /** Register response data payload. This is the 'data' field in ApiResponse<RegisterData>. */

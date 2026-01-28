@@ -3,6 +3,7 @@ package com.example.bootcamp.data.remote.api
 import com.example.bootcamp.data.remote.base.ApiResponse
 import com.example.bootcamp.data.remote.dto.CsrfTokenData
 import com.example.bootcamp.data.remote.dto.ForgotPasswordRequest
+import com.example.bootcamp.data.remote.dto.GoogleLoginRequest
 import com.example.bootcamp.data.remote.dto.LoginData
 import com.example.bootcamp.data.remote.dto.LoginRequest
 import com.example.bootcamp.data.remote.dto.RegisterData
@@ -36,6 +37,14 @@ interface AuthService {
      */
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginData>>
+
+    /**
+     * Login with Google ID Token.
+     * @param request Google Login credentials
+     * @return ApiResponse with LoginData containing token
+     */
+    @POST("auth/google")
+    suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<ApiResponse<LoginData>>
 
     /**
      * Request password reset email.

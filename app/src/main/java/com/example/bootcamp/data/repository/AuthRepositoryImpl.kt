@@ -79,6 +79,42 @@ constructor(
         }
     }
 
+    override suspend fun googleLogin(
+        idToken: String,
+        fcmToken: String?,
+        deviceName: String?,
+        platform: String
+    ): Result<String> {
+        val result = authRemoteDataSource.googleLogin(idToken, fcmToken, deviceName, platform)
+
+        return when (result) {
+            is ApiResult.Success -> {
+                val loginData = result.data
+                // Save user data locally
+                tokenManager.saveUserData(
+                    token = loginData.token,
+                    username = loginData.username ?: "User",
+                    userId = loginData.userId,
+                    email = loginData.email
+                )
+
+                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
+                fetchAndStoreCsrfToken()
+
+                Result.success("Google Login successful!")
+            }
+            is ApiResult.Error -> {
+                Result.failure(
+                    ApiException(
+                        message = result.message,
+                        errorDetails = result.errorDetails,
+                        statusCode = result.statusCode
+                    )
+                )
+            }
+        }
+    }
+
     /**
      * Fetch the MASKED CSRF token from the server and store it.
      * IMPORTANT: This is required for BREACH protection - the masked token from response body
@@ -207,6 +243,36 @@ constructor(
                 fetchAndStoreCsrfToken()
 
                 ApiResult.success("Login successful!")
+            }
+            is ApiResult.Error -> {
+                ApiResult.error(
+                    message = result.message,
+                    errorDetails = result.errorDetails,
+                    statusCode = result.statusCode
+                )
+            }
+        }
+    }
+
+    suspend fun googleLoginWithResult(
+        idToken: String,
+        fcmToken: String? = null,
+        deviceName: String? = null,
+        platform: String = "ANDROID"
+    ): ApiResult<String> {
+        val result = authRemoteDataSource.googleLogin(idToken, fcmToken, deviceName, platform)
+
+        return when (result) {
+            is ApiResult.Success -> {
+                val loginData = result.data
+                tokenManager.saveUserData(
+                    token = loginData.token,
+                    username = loginData.username ?: "User",
+                    userId = loginData.userId,
+                    email = loginData.email
+                )
+                fetchAndStoreCsrfToken()
+                ApiResult.success("Google Login successful!")
             }
             is ApiResult.Error -> {
                 ApiResult.error(

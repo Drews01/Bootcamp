@@ -58,4 +58,7 @@ interface LoanRepository {
      * @return Result indicating success or failure
      */
     suspend fun deletePendingLoan(id: Long): Result<Unit>
+
+    /** Clear all cached loan data. */
+    suspend fun clearCache()
 }

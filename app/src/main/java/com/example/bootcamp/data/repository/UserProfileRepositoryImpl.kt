@@ -8,6 +8,7 @@ import com.example.bootcamp.data.local.dao.UserProfileCacheDao
 import com.example.bootcamp.data.local.entity.PendingProfileEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.local.entity.UserProfileCacheEntity
+import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.PendingProfile
@@ -159,7 +160,12 @@ class UserProfileRepositoryImpl @Inject constructor(
                 } else {
                     // HTTP error, try cache
                     return getCachedProfile()
-                        ?: Result.failure(Exception(response.errorBody()?.string() ?: "Failed to get profile"))
+                        ?: Result.failure(
+                            ApiException(
+                                message = response.errorBody()?.string() ?: "Failed to get profile",
+                                statusCode = response.code()
+                            )
+                        )
                 }
             }
 
@@ -248,7 +254,8 @@ class UserProfileRepositoryImpl @Inject constructor(
     }
 
     /** Clear cached profile data (e.g., on logout). */
-    suspend fun clearCache() {
+    override suspend fun clearCache() {
         userProfileCacheDao.clear()
+        pendingProfileDao.clear()
     }
 }

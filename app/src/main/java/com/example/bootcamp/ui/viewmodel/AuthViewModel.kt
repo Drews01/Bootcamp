@@ -9,6 +9,8 @@ import com.example.bootcamp.domain.usecase.auth.ForgotPasswordParams
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordUseCase
 import com.example.bootcamp.domain.usecase.auth.LoginParams
 import com.example.bootcamp.domain.usecase.auth.LoginUseCase
+import com.example.bootcamp.domain.usecase.auth.GoogleLoginParams
+import com.example.bootcamp.domain.usecase.auth.GoogleLoginUseCase
 import com.example.bootcamp.domain.usecase.auth.LogoutUseCase
 import com.example.bootcamp.domain.usecase.auth.RegisterParams
 import com.example.bootcamp.domain.usecase.auth.RegisterUseCase
@@ -61,6 +63,7 @@ class AuthViewModel
 @Inject
 constructor(
     private val loginUseCase: LoginUseCase,
+    private val googleLoginUseCase: GoogleLoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val forgotPasswordUseCase: ForgotPasswordUseCase,
@@ -119,6 +122,49 @@ constructor(
                     }
                 }
                 .onFailure { exception -> handleError(exception) }
+        }
+    }
+
+    fun handleGoogleLogin(idToken: String) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null,
+                    fieldErrors = emptyMap(),
+                    errorDetails = null
+                )
+            }
+
+            // Fetch FCM token for push notification registration
+            val fcmToken = try {
+                com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+            } catch (e: Exception) {
+                android.util.Log.w("AuthViewModel", "Failed to get FCM token", e)
+                null
+            }
+
+            val deviceName = android.os.Build.MODEL
+            val platform = "ANDROID"
+
+            googleLoginUseCase(
+                GoogleLoginParams(
+                    idToken = idToken,
+                    fcmToken = fcmToken,
+                    deviceName = deviceName,
+                    platform = platform
+                )
+            )
+            .onSuccess { message ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        successMessage = message,
+                    )
+                }
+            }
+            .onFailure { exception -> handleError(exception) }
         }
     }
 

@@ -60,6 +60,16 @@ android {
         val baseUrl = localProperties.getProperty("BASE_URL") ?: "http://${getLocalIp()}:8081"
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         println("Using BASE_URL: $baseUrl")
+
+        // Google Web Client ID for Credential Manager
+        val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
+        
+        if (googleWebClientId.isEmpty()) {
+            println("WARNING: GOOGLE_WEB_CLIENT_ID not found in local.properties. Google Login will fail.")
+        } else {
+            println("Using GOOGLE_WEB_CLIENT_ID from local.properties")
+        }
     }
 
     buildTypes {
@@ -133,6 +143,11 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
+
+    // Google Credential Manager
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
