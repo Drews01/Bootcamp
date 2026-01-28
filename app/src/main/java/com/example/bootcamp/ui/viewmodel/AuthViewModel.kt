@@ -7,10 +7,10 @@ import com.example.bootcamp.data.remote.base.ErrorDetails
 import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordParams
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordUseCase
-import com.example.bootcamp.domain.usecase.auth.LoginParams
-import com.example.bootcamp.domain.usecase.auth.LoginUseCase
 import com.example.bootcamp.domain.usecase.auth.GoogleLoginParams
 import com.example.bootcamp.domain.usecase.auth.GoogleLoginUseCase
+import com.example.bootcamp.domain.usecase.auth.LoginParams
+import com.example.bootcamp.domain.usecase.auth.LoginUseCase
 import com.example.bootcamp.domain.usecase.auth.LogoutUseCase
 import com.example.bootcamp.domain.usecase.auth.RegisterParams
 import com.example.bootcamp.domain.usecase.auth.RegisterUseCase
@@ -156,15 +156,15 @@ constructor(
                     platform = platform
                 )
             )
-            .onSuccess { message ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        successMessage = message,
-                    )
+                .onSuccess { message ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            successMessage = message,
+                        )
+                    }
                 }
-            }
-            .onFailure { exception -> handleError(exception) }
+                .onFailure { exception -> handleError(exception) }
         }
     }
 

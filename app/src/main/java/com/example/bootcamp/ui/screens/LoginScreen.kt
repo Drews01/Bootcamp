@@ -36,12 +36,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,6 +52,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
 import com.example.bootcamp.ui.theme.MutedGray
@@ -57,16 +62,10 @@ import com.example.bootcamp.ui.theme.Red500
 import com.example.bootcamp.ui.theme.SpaceIndigo
 import com.example.bootcamp.ui.theme.SpaceViolet
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
-import com.example.bootcamp.BuildConfig
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -421,15 +420,21 @@ fun LoginScreen(
                                         android.util.Log.d("LoginScreen", "Using Client ID: $clientId")
 
                                         if (clientId.isEmpty() || clientId.contains("YOUR_WEB_CLIENT_ID")) {
-                                             android.util.Log.e("LoginScreen", "Invalid Client ID!")
-                                             // Show toast
-                                             android.widget.Toast.makeText(context, "Invalid Client ID config", android.widget.Toast.LENGTH_LONG).show()
-                                             return@launch
+                                            android.util.Log.e("LoginScreen", "Invalid Client ID!")
+                                            // Show toast
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                "Invalid Client ID config",
+                                                android.widget.Toast.LENGTH_LONG
+                                            ).show()
+                                            return@launch
                                         }
 
                                         val googleIdOption = GetGoogleIdOption.Builder()
                                             .setFilterByAuthorizedAccounts(false)
-                                            .setServerClientId(com.example.bootcamp.security.SecurityConfig.GOOGLE_WEB_CLIENT_ID)
+                                            .setServerClientId(
+                                                com.example.bootcamp.security.SecurityConfig.GOOGLE_WEB_CLIENT_ID
+                                            )
                                             .setAutoSelectEnabled(false)
                                             .build()
 
@@ -440,16 +445,20 @@ fun LoginScreen(
                                         val result = credentialManager.getCredential(context, request)
                                         val credential = result.credential
 
-                                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                                        if (credential is CustomCredential &&
+                                            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                                        ) {
+                                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(
+                                                credential.data
+                                            )
                                             viewModel.handleGoogleLogin(googleIdTokenCredential.idToken)
                                         }
                                     } catch (e: CancellationException) {
-                                         // Expecting this when navigating away
-                                         throw e
+                                        // Expecting this when navigating away
+                                        throw e
                                     } catch (e: Exception) {
-                                         android.util.Log.e("LoginScreen", "Google Sign-In failed", e)
-                                         // Optionally show error in UI via viewModel
+                                        android.util.Log.e("LoginScreen", "Google Sign-In failed", e)
+                                        // Optionally show error in UI via viewModel
                                     }
                                 }
                             },
@@ -462,7 +471,7 @@ fun LoginScreen(
                                 contentColor = Color.Black
                             ),
                         ) {
-                             // Placeholder for Google Icon
+                            // Placeholder for Google Icon
                             Icon(
                                 imageVector = Icons.Default.Email, // TODO: Use actual Google Icon
                                 contentDescription = "Google Logo",

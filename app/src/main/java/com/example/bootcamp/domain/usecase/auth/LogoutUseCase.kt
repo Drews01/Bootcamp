@@ -33,26 +33,25 @@ class LogoutUseCase @Inject constructor(
             android.util.Log.w("LogoutUseCase", "Failed to unregister FCM token", e)
         }
 
-
         // Clear local profile cache
         try {
             userProfileRepository.clearCache()
         } catch (e: Exception) {
-             android.util.Log.w("LogoutUseCase", "Failed to clear profile cache", e)
+            android.util.Log.w("LogoutUseCase", "Failed to clear profile cache", e)
         }
 
         // Clear loan cache
         try {
             loanRepository.clearCache()
         } catch (e: Exception) {
-             android.util.Log.w("LogoutUseCase", "Failed to clear loan cache", e)
+            android.util.Log.w("LogoutUseCase", "Failed to clear loan cache", e)
         }
 
         // Clear product/tier cache
         try {
             productRepository.clearCache()
         } catch (e: Exception) {
-             android.util.Log.w("LogoutUseCase", "Failed to clear product cache", e)
+            android.util.Log.w("LogoutUseCase", "Failed to clear product cache", e)
         }
 
         return authRepository.logout()

@@ -21,8 +21,7 @@ class GoogleLoginUseCase @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val loanRepository: LoanRepository,
     private val productRepository: ProductRepository
-) :
-    UseCaseWithParams<GoogleLoginParams, Result<String>> {
+) : UseCaseWithParams<GoogleLoginParams, Result<String>> {
 
     override suspend fun invoke(params: GoogleLoginParams): Result<String> {
         // Enforce cache clearing to prevent data leakage from previous sessions

@@ -27,7 +27,7 @@ To securely share file URIs with the Camera application, we use `androidx.core.c
 ### 2. UI Layer (`EditProfileScreen.kt`)
 The UI handles the intent launching and temporary file creation.
 
--   **`tempCameraUri` Persistence**: 
+-   **`tempCameraUri` Persistence**:
     We use `rememberSaveable` to store the *String* representation of the temporary URI. This ensures that if the OS kills the app process to free up memory for the Camera app, the URI is restored when the user returns, preventing a "null pointer" or missing image issue.
     ```kotlin
     var tempCameraUri by rememberSaveable { mutableStateOf<String?>(null) }

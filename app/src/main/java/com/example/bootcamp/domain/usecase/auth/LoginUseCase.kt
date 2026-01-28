@@ -22,8 +22,7 @@ class LoginUseCase @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val loanRepository: LoanRepository,
     private val productRepository: ProductRepository
-) :
-    UseCaseWithParams<LoginParams, Result<String>> {
+) : UseCaseWithParams<LoginParams, Result<String>> {
 
     override suspend fun invoke(params: LoginParams): Result<String> {
         // Enforce cache clearing to prevent data leakage from previous sessions

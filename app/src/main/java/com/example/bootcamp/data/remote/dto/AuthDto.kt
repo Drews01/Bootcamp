@@ -12,9 +12,7 @@ data class RegisterRequest(
 )
 
 /** Request payload for Google Login */
-data class GoogleLoginRequest(
-    @SerializedName("idToken") val idToken: String
-)
+data class GoogleLoginRequest(@SerializedName("idToken") val idToken: String)
 
 /** Request body for user login. Includes optional FCM token for push notification registration. */
 data class LoginRequest(

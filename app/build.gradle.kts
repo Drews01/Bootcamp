@@ -64,7 +64,7 @@ android {
         // Google Web Client ID for Credential Manager
         val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
-        
+
         if (googleWebClientId.isEmpty()) {
             println("WARNING: GOOGLE_WEB_CLIENT_ID not found in local.properties. Google Login will fail.")
         } else {
