@@ -7,7 +7,7 @@ import com.example.bootcamp.data.local.dao.UserProfileCacheDao
 import com.example.bootcamp.data.local.entity.PendingProfileEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.local.entity.UserProfileCacheEntity
-import com.example.bootcamp.data.remote.datasource.UserProfileRemoteDataSource
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.PendingProfile

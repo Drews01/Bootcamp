@@ -2,7 +2,7 @@ package com.example.bootcamp.data.repository
 
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.remote.base.ApiException
-import com.example.bootcamp.data.remote.datasource.AuthRemoteDataSource
+import com.example.bootcamp.data.datasource.AuthRemoteDataSource
 import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.util.ApiResult
 import javax.inject.Inject

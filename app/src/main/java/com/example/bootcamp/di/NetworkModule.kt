@@ -101,8 +101,8 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-//                .baseUrl(com.example.bootcamp.BuildConfig.BASE_URL)
-            .baseUrl("http://10.247.178.131:8081")
+                .baseUrl(com.example.bootcamp.BuildConfig.BASE_URL)
+
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

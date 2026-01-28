@@ -8,7 +8,7 @@ import com.example.bootcamp.data.local.entity.BranchEntity
 import com.example.bootcamp.data.local.entity.LoanHistoryEntity
 import com.example.bootcamp.data.local.entity.PendingLoanEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.remote.datasource.LoanRemoteDataSource
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.Branch
 import com.example.bootcamp.domain.model.LoanApplication
@@ -93,20 +93,40 @@ class LoanRepositoryImpl @Inject constructor(
 
         // Try remote first if online
         if (networkMonitor.isConnected) {
-            val result = loanRemoteDataSource
+            val apiResult = loanRemoteDataSource
                 .submitLoan(token, amount, tenureMonths, branchId)
-                .map { data ->
-                    "Loan submitted successfully. Reference: ${data.referenceNumber ?: data.id}"
+            
+            return when (apiResult) {
+                is ApiResult.Success -> {
+                    val data = apiResult.data
+                    Result.success("Loan submitted successfully. Reference: ${data.referenceNumber ?: data.id}")
                 }
-                .asResult()
-
-            if (result.isSuccess) {
-                return result
+                is ApiResult.Error -> {
+                    // Check if this is a business logic error (4xx) that should NOT be retried
+                    val statusCode = apiResult.statusCode
+                    val isBusinessError = statusCode != null && statusCode in 400..499 && statusCode != 408 && statusCode != 429
+                    
+                    if (isBusinessError) {
+                        // Return the actual error - don't queue for offline sync
+                        apiResult.asResult()
+                    } else {
+                        // Network/server error (5xx, timeout, rate limit) - fall through to queue
+                        queueLoanForOfflineSync(amount, tenureMonths, branchId, branchName)
+                    }
+                }
             }
-            // If remote fails, fall through to queue locally
         }
 
-        // Queue for offline sync
+        // Offline - queue for sync
+        return queueLoanForOfflineSync(amount, tenureMonths, branchId, branchName)
+    }
+
+    private suspend fun queueLoanForOfflineSync(
+        amount: Long,
+        tenureMonths: Int,
+        branchId: Long,
+        branchName: String
+    ): Result<String> {
         val pendingLoan = PendingLoanEntity(
             amount = amount,
             tenureMonths = tenureMonths,

@@ -6,9 +6,9 @@ import com.example.bootcamp.data.local.dao.LoanHistoryDao
 import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.dao.UserProfileCacheDao
-import com.example.bootcamp.data.remote.datasource.AuthRemoteDataSource
-import com.example.bootcamp.data.remote.datasource.LoanRemoteDataSource
-import com.example.bootcamp.data.remote.datasource.UserProfileRemoteDataSource
+import com.example.bootcamp.data.datasource.AuthRemoteDataSource
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.repository.AuthRepositoryImpl
 import com.example.bootcamp.data.repository.LoanRepositoryImpl
 import com.example.bootcamp.data.repository.UserProfileRepositoryImpl

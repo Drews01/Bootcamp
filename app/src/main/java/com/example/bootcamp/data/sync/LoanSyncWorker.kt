@@ -7,7 +7,7 @@ import androidx.work.WorkerParameters
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.remote.datasource.LoanRemoteDataSource
+import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.util.ApiResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject

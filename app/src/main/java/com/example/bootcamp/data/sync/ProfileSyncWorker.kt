@@ -7,7 +7,7 @@ import androidx.work.WorkerParameters
 import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.entity.SyncStatus
-import com.example.bootcamp.data.remote.datasource.UserProfileRemoteDataSource
+import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
