@@ -25,9 +25,7 @@ data class LanguageUiState(
  * ViewModel for managing language settings UI.
  */
 @HiltViewModel
-class LanguageViewModel @Inject constructor(
-    private val languageManager: LanguageManager
-) : ViewModel() {
+class LanguageViewModel @Inject constructor(private val languageManager: LanguageManager) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LanguageUiState())
     val uiState: StateFlow<LanguageUiState> = _uiState.asStateFlow()

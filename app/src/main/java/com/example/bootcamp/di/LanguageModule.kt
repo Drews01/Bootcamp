@@ -19,18 +19,13 @@ object LanguageModule {
 
     @Provides
     @Singleton
-    fun provideLanguagePreferences(
-        @ApplicationContext context: Context
-    ): LanguagePreferences {
-        return LanguagePreferences(context)
-    }
+    fun provideLanguagePreferences(@ApplicationContext context: Context): LanguagePreferences =
+        LanguagePreferences(context)
 
     @Provides
     @Singleton
     fun provideLanguageManager(
         @ApplicationContext context: Context,
         languagePreferences: LanguagePreferences
-    ): LanguageManager {
-        return LanguageManager(context, languagePreferences)
-    }
+    ): LanguageManager = LanguageManager(context, languagePreferences)
 }

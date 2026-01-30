@@ -113,7 +113,7 @@ constructor(
             ) { pendingProfile, pendingLoans ->
                 (pendingProfile != null) || (pendingLoans.isNotEmpty())
             }.collect { hasPending ->
-                 _uiState.update { it.copy(hasPendingData = hasPending) }
+                _uiState.update { it.copy(hasPendingData = hasPending) }
             }
         }
     }

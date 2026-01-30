@@ -13,8 +13,6 @@ enum class Language(val code: String, val displayName: String) {
          * Get Language from language code.
          * Defaults to INDONESIAN if code not found.
          */
-        fun fromCode(code: String): Language {
-            return entries.find { it.code == code } ?: INDONESIAN
-        }
+        fun fromCode(code: String): Language = entries.find { it.code == code } ?: INDONESIAN
     }
 }

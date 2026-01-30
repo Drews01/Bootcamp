@@ -17,16 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.ProfileDetailsViewModel
-import com.example.bootcamp.R
-import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,20 +101,20 @@ fun ProfileDetailsScreen(
                     Column(
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.failed_to_load_profile),
-                        color = Color.Red,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
-                        color = Gray500,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadProfile() }) { Text(stringResource(R.string.retry)) }
-                }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.failed_to_load_profile),
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
+                            color = Gray500,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { viewModel.loadProfile() }) { Text(stringResource(R.string.retry)) }
+                    }
                 }
                 else -> {
                     val profile = uiState.profile
@@ -197,7 +197,11 @@ fun ProfileDetailsScreen(
                                                     contentDescription = null,
                                                     tint = Color.Red
                                                 )
-                                                Text(stringResource(R.string.failed_to_load_image), color = Color.Red, fontSize = 12.sp)
+                                                Text(
+                                                    stringResource(R.string.failed_to_load_image),
+                                                    color = Color.Red,
+                                                    fontSize = 12.sp
+                                                )
                                             }
                                         }
                                     )
@@ -213,7 +217,11 @@ fun ProfileDetailsScreen(
                                             tint = Gray500,
                                             modifier = Modifier.size(48.dp)
                                         )
-                                        Text(stringResource(R.string.no_ktp_uploaded), color = Gray500, fontSize = 14.sp)
+                                        Text(
+                                            stringResource(R.string.no_ktp_uploaded),
+                                            color = Gray500,
+                                            fontSize = 14.sp
+                                        )
                                     }
                                 }
                             }

@@ -54,9 +54,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
-import com.example.bootcamp.R
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
 import com.example.bootcamp.ui.theme.MutedGray

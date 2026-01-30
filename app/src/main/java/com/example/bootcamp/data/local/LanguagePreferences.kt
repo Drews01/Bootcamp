@@ -22,9 +22,7 @@ private val Context.languageDataStore: DataStore<Preferences> by preferencesData
  * Default language is Indonesian.
  */
 @Singleton
-class LanguagePreferences @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class LanguagePreferences @Inject constructor(@ApplicationContext private val context: Context) {
     private val dataStore = context.languageDataStore
 
     companion object {

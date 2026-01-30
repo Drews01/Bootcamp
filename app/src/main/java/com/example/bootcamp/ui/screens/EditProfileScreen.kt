@@ -207,7 +207,11 @@ fun EditProfileScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
-                                        Text(stringResource(R.string.error_load_image), color = Color.Red, fontSize = 12.sp)
+                                        Text(
+                                            stringResource(R.string.error_load_image),
+                                            color = Color.Red,
+                                            fontSize = 12.sp
+                                        )
                                     }
                                 }
                             )

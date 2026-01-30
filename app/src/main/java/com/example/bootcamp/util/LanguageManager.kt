@@ -36,9 +36,7 @@ class LanguageManager @Inject constructor(
      * Get the current language synchronously.
      * Use this for app startup before Compose is ready.
      */
-    fun getCurrentLanguageSync(): Language {
-        return languagePreferences.getLanguageSync()
-    }
+    fun getCurrentLanguageSync(): Language = languagePreferences.getLanguageSync()
 
     /**
      * Change the app language.
@@ -56,16 +54,16 @@ class LanguageManager @Inject constructor(
         // This ensures attachBaseContext will read the correct value after recreation
         val sharedPrefs = context.getSharedPreferences("language_preferences", Context.MODE_PRIVATE)
         sharedPrefs.edit().putString("selected_language", language.code).commit()
-        
+
         // Apply locale using AppCompatDelegate (this may trigger automatic recreation)
         val localeList = LocaleListCompat.forLanguageTags(language.code)
         AppCompatDelegate.setApplicationLocales(localeList)
-        
+
         // Update DataStore asynchronously (for ViewModel observation)
         scope.launch {
             languagePreferences.setLanguage(language)
         }
-        
+
         // Fallback: Explicit recreation for immediate effect
         activity?.recreate()
     }
@@ -85,7 +83,6 @@ class LanguageManager @Inject constructor(
      * Update locale for the given context.
      * This is needed for APIs below 33.
      */
-
 
     /**
      * Get a localized context with the specified language.

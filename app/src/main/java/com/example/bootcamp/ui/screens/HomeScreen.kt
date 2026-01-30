@@ -1,7 +1,5 @@
 package com.example.bootcamp.ui.screens
 
-import com.example.bootcamp.R
-
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray400
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600

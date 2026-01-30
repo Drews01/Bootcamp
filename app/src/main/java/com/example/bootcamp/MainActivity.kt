@@ -6,10 +6,10 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bootcamp.ui.navigation.AppNavigation
@@ -40,13 +40,13 @@ class MainActivity : AppCompatActivity() {
         // This is critical for Compose's stringResource() to work with the correct locale
         val sharedPrefs = newBase.getSharedPreferences("language_preferences", Context.MODE_PRIVATE)
         val languageCode = sharedPrefs.getString("selected_language", "id") ?: "id"
-        
+
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
-        
+
         val config = Configuration(newBase.resources.configuration)
         config.setLocale(locale)
-        
+
         val context = newBase.createConfigurationContext(config)
         super.attachBaseContext(context)
     }
@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         askNotificationPermission()
         enableEdgeToEdge()
-        
+
         setContent {
             BootcampTheme {
                 val authViewModel: AuthViewModel = hiltViewModel()

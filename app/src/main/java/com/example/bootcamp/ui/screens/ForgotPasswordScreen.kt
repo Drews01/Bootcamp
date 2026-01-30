@@ -239,7 +239,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                                         color = Color.White
                                     )
                                 }
-                        }
+                            }
                         }
                     }
                 }

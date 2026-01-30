@@ -39,17 +39,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.LoanErrorType
 import com.example.bootcamp.ui.viewmodel.LoanViewModel
-import com.example.bootcamp.R
-import androidx.compose.ui.res.stringResource
 import java.text.NumberFormat
 import java.util.Locale
 

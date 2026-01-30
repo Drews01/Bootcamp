@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bootcamp.R
-import com.example.bootcamp.ui.components.LanguageSettingsSection
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.AuthViewModel

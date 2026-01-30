@@ -44,10 +44,7 @@ private fun Context.findActivity(): Activity? {
  * Integrated into ProfileDetailsScreen.
  */
 @Composable
-fun LanguageSettingsSection(
-    viewModel: LanguageViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
-) {
+fun LanguageSettingsSection(viewModel: LanguageViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = remember { context.findActivity() }
@@ -125,12 +122,7 @@ fun LanguageSettingsSection(
 }
 
 @Composable
-private fun LanguageOptionRow(
-    languageCode: String,
-    languageName: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
+private fun LanguageOptionRow(languageCode: String, languageName: String, isSelected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
