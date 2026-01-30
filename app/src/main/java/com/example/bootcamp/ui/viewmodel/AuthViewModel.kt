@@ -39,7 +39,11 @@ data class AuthUiState(
     val fieldErrors: Map<String, String> = emptyMap(),
 
     // Error details for advanced handling
-    val errorDetails: ErrorDetails? = null
+    // Error details for advanced handling
+    val errorDetails: ErrorDetails? = null,
+
+    // Pending Data Status (for logout warning)
+    val hasPendingData: Boolean = false
 ) {
     /** Get error for a specific field. */
     fun getFieldError(fieldName: String): String? = fieldErrors[fieldName]
@@ -67,7 +71,10 @@ constructor(
     private val registerUseCase: RegisterUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val forgotPasswordUseCase: ForgotPasswordUseCase,
-    private val authRepository: AuthRepository
+
+    private val authRepository: AuthRepository,
+    private val userProfileRepository: com.example.bootcamp.domain.repository.UserProfileRepository,
+    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -96,6 +103,17 @@ constructor(
         viewModelScope.launch {
             authRepository.getEmailFlow().collect { email ->
                 _uiState.update { it.copy(email = email) }
+            }
+        }
+
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                userProfileRepository.getPendingProfile(),
+                loanRepository.getPendingLoans()
+            ) { pendingProfile, pendingLoans ->
+                (pendingProfile != null) || (pendingLoans.isNotEmpty())
+            }.collect { hasPending ->
+                 _uiState.update { it.copy(hasPendingData = hasPending) }
             }
         }
     }

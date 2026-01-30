@@ -1,3 +1,240 @@
 <resources>
+    <!-- App Name -->
     <string name="app_name">Bootcamp</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting_user">Hi, %s</string>
+    <string name="home_greeting_guest">Hi, Guest</string>
+    <string name="home_subtitle">Manage your loans more easily.</string>
+    <string name="home_select_product">Select Loan Product</string>
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Silver</string>
+    <string name="tier_gold">Gold</string>
+    <string name="loan_simulation_title">%s Simulation</string>
+    <string name="loan_max_limit">Max Limit: %s</string>
+    <string name="loan_amount_label">Loan Amount (Rp)</string>
+    <string name="loan_tenor_label">Tenor (Months)</string>
+    <string name="loan_max_tenor">Max: %d months</string>
+    <string name="loan_monthly_estimate">Estimated Monthly Installment</string>
+    <string name="loan_apply_now">Apply Now</string>
+
+    <!-- Login Screen -->
+    <string name="app_logo_title">STAR</string>
+    <string name="app_logo_subtitle">Financial</string>
+    <string name="login_welcome">Welcome Back</string>
+    <string name="login_subtitle">Sign in to continue</string>
+    <string name="login_email_username_label">Email or Username</string>
+    <string name="login_password_label">Password</string>
+    <string name="password_hide">Hide password</string>
+    <string name="password_show">Show password</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_button">Sign In</string>
+    <string name="login_google">Sign in with Google</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_signup_link">Sign Up</string>
+    <string name="error_invalid_client_id">Invalid Client ID config</string>
+
+    <!-- Register Screen -->
+    <string name="navigation_back">Back</string>
+    <string name="register_title">Create Account</string>
+    <string name="register_subtitle">Join STAR Financial today</string>
+    <string name="register_username_label">Username</string>
+    <string name="error_username_length">Username must be 3-50 characters</string>
+    <string name="register_email_label">Email</string>
+    <string name="error_invalid_email">Please enter a valid email</string>
+    <string name="error_password_length">Password must be at least 8 characters</string>
+    <string name="register_confirm_password_label">Confirm Password</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="register_has_account">Already have an account? </string>
+
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Recover</string>
+    <string name="forgot_password_card_title">Reset Password</string>
+    <string name="forgot_password_description">Enter your email address and we\'ll send you instructions to reset your password.</string>
+    <string name="forgot_password_button">Send Reset Link</string>
+
+    <!-- Profile Details Screen -->
+    <string name="profile_details_title">Profile Details</string>
+    <string name="error_load_profile">Failed to load profile</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="button_retry">Retry</string>
+    <string name="profile_personal_info">Personal Information</string>
+    <string name="profile_username">Username</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_phone">Phone Number</string>
+    <string name="profile_address">Address</string>
+    <string name="profile_nik">NIK</string>
+    <string name="profile_ktp_section">ID Card (KTP)</string>
+    <string name="profile_ktp_photo">KTP Photo</string>
+    <string name="error_load_image">Failed to load image</string>
+    <string name="profile_no_ktp">No KTP Uploaded</string>
+    <string name="profile_bank_info">Bank Information</string>
+    <string name="profile_bank_name">Bank Name</string>
+    <string name="profile_account_number">Account Number</string>
+    <string name="profile_edit_button">Edit Profile</string>
+    <string name="profile_not_found_title">No Profile Yet</string>
+    <string name="profile_not_found_description">You haven\'t created your profile yet. Create one now to complete your account setup.</string>
+    <string name="profile_create_button">Create Profile</string>
+
+    <!-- Edit Profile Screen -->
+    <string name="edit_profile_title">Edit Profile</string>
+    <string name="edit_profile_description">Complete your profile to be able to submit loan applications.</string>
+    <string name="edit_profile_ktp_label">ID Card (KTP) *</string>
+    <string name="button_camera">Camera</string>
+    <string name="button_gallery">Gallery</string>
+    <string name="edit_profile_address_label">Address *</string>
+    <string name="edit_profile_nik_label">NIK (16 digits) *</string>
+    <string name="edit_profile_phone_label">Phone Number *</string>
+    <string name="edit_profile_bank_name_label">Bank Name *</string>
+    <string name="edit_profile_account_number_label">Account Number *</string>
+    <string name="edit_profile_save_button">Save Profile</string>
+    <string name="edit_profile_required_note">* Required fields</string>
+    <string name="success_profile_updated">Profile updated</string>
+
+    <!-- Loan History Screen -->
+    <string name="loan_history_title">Loan History</string>
+    <string name="error_load_history">Failed to load history</string>
+    <string name="loan_history_empty">No loan history found</string>
+    <string name="loan_amount">Amount</string>
+    <string name="loan_date">Date</string>
+
+    <!-- Submit Loan Screen -->
+    <string name="submit_loan_title">Loan Application Form</string>
+    <string name="submit_loan_subtitle">Fill in your application details.</string>
+    <string name="submit_loan_select_branch">Select Branch</string>
+    <string name="submit_loan_branch_label">Branch</string>
+    <string name="button_expand">Expand</string>
+    <string name="submit_loan_amount_label">Loan Amount (Rp)</string>
+    <string name="submit_loan_tenor_label">Tenor (months)</string>
+    <string name="submit_loan_button">Submit Application</string>
+    <string name="submit_loan_terms">By pressing the button above, you agree to the applicable terms and conditions.</string>
+    <string name="submit_loan_confirm_title">Confirm Application</string>
+    <string name="submit_loan_confirm_subtitle">Make sure the following data is correct:</string>
+    <string name="submit_loan_confirm_amount">Loan Amount</string>
+    <string name="submit_loan_confirm_tenor">Tenor</string>
+    <string name="submit_loan_months">Months</string>
+    <string name="button_submit">Submit</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="error_profile_incomplete_title">Profile Incomplete</string>
+    <string name="error_profile_incomplete_message">Please complete your data first</string>
+    <string name="button_complete_profile">Complete Profile</string>
+    <string name="error_active_loan_title">Active Loan Exists</string>
+    <string name="error_active_loan_message">Cannot submit new loan. You already have an active loan application that is being processed. Please wait for your current loan to be disbursed, paid, or rejected before submitting a new one.</string>
+    <string name="error_exceeds_limit_title">Exceeds Credit Limit</string>
+    <string name="error_exceeds_limit_message">Loan amount exceeds remaining credit limit of Rp %s for %s tier. Please lower the amount.</string>
+    <string name="error_branch_required_title">Branch Required</string>
+    <string name="error_branch_required_message">Branch ID is required for loan submission. Please select a branch.</string>
+    <string name="error_branch_not_found_title">Branch Not Found</string>
+    <string name="error_branch_not_found_message">The selected branch was not found. Please refresh and select another branch.</string>
+    <string name="button_refresh_branches">Refresh Branches</string>
+    <string name="error_system_title">System Error</string>
+    <string name="error_no_tier_message">No tier product available for user. Please contact support.</string>
+    <string name="error_generic_title">Error</string>
+    <string name="button_ok">OK</string>
+
+    <!-- User Profile Screen -->
+    <string name="profile_not_logged_in">Not logged in</string>
+    <string name="profile_login_prompt">Log in to view and manage your profile.</string>
+    <string name="profile_login_button">Login now</string>
+    <string name="profile_your_profile">Your Profile</string>
+    <string name="menu_profile_details">Profile Details</string>
+    <string name="menu_loan_history">Loan History</string>
+    <string name="profile_logout_button">Logout</string>
+    <string name="dialog_unsaved_changes_title">Unsaved Changes</string>
+    <string name="dialog_unsaved_changes_message">You have pending data (Loans/Profile) that hasn\'t synced yet. Logging out will DELETE this data permanently.</string>
+    <string name="dialog_logout_delete">Logout and Delete</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <!-- Empty State Card -->
+    <string name="empty_state_title">Unlock Your Limit</string>
+    <string name="empty_state_description">Complete your profile and apply for a loan to start your journey.</string>
+    <string name="empty_state_button">Get Started</string>
+
+    <!-- User Product Tier Card -->
+    <string name="tier_premium">Premium Tier</string>
+    <string name="tier_status_active">ACTIVE</string>
+    <string name="tier_available_limit">Available Limit</string>
+    <string name="tier_limit">Limit</string>
+    <string name="tier_used">Used</string>
+    <string name="tier_next_progress">Next Tier Progress</string>
+    <string name="tier_pay_more">Pay %s more</string>
+    <string name="tier_eligible_upgrade">Eligible for Upgrade!</string>
+
+    <string name="settings_section_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_subtitle">Choose your preferred language</string>
+    <string name="language_english">English</string>
+    <string name="language_indonesian">Bahasa Indonesia</string>
+    <string name="language_selected">Selected</string>
+
+    <!-- Additional strings for screens using stringResource() -->
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="unknown_error">Unknown error</string>
+    
+    <!-- Home Screen additional -->
+    <string name="interest_rate_per_year">%1$.1f%% p.a</string>
+    
+    <!-- Login Screen -->
+    <string name="app_name_star">STAR</string>
+    <string name="app_name_financial">Financial</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="email_or_username">Email or Username</string>
+    <string name="password">Password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="google_logo">Google Logo</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="dont_have_account">Don\'t have an account? </string>
+    <string name="sign_up">Sign Up</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    
+    <!-- Register Screen -->
+    <string name="create_account">Create Account</string>
+    <string name="join_star_financial_today">Join STAR Financial today</string>
+    <string name="username">Username</string>
+    <string name="username_must_be_3_50_characters">Username must be 3-50 characters</string>
+    <string name="email">Email</string>
+    <string name="please_enter_a_valid_email">Please enter a valid email</string>
+    <string name="password_must_be_at_least_8_characters">Password must be at least 8 characters</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="already_have_an_account">Already have an account? </string>
+    
+    <!-- Forgot Password Screen -->
+    <string name="recover">Recover</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="enter_email_reset_password">Enter your email address and we\'ll send you instructions to reset your password.</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    
+    <!-- Loan History Screen -->
+    <string name="failed_to_load_history">Failed to load history</string>
+    <string name="no_loan_history_found">No loan history found</string>
+    <string name="amount">Amount</string>
+    <string name="date">Date</string>
+    
+    <!-- Profile Details Screen -->
+    <string name="failed_to_load_profile">Failed to load profile</string>
+    <string name="personal_information">Personal Information</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="address">Address</string>
+    <string name="nik">NIK</string>
+    <string name="id_card_ktp">ID Card (KTP)</string>
+    <string name="ktp_photo">KTP Photo</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="no_ktp_uploaded">No KTP Uploaded</string>
+    <string name="bank_information">Bank Information</string>
+    <string name="bank_name">Bank Name</string>
+    <string name="account_number">Account Number</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="no_profile_yet">No Profile Yet</string>
+    <string name="no_profile_description">You haven\'t created your profile yet. Create one now to complete your account setup.</string>
+    <string name="create_profile">Create Profile</string>
+
+    <!-- Submit Loan Screen - Preview Dialog -->
+    <string name="submit_loan_preview_branch">Branch</string>
 </resources>

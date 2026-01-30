@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
+import com.example.bootcamp.R
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.example.bootcamp.ui.components.AuthBackground
@@ -101,7 +103,7 @@ fun LoginScreen(
         ) {
             // Logo/Title with glow effect
             Text(
-                text = "STAR",
+                text = stringResource(R.string.app_name_star),
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -110,7 +112,7 @@ fun LoginScreen(
                 Modifier.graphicsLayer { shadowElevation = 40f * glowAlpha }
             )
             Text(
-                text = "Financial",
+                text = stringResource(R.string.app_name_financial),
                 fontSize = 20.sp,
                 color = MutedGray,
                 letterSpacing = 4.sp,
@@ -154,14 +156,14 @@ fun LoginScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Welcome Back",
+                            text = stringResource(R.string.welcome_back),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             letterSpacing = 1.sp,
                         )
                         Text(
-                            text = "Sign in to continue",
+                            text = stringResource(R.string.sign_in_to_continue),
                             fontSize = 14.sp,
                             color = MutedGray,
                         )
@@ -175,7 +177,7 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth(),
                             label = {
                                 Text(
-                                    "Email or Username",
+                                    stringResource(R.string.email_or_username),
                                     color = MutedGray
                                 )
                             },
@@ -223,7 +225,7 @@ fun LoginScreen(
                             onValueChange = { password = it },
                             modifier = Modifier.fillMaxWidth(),
                             label = {
-                                Text("Password", color = MutedGray)
+                                Text(stringResource(R.string.password), color = MutedGray)
                             },
                             leadingIcon = {
                                 Icon(
@@ -253,9 +255,9 @@ fun LoginScreen(
                                         contentDescription =
                                         if (passwordVisible
                                         ) {
-                                            "Hide password"
+                                            stringResource(R.string.hide_password)
                                         } else {
-                                            "Show password"
+                                            stringResource(R.string.show_password)
                                         },
                                         tint = MutedGray,
                                     )
@@ -304,7 +306,7 @@ fun LoginScreen(
                             modifier = Modifier.align(Alignment.End),
                         ) {
                             Text(
-                                text = "Forgot Password?",
+                                text = stringResource(R.string.forgot_password),
                                 color = SpaceViolet,
                                 fontSize = 14.sp,
                             )
@@ -398,7 +400,7 @@ fun LoginScreen(
                                     )
                                 } else {
                                     Text(
-                                        text = "Sign In",
+                                        text = stringResource(R.string.sign_in),
                                         fontSize = 16.sp,
                                         fontWeight =
                                         FontWeight
@@ -474,13 +476,13 @@ fun LoginScreen(
                             // Placeholder for Google Icon
                             Icon(
                                 imageVector = Icons.Default.Email, // TODO: Use actual Google Icon
-                                contentDescription = "Google Logo",
+                                contentDescription = stringResource(R.string.google_logo),
                                 tint = Color.Unspecified,
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "Sign in with Google",
+                                text = stringResource(R.string.sign_in_with_google),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.Black.copy(alpha = 0.8f) // Google text color
@@ -492,12 +494,12 @@ fun LoginScreen(
                         // Register Link
                         TextButton(onClick = onNavigateToRegister) {
                             Text(
-                                text = "Don't have an account? ",
+                                text = stringResource(R.string.dont_have_account),
                                 color = MutedGray,
                                 fontSize = 14.sp,
                             )
                             Text(
-                                text = "Sign Up",
+                                text = stringResource(R.string.sign_up),
                                 color = SpaceViolet,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
@@ -515,7 +517,7 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Continue as Guest",
+                                text = stringResource(R.string.continue_as_guest),
                                 color = Color.White.copy(alpha = 0.7f),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal

@@ -1,5 +1,7 @@
 package com.example.bootcamp.ui.screens
 
+import com.example.bootcamp.R
+
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -114,19 +117,19 @@ fun HomeScreen(
         ) {
             item {
                 Column {
+                    val greeting = if (uiState.isLoggedIn && uiState.username != null) {
+                        stringResource(R.string.home_greeting_user, uiState.username ?: "")
+                    } else {
+                        stringResource(R.string.home_greeting_guest)
+                    }
                     Text(
-                        text =
-                        if (uiState.isLoggedIn && uiState.username != null) {
-                            "Hi, ${uiState.username}"
-                        } else {
-                            "Hi, Guest"
-                        },
+                        text = greeting,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
                     Text(
-                        text = "Kelola pinjamanmu dengan lebih mudah.",
+                        text = stringResource(R.string.home_subtitle),
                         fontSize = 14.sp,
                         color = Gray400,
                     )
@@ -151,7 +154,7 @@ fun HomeScreen(
 
             item {
                 Text(
-                    text = "Pilih Produk Pinjaman",
+                    text = stringResource(R.string.home_select_product),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -211,15 +214,21 @@ private fun ProductSelector(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val productName = when (product.name) {
+                        "Bronze" -> stringResource(R.string.tier_bronze)
+                        "Silver" -> stringResource(R.string.tier_silver)
+                        "Gold" -> stringResource(R.string.tier_gold)
+                        else -> product.name
+                    }
                     Text(
-                        text = product.name,
+                        text = productName,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${product.ratePercentPerYear}% p.a",
+                        text = stringResource(R.string.interest_rate_per_year, product.ratePercentPerYear),
                         color = if (isSelected) Color.White.copy(alpha = 0.9f) else Gray400,
                         fontSize = 12.sp
                     )
@@ -265,14 +274,20 @@ private fun LoanSimulator(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val productName = when (product.name) {
+                    "Bronze" -> stringResource(R.string.tier_bronze)
+                    "Silver" -> stringResource(R.string.tier_silver)
+                    "Gold" -> stringResource(R.string.tier_gold)
+                    else -> product.name
+                }
                 Text(
-                    text = "Simulasi ${product.name}",
+                    text = stringResource(R.string.loan_simulation_title, productName),
                     color = Color.White,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                 )
                 Text(
-                    text = "Max Limit: ${formatter.format(product.limitRupiah)}",
+                    text = stringResource(R.string.loan_max_limit, formatter.format(product.limitRupiah)),
                     color = Color(0xFF6EE7B7),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
@@ -286,7 +301,7 @@ private fun LoanSimulator(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Pinjaman (Rp)",
+                        text = stringResource(R.string.loan_amount_label),
                         color = Color.White,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
@@ -312,7 +327,7 @@ private fun LoanSimulator(
                 }
                 Column(modifier = Modifier.weight(0.7f)) {
                     Text(
-                        text = "Tenor (Bulan)",
+                        text = stringResource(R.string.loan_tenor_label),
                         color = Color.White,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
@@ -336,7 +351,7 @@ private fun LoanSimulator(
                         )
                     )
                     Text(
-                        text = "Max: ${product.maxTenorMonth} bln",
+                        text = stringResource(R.string.loan_max_tenor, product.maxTenorMonth),
                         color = Color.White,
                         fontSize = 10.sp,
                         modifier = Modifier.padding(top = 2.dp)
@@ -354,7 +369,7 @@ private fun LoanSimulator(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Estimasi Cicilan per Bulan",
+                        text = stringResource(R.string.loan_monthly_estimate),
                         color = Color.White,
                         fontSize = 13.sp,
                     )
@@ -381,7 +396,7 @@ private fun LoanSimulator(
                 colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
             ) {
                 Text(
-                    text = "Ajukan Sekarang",
+                    text = stringResource(R.string.loan_apply_now),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                 )

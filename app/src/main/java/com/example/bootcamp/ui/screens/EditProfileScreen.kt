@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.EditProfileViewModel
@@ -111,12 +113,12 @@ fun EditProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Profile", color = Color.White) },
+                title = { Text(stringResource(R.string.edit_profile), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = Color.White
                         )
                     }
@@ -153,14 +155,14 @@ fun EditProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "Complete your profile to be able to submit loan applications.",
+                        text = stringResource(R.string.edit_profile_description),
                         color = Gray500,
                         fontSize = 14.sp
                     )
 
                     // --- KTP Photo Section ---
                     Text(
-                        text = "ID Card (KTP) *",
+                        text = stringResource(R.string.edit_profile_ktp_label),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -189,7 +191,7 @@ fun EditProfileScreen(
 
                             coil.compose.SubcomposeAsyncImage(
                                 model = displayModel,
-                                contentDescription = "KTP Photo",
+                                contentDescription = stringResource(R.string.profile_ktp_photo),
                                 modifier = imageModifier,
                                 // Changed from Fit to Crop for better look, or use Fit to show full document
                                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -205,7 +207,7 @@ fun EditProfileScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Red)
-                                        Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
+                                        Text(stringResource(R.string.error_load_image), color = Color.Red, fontSize = 12.sp)
                                     }
                                 }
                             )
@@ -217,7 +219,7 @@ fun EditProfileScreen(
                                     tint = Gray500,
                                     modifier = Modifier.size(48.dp)
                                 )
-                                Text("No KTP Uploaded", color = Gray500)
+                                Text(stringResource(R.string.profile_no_ktp), color = Gray500)
                             }
                         }
 
@@ -256,7 +258,7 @@ fun EditProfileScreen(
                         ) {
                             Icon(Icons.Default.CameraAlt, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Camera")
+                            Text(stringResource(R.string.button_camera))
                         }
 
                         Button(
@@ -266,7 +268,7 @@ fun EditProfileScreen(
                         ) {
                             Icon(Icons.Default.Image, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Gallery")
+                            Text(stringResource(R.string.button_gallery))
                         }
                     }
 
@@ -276,7 +278,7 @@ fun EditProfileScreen(
                     OutlinedTextField(
                         value = uiState.address,
                         onValueChange = { viewModel.onAddressChanged(it) },
-                        label = { Text("Address *") },
+                        label = { Text(stringResource(R.string.edit_profile_address_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.Home, contentDescription = null, tint = Gray500)
                         },
@@ -296,7 +298,7 @@ fun EditProfileScreen(
                     OutlinedTextField(
                         value = uiState.nik,
                         onValueChange = { viewModel.onNikChanged(it) },
-                        label = { Text("NIK (16 digits) *") },
+                        label = { Text(stringResource(R.string.edit_profile_nik_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.Badge, contentDescription = null, tint = Gray500)
                         },
@@ -320,7 +322,7 @@ fun EditProfileScreen(
                     OutlinedTextField(
                         value = uiState.phoneNumber,
                         onValueChange = { viewModel.onPhoneNumberChanged(it) },
-                        label = { Text("Phone Number *") },
+                        label = { Text(stringResource(R.string.edit_profile_phone_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.Phone, contentDescription = null, tint = Gray500)
                         },
@@ -340,7 +342,7 @@ fun EditProfileScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Bank Information",
+                        text = stringResource(R.string.profile_bank_info),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -350,7 +352,7 @@ fun EditProfileScreen(
                     OutlinedTextField(
                         value = uiState.bankName,
                         onValueChange = { viewModel.onBankNameChanged(it) },
-                        label = { Text("Bank Name *") },
+                        label = { Text(stringResource(R.string.edit_profile_bank_name_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.AccountBalance, contentDescription = null, tint = Gray500)
                         },
@@ -370,7 +372,7 @@ fun EditProfileScreen(
                     OutlinedTextField(
                         value = uiState.accountNumber,
                         onValueChange = { viewModel.onAccountNumberChanged(it) },
-                        label = { Text("Account Number *") },
+                        label = { Text(stringResource(R.string.edit_profile_account_number_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.CreditCard, contentDescription = null, tint = Gray500)
                         },
@@ -409,7 +411,7 @@ fun EditProfileScreen(
                             )
                         } else {
                             Text(
-                                text = "Save Profile",
+                                text = stringResource(R.string.edit_profile_save_button),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -417,7 +419,7 @@ fun EditProfileScreen(
                     }
 
                     Text(
-                        text = "* Required fields",
+                        text = stringResource(R.string.edit_profile_required_note),
                         color = Gray500,
                         fontSize = 12.sp
                     )

@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
 import com.example.bootcamp.ui.theme.MutedGray
@@ -98,7 +100,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White,
                 )
             }
@@ -107,7 +109,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
 
             // Logo/Title
             Text(
-                text = "STAR",
+                text = stringResource(R.string.app_name_star),
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -115,7 +117,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                 modifier = Modifier.graphicsLayer { shadowElevation = 40f * glowAlpha }
             )
             Text(
-                text = "Financial",
+                text = stringResource(R.string.app_name_financial),
                 fontSize = 20.sp,
                 color = MutedGray,
                 letterSpacing = 4.sp,
@@ -147,14 +149,14 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Create Account",
+                            text = stringResource(R.string.create_account),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             letterSpacing = 1.sp,
                         )
                         Text(
-                            text = "Join STAR Financial today",
+                            text = stringResource(R.string.join_star_financial_today),
                             fontSize = 14.sp,
                             color = MutedGray,
                         )
@@ -166,7 +168,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             value = username,
                             onValueChange = { username = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Username", color = MutedGray) },
+                            label = { Text(stringResource(R.string.username), color = MutedGray) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Person,
@@ -179,7 +181,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             if (usernameError) {
                                 {
                                     Text(
-                                        "Username must be 3-50 characters",
+                                        stringResource(R.string.username_must_be_3_50_characters),
                                         color = Red500
                                     )
                                 }
@@ -213,7 +215,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             value = email,
                             onValueChange = { email = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Email", color = MutedGray) },
+                            label = { Text(stringResource(R.string.email), color = MutedGray) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Email,
@@ -226,7 +228,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             if (emailError) {
                                 {
                                     Text(
-                                        "Please enter a valid email",
+                                        stringResource(R.string.please_enter_a_valid_email),
                                         color = Red500
                                     )
                                 }
@@ -260,7 +262,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             value = password,
                             onValueChange = { password = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Password", color = MutedGray) },
+                            label = { Text(stringResource(R.string.password), color = MutedGray) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
@@ -286,9 +288,9 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                                         },
                                         contentDescription =
                                         if (passwordVisible) {
-                                            "Hide password"
+                                            stringResource(R.string.hide_password)
                                         } else {
-                                            "Show password"
+                                            stringResource(R.string.show_password)
                                         },
                                         tint = MutedGray,
                                     )
@@ -299,7 +301,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             if (passwordError) {
                                 {
                                     Text(
-                                        "Password must be at least 8 characters",
+                                        stringResource(R.string.password_must_be_at_least_8_characters),
                                         color = Red500
                                     )
                                 }
@@ -340,7 +342,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             value = confirmPassword,
                             onValueChange = { confirmPassword = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Confirm Password", color = MutedGray) },
+                            label = { Text(stringResource(R.string.confirm_password), color = MutedGray) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
@@ -368,9 +370,9 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                                         contentDescription =
                                         if (confirmPasswordVisible
                                         ) {
-                                            "Hide password"
+                                            stringResource(R.string.hide_password)
                                         } else {
-                                            "Show password"
+                                            stringResource(R.string.show_password)
                                         },
                                         tint = MutedGray,
                                     )
@@ -379,7 +381,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                             isError = confirmPasswordError,
                             supportingText =
                             if (confirmPasswordError) {
-                                { Text("Passwords do not match", color = Red500) }
+                                { Text(stringResource(R.string.passwords_do_not_match), color = Red500) }
                             } else {
                                 null
                             },
@@ -470,7 +472,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                                     )
                                 } else {
                                     Text(
-                                        text = "Create Account",
+                                        text = stringResource(R.string.create_account),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color.White
@@ -484,12 +486,12 @@ fun RegisterScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit, onRe
                         // Login Link
                         TextButton(onClick = onNavigateToLogin) {
                             Text(
-                                text = "Already have an account? ",
+                                text = stringResource(R.string.already_have_an_account),
                                 color = MutedGray,
                                 fontSize = 14.sp,
                             )
                             Text(
-                                text = "Sign In",
+                                text = stringResource(R.string.sign_in),
                                 color = SpaceIndigo,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,

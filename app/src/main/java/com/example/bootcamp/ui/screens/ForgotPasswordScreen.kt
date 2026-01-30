@@ -35,12 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bootcamp.R
 import com.example.bootcamp.ui.components.AuthBackground
 import com.example.bootcamp.ui.theme.Emerald500
 import com.example.bootcamp.ui.theme.MutedGray
@@ -68,7 +70,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White,
                 )
             }
@@ -77,7 +79,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
 
             // Logo/Title
             Text(
-                text = "Recover",
+                text = stringResource(R.string.recover),
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -111,7 +113,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Reset Password",
+                            text = stringResource(R.string.reset_password),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -119,7 +121,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text =
-                            "Enter your email address and we'll send you instructions to reset your password.",
+                            stringResource(R.string.enter_email_reset_password),
                             fontSize = 14.sp,
                             color = MutedGray,
                             textAlign = TextAlign.Center,
@@ -132,7 +134,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                             value = email,
                             onValueChange = { email = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Email", color = MutedGray) },
+                            label = { Text(stringResource(R.string.email), color = MutedGray) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Email,
@@ -145,7 +147,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                             if (emailError) {
                                 {
                                     Text(
-                                        "Please enter a valid email",
+                                        stringResource(R.string.please_enter_a_valid_email),
                                         color = Red500
                                     )
                                 }
@@ -231,13 +233,13 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, onNavigateToLogin: () -> Unit
                                     )
                                 } else {
                                     Text(
-                                        text = "Send Reset Link",
+                                        text = stringResource(R.string.send_reset_link),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color.White
                                     )
                                 }
-                            }
+                        }
                         }
                     }
                 }

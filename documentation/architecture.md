@@ -183,6 +183,68 @@ _Goal: Allow users to submit forms (Loan, Profile) while offline._
         -   On 200 OK: Deletes pending entity or marks `SYNCED`.
         -   On Error: Updates `retryCount` and `errorMessage`.
 
+### 3. Session Management & Security (Data Wiping)
+_Goal: Prevent data leakage between users sharing a device._
+
+We enforce a strict **"Force Wipe"** policy to ensure no user data persists across sessions. This is implemented via a **redundant clearing strategy**: we clear on exit (Logout) AND on entry (Login).
+
+#### A. The "Force Wipe" Protocol
+When a "Wipe" is triggered, the following functions are executed synchronously to ensure a clean state:
+
+| Component | Function | What it Clears |
+| :--- | :--- | :--- |
+| **UserProfileRepository** | `clearCache()` | `user_profile_cache`, `pending_profiles` tables (Room) |
+| **LoanRepository** | `clearCache()` | `loan_history`, `pending_loans`, `branches` tables (Room) |
+| **ProductRepository** | `clearCache()` | `user_product_yield` table (Room) |
+| **TokenManager** | `clearToken()` | JWT, User ID, Username, Email (DataStore) |
+
+#### B. Detailed Execution Flow
+
+**1. Secure Logout Sequence**
+*Trigger:* User clicks "Logout" in Profile Screen.
+1.  **ViewModel**: `AuthViewModel.logout()` launches coroutine.
+2.  **UseCase**: `LogoutUseCase.invoke()` is called.
+3.  **Step-by-Step Execution**:
+    ```kotlin
+    // LogoutUseCase.kt
+    override suspend fun invoke(): Result<String> {
+        // 1. Unregister FCM (Best effort)
+        try { fireBaseService.unregister() } catch (e) {}
+
+        // 2. FORCE WIPE LOCAL DATA
+        userProfileRepository.clearCache() // Wipes Profile DB
+        loanRepository.clearCache()        // Wipes Loan DB
+        productRepository.clearCache()     // Wipes Product DB
+
+        // 3. WIPE TOKENS & SESSION
+        return authRepository.logout()     // Clears DataStore
+    }
+    ```
+
+**2. Fail-Safe Login Sequence (The Zombie Guard)**
+*Trigger:* User attempts to Log In (Email/Google).
+*Purpose:* Handles cases where the app crashed/died before a clean Logout could finish.
+
+1.  **UseCase**: `LoginUseCase.invoke()` (or `GoogleLoginUseCase`) is called.
+2.  **Step 1: Pre-emptive Wipe**:
+    ```kotlin
+    // LoginUseCase.kt
+    override suspend fun invoke(params: LoginParams): Result<String> {
+        // CRITICAL: Always wipe before accepting new credentials
+        try {
+            userProfileRepository.clearCache()
+            loanRepository.clearCache()
+            productRepository.clearCache()
+        } catch (e: Exception) {
+            // Log warning but allow login to proceed
+        }
+
+        // Step 2: Proceed with actual network login
+        return authRepository.login(...)
+    }
+    ```
+3.  **Result**: The new user *guaranteed* starts with an empty database.
+
 ---
 
 ## Google Sign-In Implementation

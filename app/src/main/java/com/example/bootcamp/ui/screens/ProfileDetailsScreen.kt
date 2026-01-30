@@ -25,6 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.ProfileDetailsViewModel
+import com.example.bootcamp.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,12 +53,12 @@ fun ProfileDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile Details", color = Color.White) },
+                title = { Text(stringResource(R.string.profile_details_title), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.navigation_back),
                             tint = Color.White
                         )
                     }
@@ -99,20 +101,20 @@ fun ProfileDetailsScreen(
                     Column(
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Failed to load profile",
-                            color = Color.Red,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = uiState.errorMessage ?: "Unknown error",
-                            color = Gray500,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadProfile() }) { Text("Retry") }
-                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.failed_to_load_profile),
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
+                        color = Gray500,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.loadProfile() }) { Text(stringResource(R.string.retry)) }
+                }
                 }
                 else -> {
                     val profile = uiState.profile
@@ -125,42 +127,42 @@ fun ProfileDetailsScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             // Personal Info Section
-                            SectionTitle("Personal Information")
+                            SectionTitle(stringResource(R.string.personal_information))
 
                             ProfileInfoCard(
                                 icon = Icons.Default.Person,
-                                label = "Username",
+                                label = stringResource(R.string.username),
                                 value = profile.username
                             )
 
                             ProfileInfoCard(
                                 icon = Icons.Default.Email,
-                                label = "Email",
+                                label = stringResource(R.string.email),
                                 value = profile.email
                             )
 
                             ProfileInfoCard(
                                 icon = Icons.Default.Phone,
-                                label = "Phone Number",
+                                label = stringResource(R.string.phone_number),
                                 value = profile.phoneNumber ?: "-"
                             )
 
                             ProfileInfoCard(
                                 icon = Icons.Default.Home,
-                                label = "Address",
+                                label = stringResource(R.string.address),
                                 value = profile.address ?: "-"
                             )
 
                             ProfileInfoCard(
                                 icon = Icons.Default.Badge,
-                                label = "NIK",
+                                label = stringResource(R.string.nik),
                                 value = profile.nik ?: "-"
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             // KTP Section
-                            SectionTitle("ID Card (KTP)")
+                            SectionTitle(stringResource(R.string.id_card_ktp))
 
                             Card(
                                 modifier = Modifier
@@ -173,7 +175,7 @@ fun ProfileDetailsScreen(
                                 if (!ktpPath.isNullOrBlank()) {
                                     coil.compose.SubcomposeAsyncImage(
                                         model = ktpPath,
-                                        contentDescription = "KTP Photo",
+                                        contentDescription = stringResource(R.string.ktp_photo),
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                                         loading = {
@@ -195,7 +197,7 @@ fun ProfileDetailsScreen(
                                                     contentDescription = null,
                                                     tint = Color.Red
                                                 )
-                                                Text("Failed to load image", color = Color.Red, fontSize = 12.sp)
+                                                Text(stringResource(R.string.failed_to_load_image), color = Color.Red, fontSize = 12.sp)
                                             }
                                         }
                                     )
@@ -211,7 +213,7 @@ fun ProfileDetailsScreen(
                                             tint = Gray500,
                                             modifier = Modifier.size(48.dp)
                                         )
-                                        Text("No KTP Uploaded", color = Gray500, fontSize = 14.sp)
+                                        Text(stringResource(R.string.no_ktp_uploaded), color = Gray500, fontSize = 14.sp)
                                     }
                                 }
                             }
@@ -219,17 +221,17 @@ fun ProfileDetailsScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             // Bank Info Section
-                            SectionTitle("Bank Information")
+                            SectionTitle(stringResource(R.string.bank_information))
 
                             ProfileInfoCard(
                                 icon = Icons.Default.AccountBalance,
-                                label = "Bank Name",
+                                label = stringResource(R.string.bank_name),
                                 value = profile.bankName ?: "-"
                             )
 
                             ProfileInfoCard(
                                 icon = Icons.Default.CreditCard,
-                                label = "Account Number",
+                                label = stringResource(R.string.account_number),
                                 value = profile.accountNumber ?: "-"
                             )
 
@@ -250,7 +252,7 @@ fun ProfileDetailsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Edit Profile",
+                                    text = stringResource(R.string.edit_profile),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -291,7 +293,7 @@ private fun ProfileNotFoundContent(onCreateProfile: () -> Unit) {
                 )
 
                 Text(
-                    text = "No Profile Yet",
+                    text = stringResource(R.string.no_profile_yet),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -299,7 +301,7 @@ private fun ProfileNotFoundContent(onCreateProfile: () -> Unit) {
 
                 Text(
                     text =
-                    "You haven't created your profile yet. Create one now to complete your account setup.",
+                    stringResource(R.string.no_profile_description),
                     fontSize = 14.sp,
                     color = Gray500,
                     textAlign = TextAlign.Center
@@ -320,7 +322,7 @@ private fun ProfileNotFoundContent(onCreateProfile: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Create Profile",
+                        text = stringResource(R.string.create_profile),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )

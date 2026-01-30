@@ -1,5 +1,8 @@
 package com.example.bootcamp.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.bootcamp.R
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -68,7 +71,7 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = tierDTO.tierName ?: "Premium Tier",
+                        text = tierDTO.tierName ?: stringResource(R.string.tier_premium),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -80,7 +83,7 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = tierDTO.status ?: "ACTIVE",
+                            text = tierDTO.status ?: stringResource(R.string.tier_status_active),
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
@@ -91,7 +94,7 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                 // Balance Info
                 Column {
                     Text(
-                        text = "Available Limit",
+                        text = stringResource(R.string.tier_available_limit),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 14.sp
                     )
@@ -109,7 +112,7 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                 ) {
                     Column {
                         Text(
-                            text = "Limit",
+                            text = stringResource(R.string.tier_limit),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
@@ -122,7 +125,7 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "Used",
+                            text = stringResource(R.string.tier_used),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
@@ -147,20 +150,20 @@ fun UserProductTierCard(tierDTO: UserTierLimitDTO, modifier: Modifier = Modifier
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Next Tier Progress",
+                                text = stringResource(R.string.tier_next_progress),
                                 color = Color.White,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             if (remaining > 0) {
                                 Text(
-                                    text = "Pay ${formatter.format(remaining)} more",
+                                    text = stringResource(R.string.tier_pay_more, formatter.format(remaining)),
                                     color = Color.White.copy(alpha = 0.9f),
                                     fontSize = 11.sp
                                 )
                             } else {
                                 Text(
-                                    text = "Eligible for Upgrade!",
+                                    text = stringResource(R.string.tier_eligible_upgrade),
                                     color = Color(0xFF4ADE80), // Green
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold

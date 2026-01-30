@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.Login
@@ -28,15 +30,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bootcamp.R
+import com.example.bootcamp.ui.components.LanguageSettingsSection
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.AuthViewModel
@@ -50,6 +56,8 @@ fun UserProfileScreen(
     onNavigateToLoanHistory: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showLogoutWarning by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     Box(
         modifier =
@@ -67,7 +75,10 @@ fun UserProfileScreen(
             ),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -100,14 +111,13 @@ fun UserProfileScreen(
 
                     if (!uiState.isLoggedIn) {
                         Text(
-                            text = "Belum masuk",
+                            text = stringResource(R.string.profile_not_logged_in),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                         )
                         Text(
-                            text =
-                            "Masuk untuk melihat dan mengelola profil kamu.",
+                            text = stringResource(R.string.profile_login_prompt),
                             fontSize = 14.sp,
                             color = Gray500,
                             textAlign = TextAlign.Center,
@@ -133,14 +143,14 @@ fun UserProfileScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Login sekarang",
+                                text = stringResource(R.string.profile_login_button),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
                     } else {
                         Text(
-                            "Profil Kamu",
+                            text = stringResource(R.string.profile_your_profile),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
@@ -157,21 +167,31 @@ fun UserProfileScreen(
 
                         // Menu Cards
                         MenuCard(
-                            title = "Profile Details",
+                            title = stringResource(R.string.menu_profile_details),
                             icon = Icons.Default.AccountCircle,
                             onClick = onNavigateToProfileDetails
                         )
 
                         MenuCard(
-                            title = "Loan History",
+                            title = stringResource(R.string.menu_loan_history),
                             icon = Icons.Default.History,
                             onClick = onNavigateToLoanHistory
                         )
 
+                        // Settings Section - Language
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LanguageSettingsSection()
+
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Button(
-                            onClick = { viewModel.logout() },
+                            onClick = {
+                                if (uiState.hasPendingData) {
+                                    showLogoutWarning = true
+                                } else {
+                                    viewModel.logout()
+                                }
+                            },
                             modifier =
                             Modifier.fillMaxWidth()
                                 .height(48.dp),
@@ -187,7 +207,7 @@ fun UserProfileScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Keluar",
+                                text = stringResource(R.string.profile_logout_button),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
@@ -195,6 +215,32 @@ fun UserProfileScreen(
                     }
                 }
             }
+        }
+
+        if (showLogoutWarning) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showLogoutWarning = false },
+                title = { Text(text = stringResource(R.string.dialog_unsaved_changes_title)) },
+                text = { Text(text = stringResource(R.string.dialog_unsaved_changes_message)) },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            showLogoutWarning = false
+                            viewModel.logout()
+                        }
+                    ) {
+                        Text(stringResource(R.string.dialog_logout_delete), color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = { showLogoutWarning = false }) {
+                        Text(stringResource(R.string.dialog_cancel))
+                    }
+                },
+                containerColor = Color(0xFF1E293B),
+                titleContentColor = Color.White,
+                textContentColor = Gray500
+            )
         }
     }
 }

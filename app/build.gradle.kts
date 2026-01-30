@@ -57,6 +57,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Limit resource configurations to supported languages
+        resourceConfigurations += listOf("en", "id")
+
         val baseUrl = localProperties.getProperty("BASE_URL") ?: "http://${getLocalIp()}:8081"
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         println("Using BASE_URL: $baseUrl")
@@ -101,6 +104,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.material.icons.extended)
+    implementation(libs.androidx.appcompat)
 
     // Debugging
     debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")

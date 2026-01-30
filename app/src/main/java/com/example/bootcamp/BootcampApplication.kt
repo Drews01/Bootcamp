@@ -3,6 +3,7 @@ package com.example.bootcamp
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.example.bootcamp.util.LanguageManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -20,9 +21,14 @@ class BootcampApplication :
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var languageManager: LanguageManager
+
     override fun onCreate() {
         super.onCreate()
-        // Application-level initialization can be done here
+        // Apply stored language at app startup
+        // This ensures correct locale even before MainActivity
+        languageManager.applyStoredLanguage()
     }
 
     override val workManagerConfiguration: Configuration

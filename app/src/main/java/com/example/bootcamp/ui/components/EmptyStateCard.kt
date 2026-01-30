@@ -1,5 +1,8 @@
 package com.example.bootcamp.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.bootcamp.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +39,7 @@ fun EmptyStateCard(modifier: Modifier = Modifier, onGetStartedClick: () -> Unit)
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Unlock Your Limit",
+                text = stringResource(R.string.empty_state_title),
                 color = Color.White,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -46,7 +49,7 @@ fun EmptyStateCard(modifier: Modifier = Modifier, onGetStartedClick: () -> Unit)
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Complete your profile and apply for a loan to start your journey.",
+                text = stringResource(R.string.empty_state_description),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -63,7 +66,7 @@ fun EmptyStateCard(modifier: Modifier = Modifier, onGetStartedClick: () -> Unit)
                 colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
             ) {
                 Text(
-                    text = "Get Started",
+                    text = stringResource(R.string.empty_state_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White

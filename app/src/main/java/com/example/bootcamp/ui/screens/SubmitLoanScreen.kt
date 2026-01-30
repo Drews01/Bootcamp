@@ -48,6 +48,10 @@ import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.viewmodel.LoanErrorType
 import com.example.bootcamp.ui.viewmodel.LoanViewModel
+import com.example.bootcamp.R
+import androidx.compose.ui.res.stringResource
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,13 +143,13 @@ fun SubmitLoanScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text(
-                        text = "Form Pengajuan",
+                        text = stringResource(R.string.submit_loan_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                     )
                     Text(
-                        text = "Isi data singkat pengajuanmu.",
+                        text = stringResource(R.string.submit_loan_subtitle),
                         fontSize = 13.sp,
                         color = Gray500,
                     )
@@ -154,10 +158,10 @@ fun SubmitLoanScreen(
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
                             value = uiState.selectedBranch?.name
-                                ?: "Pilih Cabang",
+                                ?: stringResource(R.string.submit_loan_select_branch),
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Cabang") },
+                            label = { Text(stringResource(R.string.submit_loan_branch_label)) },
                             trailingIcon = {
                                 if (uiState.isBranchesLoading) {
                                     CircularProgressIndicator(
@@ -178,7 +182,7 @@ fun SubmitLoanScreen(
                                             Icons.Default
                                                 .ArrowDropDown,
                                             contentDescription =
-                                            "Expand"
+                                            stringResource(R.string.button_expand)
                                         )
                                     }
                                 }
@@ -251,7 +255,7 @@ fun SubmitLoanScreen(
                     OutlinedTextField(
                         value = uiState.amount,
                         onValueChange = { viewModel.onAmountChanged(it) },
-                        label = { Text("Limit pengajuan (Rp)") },
+                        label = { Text(stringResource(R.string.submit_loan_amount_label)) },
                         singleLine = true,
                         keyboardOptions =
                         KeyboardOptions(
@@ -281,7 +285,7 @@ fun SubmitLoanScreen(
                     OutlinedTextField(
                         value = uiState.tenure,
                         onValueChange = { viewModel.onTenureChanged(it) },
-                        label = { Text("Tenor (bulan)") },
+                        label = { Text(stringResource(R.string.submit_loan_tenor_label)) },
                         singleLine = true,
                         keyboardOptions =
                         KeyboardOptions(
@@ -327,7 +331,7 @@ fun SubmitLoanScreen(
                             )
                         } else {
                             Text(
-                                text = "Kirim Pengajuan",
+                                text = stringResource(R.string.submit_loan_button),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
@@ -335,8 +339,7 @@ fun SubmitLoanScreen(
                     }
 
                     Text(
-                        text =
-                        "Dengan menekan tombol di atas, kamu menyetujui syarat dan ketentuan yang berlaku.",
+                        text = stringResource(R.string.submit_loan_terms),
                         fontSize = 11.sp,
                         color = Gray500,
                         textAlign = TextAlign.Center,
@@ -364,7 +367,7 @@ fun LoanPreviewDialog(
         containerColor = Color(0xFF1E293B),
         title = {
             Text(
-                text = "Konfirmasi Pengajuan",
+                text = stringResource(R.string.submit_loan_confirm_title),
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
@@ -372,23 +375,23 @@ fun LoanPreviewDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Pastikan data berikut sudah benar:",
+                    text = stringResource(R.string.submit_loan_confirm_subtitle),
                     color = Gray500,
                     fontSize = 14.sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                PreviewRow(label = "Cabang", value = branchName)
+                val formatter = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+                PreviewRow(label = stringResource(R.string.submit_loan_preview_branch), value = branchName)
                 PreviewRow(
-                    label = "Jumlah Pinjaman",
-                    value =
-                    "Rp " +
-                        java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(
-                            amount.toLongOrNull() ?: 0
-                        )
+                    label = stringResource(R.string.submit_loan_confirm_amount),
+                    value = formatter.format(amount.toLongOrNull() ?: 0)
                 )
-                PreviewRow(label = "Tenor", value = "$tenure Bulan")
+                PreviewRow(
+                    label = stringResource(R.string.submit_loan_confirm_tenor),
+                    value = stringResource(R.string.submit_loan_months, tenure)
+                )
             }
         },
         confirmButton = {
@@ -396,12 +399,12 @@ fun LoanPreviewDialog(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
             ) {
-                Text("Kirim", color = Color.White)
+                Text(stringResource(R.string.button_submit), color = Color.White)
             }
         },
         dismissButton = {
             androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text("Batal", color = Gray500)
+                Text(stringResource(R.string.button_cancel), color = Gray500)
             }
         }
     )
@@ -429,61 +432,70 @@ fun LoanErrorDialog(
     onNavigateToEditProfile: () -> Unit,
     onRefreshBranches: () -> Unit
 ) {
-    val (title, content, primaryAction, primaryLabel) = when (errorType) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val (titleResId, contentResId, primaryAction, primaryLabelResId, contentFormatArgs) = when (errorType) {
         is LoanErrorType.IncompleteProfile -> {
-            Quadruple(
-                "Profile Incomplete",
-                "Silahkan Lengkapi Data Anda terlebih dahulu",
+            ErrorDialogData(
+                R.string.error_profile_incomplete_title,
+                R.string.error_profile_incomplete_message,
                 onNavigateToEditProfile,
-                "Complete Profile"
+                R.string.button_complete_profile,
+                null
             )
         }
         is LoanErrorType.ActiveLoanExists -> {
-            Quadruple(
-                "Active Loan Exists",
-                "Cannot submit new loan. You already have an active loan application that is being processed. Please wait for your current loan to be disbursed, paid, or rejected before submitting a new one.",
+            ErrorDialogData(
+                R.string.error_active_loan_title,
+                R.string.error_active_loan_message,
                 onDismiss,
-                "OK"
+                R.string.button_ok,
+                null
             )
         }
         is LoanErrorType.ExceedsLimit -> {
-            Quadruple(
-                "Exceeds Credit Limit",
-                "Loan amount exceeds remaining credit limit of Rp ${errorType.remainingLimit} for ${errorType.tier} tier. Please lower the amount.",
+            ErrorDialogData(
+                R.string.error_exceeds_limit_title,
+                R.string.error_exceeds_limit_message,
                 onDismiss,
-                "OK"
+                R.string.button_ok,
+                arrayOf(errorType.remainingLimit, errorType.tier)
             )
         }
         is LoanErrorType.BranchRequired -> {
-            Quadruple(
-                "Branch Required",
-                "Branch ID is required for loan submission. Please select a branch.",
+            ErrorDialogData(
+                R.string.error_branch_required_title,
+                R.string.error_branch_required_message,
                 onDismiss,
-                "OK"
+                R.string.button_ok,
+                null
             )
         }
         is LoanErrorType.BranchNotFound -> {
-            Quadruple(
-                "Branch Not Found",
-                "The selected branch was not found. Please refresh and select another branch.",
+            ErrorDialogData(
+                R.string.error_branch_not_found_title,
+                R.string.error_branch_not_found_message,
                 onRefreshBranches,
-                "Refresh Branches"
+                R.string.button_refresh_branches,
+                null
             )
         }
         is LoanErrorType.NoTierAvailable -> {
-            Quadruple(
-                "System Error",
-                "No tier product available for user. Please contact support.",
+            ErrorDialogData(
+                R.string.error_system_title,
+                R.string.error_no_tier_message,
                 onDismiss,
-                "OK"
+                R.string.button_ok,
+                null
             )
         }
         is LoanErrorType.Generic -> {
-            Quadruple(
-                "Error",
-                errorType.message,
+            ErrorDialogData(
+                R.string.error_generic_title,
+                null,
                 onDismiss,
-                "OK"
+                R.string.button_ok,
+                null,
+                errorType.message
             )
         }
     }
@@ -492,14 +504,23 @@ fun LoanErrorDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = title,
+                text = stringResource(titleResId),
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
         },
         text = {
+            val contentText = if (contentResId != null) {
+                if (contentFormatArgs != null) {
+                    stringResource(contentResId, *contentFormatArgs)
+                } else {
+                    stringResource(contentResId)
+                }
+            } else {
+                (errorType as LoanErrorType.Generic).message
+            }
             Text(
-                text = content,
+                text = contentText,
                 color = Gray500
             )
         },
@@ -510,7 +531,7 @@ fun LoanErrorDialog(
                     containerColor = Indigo600
                 )
             ) {
-                Text(primaryLabel)
+                Text(stringResource(primaryLabelResId))
             }
         },
         dismissButton = {
@@ -519,7 +540,7 @@ fun LoanErrorDialog(
                 errorType !is LoanErrorType.BranchRequired
             ) {
                 androidx.compose.material3.TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = Gray500)
+                    Text(stringResource(R.string.dialog_cancel), color = Gray500)
                 }
             }
         },
@@ -528,5 +549,12 @@ fun LoanErrorDialog(
     )
 }
 
-/** Helper data class for dialog content */
-private data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+/** Helper data class for error dialog data */
+private data class ErrorDialogData(
+    val titleResId: Int,
+    val contentResId: Int?,
+    val primaryAction: () -> Unit,
+    val primaryLabelResId: Int,
+    val contentFormatArgs: Array<Any>? = null,
+    val fallbackMessage: String? = null
+)

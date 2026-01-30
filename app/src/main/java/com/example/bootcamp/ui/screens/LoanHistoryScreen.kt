@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bootcamp.R
 import com.example.bootcamp.domain.model.LoanApplication
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
@@ -35,12 +37,12 @@ fun LoanHistoryScreen(viewModel: LoanHistoryViewModel = hiltViewModel(), onNavig
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Loan History", color = Color.White) },
+                title = { Text(stringResource(R.string.loan_history_title), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = Color.White
                         )
                     }
@@ -75,18 +77,18 @@ fun LoanHistoryScreen(viewModel: LoanHistoryViewModel = hiltViewModel(), onNavig
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Failed to load history",
+                        text = stringResource(R.string.failed_to_load_history),
                         color = Color.Red,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = uiState.errorMessage ?: "Unknown error",
+                        text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
                         color = Gray500,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { viewModel.loadHistory() }) {
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             } else if (uiState.loans.isEmpty()) {
@@ -102,7 +104,7 @@ fun LoanHistoryScreen(viewModel: LoanHistoryViewModel = hiltViewModel(), onNavig
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No loan history found",
+                        text = stringResource(R.string.no_loan_history_found),
                         color = Gray500
                     )
                 }
@@ -157,7 +159,7 @@ fun LoanHistoryItem(loan: LoanApplication) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Amount", color = Gray500, fontSize = 12.sp)
+                    Text(stringResource(R.string.amount), color = Gray500, fontSize = 12.sp)
                     Text(
                         text = currencyFormat.format(loan.amount),
                         color = Color.White,
@@ -165,7 +167,7 @@ fun LoanHistoryItem(loan: LoanApplication) {
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Date", color = Gray500, fontSize = 12.sp)
+                    Text(stringResource(R.string.date), color = Gray500, fontSize = 12.sp)
                     // Simple date formatting can be improved
                     Text(
                         text = loan.date.split("T")[0],
