@@ -52,24 +52,22 @@ class LanguageManager @Inject constructor(
      * @param activity The current activity (needed for recreation)
      */
     fun setLanguage(language: Language, activity: Activity? = null) {
+        // Write to SharedPreferences SYNCHRONOUSLY first, before any async operations
+        // This ensures attachBaseContext will read the correct value after recreation
+        val sharedPrefs = context.getSharedPreferences("language_preferences", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString("selected_language", language.code).commit()
+        
+        // Apply locale using AppCompatDelegate (this may trigger automatic recreation)
+        val localeList = LocaleListCompat.forLanguageTags(language.code)
+        AppCompatDelegate.setApplicationLocales(localeList)
+        
+        // Update DataStore asynchronously (for ViewModel observation)
         scope.launch {
-            // Save preference to persistent storage first
             languagePreferences.setLanguage(language)
-
-            // Apply locale using AppCompatDelegate (recommended for API 33+)
-            // This handles per-app language preferences automatically
-            val localeList = LocaleListCompat.forLanguageTags(language.code)
-            AppCompatDelegate.setApplicationLocales(localeList)
-
-            // For older APIs, manually update configuration
-            updateLocale(context, language)
-
-            // Recreate activity to apply changes
-            // This ensures Compose's stringResource() picks up the new locale
-            activity?.runOnUiThread {
-                activity.recreate()
-            }
         }
+        
+        // Fallback: Explicit recreation for immediate effect
+        activity?.recreate()
     }
 
     /**

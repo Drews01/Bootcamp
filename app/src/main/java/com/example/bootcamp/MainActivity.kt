@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         // For API < 33, we need to manually apply locale to context before Activity is created
         // This is critical for Compose's stringResource() to work with the correct locale
         val sharedPrefs = newBase.getSharedPreferences("language_preferences", Context.MODE_PRIVATE)
-        val languageCode = sharedPrefs.getString("selected_language", "en") ?: "en"
+        val languageCode = sharedPrefs.getString("selected_language", "id") ?: "id"
         
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         askNotificationPermission()
         enableEdgeToEdge()
+        
         setContent {
             BootcampTheme {
                 val authViewModel: AuthViewModel = hiltViewModel()

@@ -55,7 +55,7 @@ class LanguagePreferences @Inject constructor(
             "language_preferences",
             Context.MODE_PRIVATE
         )
-        sharedPrefs.edit().putString("selected_language", language.code).apply()
+        sharedPrefs.edit().putString("selected_language", language.code).commit()
     }
 
     /**

@@ -50,7 +50,7 @@ fun LanguageSettingsSection(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val activity = context.findActivity()
+    val activity = remember { context.findActivity() }
 
     Column(modifier = modifier) {
         // Section Title

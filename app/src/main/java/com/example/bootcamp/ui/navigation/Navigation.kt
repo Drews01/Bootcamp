@@ -198,7 +198,7 @@ private fun BottomNavigationBar(currentRoute: String?, isLoggedIn: Boolean, onNa
             val (label, icon) =
                 when (route) {
                     Routes.HOME -> "Home" to Icons.Filled.Home
-                    Routes.SUBMIT_LOAN -> "Ajukan" to Icons.Filled.Add
+                    Routes.SUBMIT_LOAN -> "Add" to Icons.Filled.Add
                     Routes.USER_PROFILE -> "Profile" to Icons.Filled.AccountCircle
                     else -> route to Icons.Filled.Home
                 }
