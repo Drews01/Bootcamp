@@ -1,4 +1,4 @@
-name: Spotless Check
+name: Build Pipeline
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  spotless:
-    name: Check Code Formatting
+  build:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +28,12 @@ jobs:
       - name: Run Spotless Check
         run: ./gradlew spotlessCheck --no-daemon
 
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
       - name: Upload Spotless Report (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -35,4 +41,12 @@ jobs:
           name: spotless-report
           path: |
             **/build/reports/spotless/
+          retention-days: 7
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
