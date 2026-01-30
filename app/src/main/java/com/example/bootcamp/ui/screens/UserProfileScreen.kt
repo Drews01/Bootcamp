@@ -179,8 +179,8 @@ fun UserProfileScreen(
                         )
 
                         // Settings Section - Language
-                        Spacer(modifier = Modifier.height(16.dp))
-                        LanguageSettingsSection()
+//                        Spacer(modifier = Modifier.height(16.dp))
+//                        LanguageSettingsSection()
 
                         Spacer(modifier = Modifier.height(24.dp))
 

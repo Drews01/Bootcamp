@@ -79,23 +79,13 @@ class LanguageManager @Inject constructor(
         val language = getCurrentLanguageSync()
         val localeList = LocaleListCompat.forLanguageTags(language.code)
         AppCompatDelegate.setApplicationLocales(localeList)
-        updateLocale(context, language)
     }
 
     /**
      * Update locale for the given context.
      * This is needed for APIs below 33.
      */
-    private fun updateLocale(context: Context, language: Language) {
-        val locale = Locale(language.code)
-        Locale.setDefault(locale)
 
-        val config = Configuration(context.resources.configuration)
-        config.setLocale(locale)
-
-        @Suppress("DEPRECATION")
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
-    }
 
     /**
      * Get a localized context with the specified language.
