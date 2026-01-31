@@ -28,14 +28,18 @@ class LoanRemoteDataSourceImpl @Inject constructor(private val loanService: Loan
         token: String,
         amount: Long,
         tenureMonths: Int,
-        branchId: Long
+        branchId: Long,
+        latitude: Double?,
+        longitude: Double?
     ): ApiResult<SubmitLoanData> = ApiResponseHandler.safeApiCall {
         loanService.submitLoan(
             "Bearer $token",
             SubmitLoanRequest(
                 amount = amount,
                 tenureMonths = tenureMonths,
-                branchId = branchId
+                branchId = branchId,
+                latitude = latitude,
+                longitude = longitude
             )
         )
     }

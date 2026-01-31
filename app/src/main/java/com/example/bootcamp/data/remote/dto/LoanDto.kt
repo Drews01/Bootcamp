@@ -23,7 +23,9 @@ data class BranchDropdownItem(@SerializedName("id") val id: Long, @SerializedNam
 data class SubmitLoanRequest(
     @SerializedName("amount") val amount: Long,
     @SerializedName("tenureMonths") val tenureMonths: Int,
-    @SerializedName("branchId") val branchId: Long
+    @SerializedName("branchId") val branchId: Long,
+    @SerializedName("latitude") val latitude: Double? = null,
+    @SerializedName("longitude") val longitude: Double? = null
 )
 
 /**

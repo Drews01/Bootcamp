@@ -12,7 +12,14 @@ import com.example.bootcamp.util.ApiResult
  */
 interface LoanRemoteDataSource {
     suspend fun getBranches(token: String): ApiResult<List<BranchDropdownItem>>
-    suspend fun submitLoan(token: String, amount: Long, tenureMonths: Int, branchId: Long): ApiResult<SubmitLoanData>
+    suspend fun submitLoan(
+        token: String,
+        amount: Long,
+        tenureMonths: Int,
+        branchId: Long,
+        latitude: Double? = null,
+        longitude: Double? = null
+    ): ApiResult<SubmitLoanData>
     suspend fun getLoanHistory(token: String): ApiResult<List<LoanApplicationDto>>
     suspend fun getUserTier(token: String): ApiResult<UserTierDto>
 }

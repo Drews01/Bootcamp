@@ -84,7 +84,9 @@ class LoanRepositoryImpl @Inject constructor(
         amount: Long,
         tenureMonths: Int,
         branchId: Long,
-        branchName: String
+        branchName: String,
+        latitude: Double?,
+        longitude: Double?
     ): Result<String> {
         val token = tokenManager.token.firstOrNull()
         if (token.isNullOrBlank()) {
@@ -94,7 +96,7 @@ class LoanRepositoryImpl @Inject constructor(
         // Try remote first if online
         if (networkMonitor.isConnected) {
             val apiResult = loanRemoteDataSource
-                .submitLoan(token, amount, tenureMonths, branchId)
+                .submitLoan(token, amount, tenureMonths, branchId, latitude, longitude)
 
             return when (apiResult) {
                 is ApiResult.Success -> {

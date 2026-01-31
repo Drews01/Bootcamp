@@ -25,7 +25,14 @@ interface LoanRepository {
      * @param branchName Selected branch name (for offline display)
      * @return Result with success message on success
      */
-    suspend fun submitLoan(amount: Long, tenureMonths: Int, branchId: Long, branchName: String): Result<String>
+    suspend fun submitLoan(
+        amount: Long,
+        tenureMonths: Int,
+        branchId: Long,
+        branchName: String,
+        latitude: Double? = null,
+        longitude: Double? = null
+    ): Result<String>
 
     /**
      * Get loan application history.

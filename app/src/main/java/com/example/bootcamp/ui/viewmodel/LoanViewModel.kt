@@ -68,7 +68,8 @@ class LoanViewModel
 constructor(
     private val getBranchesUseCase: GetBranchesUseCase,
     private val submitLoanUseCase: SubmitLoanUseCase,
-    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository
+    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository,
+    private val locationClient: com.example.bootcamp.domain.location.LocationClient
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoanUiState())
@@ -77,6 +78,8 @@ constructor(
     init {
         loadBranches()
     }
+
+    // ... (keep existing methods)
 
     fun loadBranches() {
         viewModelScope.launch {
@@ -114,6 +117,12 @@ constructor(
     }
 
     fun submitLoan() {
+        // Logic to request location permission is handled in UI
+        // This function is now called AFTER permission check/request
+        submitLoanWithLocation(null)
+    }
+
+    fun submitLoanWithLocation(location: android.location.Location?) {
         val currentState = _uiState.value
         val amountLong = currentState.amount.toLongOrNull()
         val tenureInt = currentState.tenure.toIntOrNull()
@@ -140,12 +149,27 @@ constructor(
                 it.copy(isSubmitting = true, errorMessage = null, errorType = null, successMessage = null)
             }
 
+            // If location is passed from UI (or retrieved via client if permission granted)
+            // But actually, we should try to get it here if not passed, BUT the call to submitLoanWithLocation
+            // comes from UI which already handles permission.
+            // If location is null, we can try to get it again via client if we have permission,
+            // or just proceed without it.
+
+            var finalLocation = location
+            if (finalLocation == null) {
+                // Try to fetch location if we have permission (LocationClient handles logic inside, but requires permission)
+                // Since we can't easily check permission here without Context, we rely on what's passed or try best effort
+                finalLocation = locationClient.getCurrentLocation()
+            }
+
             submitLoanUseCase(
                 SubmitLoanParams(
                     amount = amountLong,
                     tenureMonths = tenureInt,
                     branchId = branchId,
-                    branchName = currentState.selectedBranch?.name ?: "Unknown"
+                    branchName = currentState.selectedBranch?.name ?: "Unknown",
+                    latitude = finalLocation?.latitude,
+                    longitude = finalLocation?.longitude
                 )
             )
                 .onSuccess { message ->

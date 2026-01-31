@@ -1,5 +1,9 @@
 package com.example.bootcamp.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,12 +43,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
@@ -64,6 +70,13 @@ fun SubmitLoanScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        viewModel.submitLoan()
+    }
 
     LaunchedEffect(uiState.successMessage) {
         uiState.successMessage?.let {
@@ -102,7 +115,23 @@ fun SubmitLoanScreen(
             onDismiss = { showPreviewDialog = false },
             onConfirm = {
                 showPreviewDialog = false
-                viewModel.submitLoan()
+                val hasFineLocation =
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED
+                val hasCoarseLocation =
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED
+
+                if (hasFineLocation || hasCoarseLocation) {
+                    viewModel.submitLoan()
+                } else {
+                    permissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
             }
         )
     }
