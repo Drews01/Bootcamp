@@ -17,7 +17,7 @@ data class LoginParams(
 )
 
 /** Use case for user login. Encapsulates login business logic and validation. */
-class LoginUseCase @Inject constructor(
+open class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val userProfileRepository: UserProfileRepository,
     private val loanRepository: LoanRepository,
@@ -31,7 +31,7 @@ class LoginUseCase @Inject constructor(
             loanRepository.clearCache()
             productRepository.clearCache()
         } catch (e: Exception) {
-            android.util.Log.w("LoginUseCase", "Failed to clear cache before login", e)
+            println("LoginUseCase: Failed to clear cache before login: ${e.message}")
         }
 
         // Validation

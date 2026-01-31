@@ -33,4 +33,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideTokenManager(dataStore: DataStore<Preferences>): TokenManager = TokenManager(dataStore)
+
+    /** Provides the FCMService implementation. */
+    @Provides
+    @Singleton
+    fun provideFCMService(): com.example.bootcamp.domain.service.FCMService =
+        com.example.bootcamp.data.service.FCMServiceImpl()
 }

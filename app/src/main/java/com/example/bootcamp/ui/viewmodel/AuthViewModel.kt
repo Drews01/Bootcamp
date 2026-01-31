@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.data.remote.base.ErrorDetails
 import com.example.bootcamp.domain.repository.AuthRepository
+import com.example.bootcamp.domain.service.FCMService
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordParams
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordUseCase
 import com.example.bootcamp.domain.usecase.auth.GoogleLoginParams
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 /** UI state for authentication screens. Includes field-specific errors for form validation. */
@@ -74,7 +74,8 @@ constructor(
 
     private val authRepository: AuthRepository,
     private val userProfileRepository: com.example.bootcamp.domain.repository.UserProfileRepository,
-    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository
+    private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository,
+    private val fcmService: FCMService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -156,12 +157,7 @@ constructor(
             }
 
             // Fetch FCM token for push notification registration
-            val fcmToken = try {
-                com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
-            } catch (e: Exception) {
-                android.util.Log.w("AuthViewModel", "Failed to get FCM token", e)
-                null
-            }
+            val fcmToken = fcmService.getToken()
 
             val deviceName = android.os.Build.MODEL
             val platform = "ANDROID"
@@ -199,13 +195,7 @@ constructor(
             }
 
             // Fetch FCM token for push notification registration
-            val fcmToken = try {
-                com.google.firebase.messaging.FirebaseMessaging.getInstance().token
-                    .await()
-            } catch (e: Exception) {
-                android.util.Log.w("AuthViewModel", "Failed to get FCM token", e)
-                null
-            }
+            val fcmToken = fcmService.getToken()
 
             val deviceName = android.os.Build.MODEL
             val platform = "ANDROID"

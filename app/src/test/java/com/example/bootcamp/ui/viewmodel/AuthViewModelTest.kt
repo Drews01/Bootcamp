@@ -3,8 +3,10 @@ package com.example.bootcamp.ui.viewmodel
 import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.repository.LoanRepository
 import com.example.bootcamp.domain.repository.UserProfileRepository
+import com.example.bootcamp.domain.service.FCMService
 import com.example.bootcamp.domain.usecase.auth.ForgotPasswordUseCase
 import com.example.bootcamp.domain.usecase.auth.GoogleLoginUseCase
+import com.example.bootcamp.domain.usecase.auth.LoginParams
 import com.example.bootcamp.domain.usecase.auth.LoginUseCase
 import com.example.bootcamp.domain.usecase.auth.LogoutUseCase
 import com.example.bootcamp.domain.usecase.auth.RegisterUseCase
@@ -26,16 +28,33 @@ import org.junit.Test
 class AuthViewModelTest {
 
     private lateinit var authViewModel: AuthViewModel
-    private val loginUseCase: LoginUseCase = mockk()
+
+    // Fakes
+    private lateinit var loginUseCase: FakeLoginUseCase
+    private lateinit var logoutUseCase: FakeLogoutUseCase
+
     private val googleLoginUseCase: GoogleLoginUseCase = mockk()
     private val registerUseCase: RegisterUseCase = mockk()
-    private val logoutUseCase: LogoutUseCase = mockk()
     private val forgotPasswordUseCase: ForgotPasswordUseCase = mockk()
     private val authRepository: AuthRepository = mockk()
     private val userProfileRepository: UserProfileRepository = mockk()
     private val loanRepository: LoanRepository = mockk()
+    private val fcmService: FCMService = mockk()
 
     private val testDispatcher = StandardTestDispatcher()
+
+    // Fake implementations to assume Result handling works correctly (avoiding MockK inline class issues)
+    private inner class FakeLoginUseCase :
+        LoginUseCase(authRepository, userProfileRepository, loanRepository, mockk()) {
+        var activeResult: Result<String> = Result.success("Success")
+        override suspend fun invoke(params: LoginParams): Result<String> = activeResult
+    }
+
+    private inner class FakeLogoutUseCase :
+        LogoutUseCase(authRepository, userProfileRepository, loanRepository, mockk(), mockk(), fcmService) {
+        var activeResult: Result<String> = Result.success("Success")
+        override suspend fun invoke(): Result<String> = activeResult
+    }
 
     @Before
     fun setup() {
@@ -48,6 +67,10 @@ class AuthViewModelTest {
         coEvery { authRepository.getEmailFlow() } returns flowOf(null)
         coEvery { userProfileRepository.getPendingProfile() } returns flowOf(null)
         coEvery { loanRepository.getPendingLoans() } returns flowOf(emptyList())
+        coEvery { fcmService.getToken() } returns "dummy_token"
+
+        loginUseCase = FakeLoginUseCase()
+        logoutUseCase = FakeLogoutUseCase()
 
         authViewModel = AuthViewModel(
             loginUseCase,
@@ -57,7 +80,8 @@ class AuthViewModelTest {
             forgotPasswordUseCase,
             authRepository,
             userProfileRepository,
-            loanRepository
+            loanRepository,
+            fcmService
         )
     }
 
@@ -70,7 +94,7 @@ class AuthViewModelTest {
     fun `login success updates state to success`() = runTest {
         // Given
         val successMessage = "Login successful"
-        coEvery { loginUseCase(any()) } returns Result.success(successMessage)
+        loginUseCase.activeResult = Result.success(successMessage)
 
         // When
         authViewModel.login("testuser", "password")
@@ -85,7 +109,7 @@ class AuthViewModelTest {
     fun `login failure updates state to error`() = runTest {
         // Given
         val errorMessage = "Invalid credentials"
-        coEvery { loginUseCase(any()) } returns Result.failure(Exception(errorMessage))
+        loginUseCase.activeResult = Result.failure(Exception(errorMessage))
 
         // When
         authViewModel.login("testuser", "wrongpassword")
@@ -100,7 +124,7 @@ class AuthViewModelTest {
     fun `logout success updates state`() = runTest {
         // Given
         val successMessage = "Logged out successfully"
-        coEvery { logoutUseCase() } returns Result.success(successMessage)
+        logoutUseCase.activeResult = Result.success(successMessage)
 
         // When
         authViewModel.logout()
