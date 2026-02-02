@@ -171,7 +171,7 @@ fun ProfileDetailsScreen(
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
                             ) {
-                                val ktpPath = profile.ktpPath
+                                val ktpPath = profile.ktpPath?.replace("(?<!:)//".toRegex(), "/")
                                 if (!ktpPath.isNullOrBlank()) {
                                     coil.compose.SubcomposeAsyncImage(
                                         model = ktpPath,

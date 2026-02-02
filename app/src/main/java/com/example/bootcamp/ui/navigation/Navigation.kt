@@ -111,6 +111,11 @@ private fun AppNavHost(viewModel: AuthViewModel, navController: NavHostControlle
                 },
                 onNavigateToEditProfile = {
                     navController.navigate(Routes.EDIT_PROFILE)
+                },
+                onNavigateToLoanHistory = {
+                    navController.navigate(Routes.LOAN_HISTORY) {
+                        popUpTo(Routes.HOME) // Clears stack back to Home so back button from History goes to Home
+                    }
                 }
             )
         }

@@ -237,4 +237,14 @@
 
     <!-- Submit Loan Screen - Preview Dialog -->
     <string name="submit_loan_preview_branch">Branch</string>
+
+    <!-- Loan Result Dialogs -->
+    <string name="dialog_loan_success_title">Loan Submitted Successfully!</string>
+    <string name="dialog_loan_success_message">Your loan application has been submitted. Reference: %s</string>
+    <string name="dialog_loan_success_message_base">Your loan application has been submitted.</string>
+    <string name="button_back_to_home">Back to Home</string>
+    <string name="button_view_loan_history">View Loan History</string>
+    <string name="dialog_loan_failed_title">Submission Failed</string>
+    <string name="dialog_loan_queued_title">Request Queued</string>
+    <string name="dialog_loan_queued_message">Your loan application has been saved and will be submitted automatically when you connect to the internet.</string>
 </resources>

@@ -5,17 +5,17 @@
     <!-- Home Screen -->
     <string name="home_greeting_user">Hai, %s</string>
     <string name="home_greeting_guest">Hai, Tamu</string>
-    <string name="home_subtitle">Kelola pinjamanmu dengan lebih mudah.</string>
+    <string name="home_subtitle">Kelola pinjaman anda lebih mudah.</string>
     <string name="home_select_product">Pilih Produk Pinjaman</string>
-    <string name="tier_bronze">Bronze</string>
-    <string name="tier_silver">Silver</string>
-    <string name="tier_gold">Gold</string>
+    <string name="tier_bronze">Perunggu</string>
+    <string name="tier_silver">Perak</string>
+    <string name="tier_gold">Emas</string>
     <string name="loan_simulation_title">Simulasi %s</string>
-    <string name="loan_max_limit">Limit Maks: %s</string>
-    <string name="loan_amount_label">Pinjaman (Rp)</string>
+    <string name="loan_max_limit">Batas Maks: %s</string>
+    <string name="loan_amount_label">Jumlah Pinjaman (Rp)</string>
     <string name="loan_tenor_label">Tenor (Bulan)</string>
-    <string name="loan_max_tenor">Maks: %d bln</string>
-    <string name="loan_monthly_estimate">Estimasi Cicilan per Bulan</string>
+    <string name="loan_max_tenor">Maks: %d bulan</string>
+    <string name="loan_monthly_estimate">Estimasi Cicilan Bulanan</string>
     <string name="loan_apply_now">Ajukan Sekarang</string>
 
     <!-- Login Screen -->
@@ -25,8 +25,8 @@
     <string name="login_subtitle">Masuk untuk melanjutkan</string>
     <string name="login_email_username_label">Email atau Username</string>
     <string name="login_password_label">Kata Sandi</string>
-    <string name="password_hide">Sembunyikan kata sandi</string>
-    <string name="password_show">Tampilkan kata sandi</string>
+    <string name="password_hide">Sembunyikan sandi</string>
+    <string name="password_show">Tampilkan sandi</string>
     <string name="login_forgot_password">Lupa Kata Sandi?</string>
     <string name="login_button">Masuk</string>
     <string name="login_google">Masuk dengan Google</string>
@@ -37,7 +37,7 @@
     <!-- Register Screen -->
     <string name="navigation_back">Kembali</string>
     <string name="register_title">Buat Akun</string>
-    <string name="register_subtitle">Bergabung dengan STAR Financial hari ini</string>
+    <string name="register_subtitle">Gabung STAR Financial hari ini</string>
     <string name="register_username_label">Username</string>
     <string name="error_username_length">Username harus 3-50 karakter</string>
     <string name="register_email_label">Email</string>
@@ -49,9 +49,9 @@
 
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Pulihkan</string>
-    <string name="forgot_password_card_title">Atur Ulang Kata Sandi</string>
-    <string name="forgot_password_description">Masukkan alamat email Anda dan kami akan mengirimkan instruksi untuk mengatur ulang kata sandi.</string>
-    <string name="forgot_password_button">Kirim Link Reset</string>
+    <string name="forgot_password_card_title">Reset Kata Sandi</string>
+    <string name="forgot_password_description">Masukkan alamat email Anda dan kami akan mengirimkan instruksi untuk mereset kata sandi Anda.</string>
+    <string name="forgot_password_button">Kirim Tautan Reset</string>
 
     <!-- Profile Details Screen -->
     <string name="profile_details_title">Detail Profil</string>
@@ -59,7 +59,7 @@
     <string name="error_unknown">Kesalahan tidak diketahui</string>
     <string name="button_retry">Coba Lagi</string>
     <string name="profile_personal_info">Informasi Pribadi</string>
-    <string name="profile_username">Nama Pengguna</string>
+    <string name="profile_username">Username</string>
     <string name="profile_email">Email</string>
     <string name="profile_phone">Nomor Telepon</string>
     <string name="profile_address">Alamat</string>
@@ -67,13 +67,13 @@
     <string name="profile_ktp_section">Kartu Identitas (KTP)</string>
     <string name="profile_ktp_photo">Foto KTP</string>
     <string name="error_load_image">Gagal memuat gambar</string>
-    <string name="profile_no_ktp">Belum Ada KTP</string>
+    <string name="profile_no_ktp">Belum Ada KTP Diunggah</string>
     <string name="profile_bank_info">Informasi Bank</string>
     <string name="profile_bank_name">Nama Bank</string>
     <string name="profile_account_number">Nomor Rekening</string>
     <string name="profile_edit_button">Edit Profil</string>
     <string name="profile_not_found_title">Belum Ada Profil</string>
-    <string name="profile_not_found_description">Anda belum membuat profil. Buat sekarang untuk melengkapi pengaturan akun Anda.</string>
+    <string name="profile_not_found_description">Anda belum membuat profil. Buat sekarang untuk melengkapi akun Anda.</string>
     <string name="profile_create_button">Buat Profil</string>
 
     <!-- Edit Profile Screen -->
@@ -94,20 +94,20 @@
     <!-- Loan History Screen -->
     <string name="loan_history_title">Riwayat Pinjaman</string>
     <string name="error_load_history">Gagal memuat riwayat</string>
-    <string name="loan_history_empty">Tidak ada riwayat pinjaman</string>
+    <string name="loan_history_empty">Riwayat pinjaman tidak ditemukan</string>
     <string name="loan_amount">Jumlah</string>
     <string name="loan_date">Tanggal</string>
 
     <!-- Submit Loan Screen -->
-    <string name="submit_loan_title">Form Pengajuan</string>
-    <string name="submit_loan_subtitle">Isi data singkat pengajuanmu.</string>
+    <string name="submit_loan_title">Formulir Pengajuan Pinjaman</string>
+    <string name="submit_loan_subtitle">Isi detail pengajuan Anda.</string>
     <string name="submit_loan_select_branch">Pilih Cabang</string>
     <string name="submit_loan_branch_label">Cabang</string>
-    <string name="button_expand">Perluas</string>
-    <string name="submit_loan_amount_label">Limit pengajuan (Rp)</string>
+    <string name="button_expand">Buka</string>
+    <string name="submit_loan_amount_label">Jumlah Pinjaman (Rp)</string>
     <string name="submit_loan_tenor_label">Tenor (bulan)</string>
-    <string name="submit_loan_button">Kirim Pengajuan</string>
-    <string name="submit_loan_terms">Dengan menekan tombol di atas, kamu menyetujui syarat dan ketentuan yang berlaku.</string>
+    <string name="submit_loan_button">Ajukan Pinjaman</string>
+    <string name="submit_loan_terms">Dengan menekan tombol di atas, Anda menyetujui syarat dan ketentuan yang berlaku.</string>
     <string name="submit_loan_confirm_title">Konfirmasi Pengajuan</string>
     <string name="submit_loan_confirm_subtitle">Pastikan data berikut sudah benar:</string>
     <string name="submit_loan_confirm_amount">Jumlah Pinjaman</string>
@@ -116,27 +116,27 @@
     <string name="button_submit">Kirim</string>
     <string name="button_cancel">Batal</string>
     <string name="error_profile_incomplete_title">Profil Belum Lengkap</string>
-    <string name="error_profile_incomplete_message">Silahkan Lengkapi Data Anda terlebih dahulu</string>
+    <string name="error_profile_incomplete_message">Mohon lengkapi data diri Anda terlebih dahulu</string>
     <string name="button_complete_profile">Lengkapi Profil</string>
-    <string name="error_active_loan_title">Pinjaman Aktif Ada</string>
-    <string name="error_active_loan_message">Tidak dapat mengajukan pinjaman baru. Anda sudah memiliki pengajuan pinjaman aktif yang sedang diproses. Harap tunggu pinjaman Anda saat ini dicairkan, dibayar, atau ditolak sebelum mengajukan yang baru.</string>
-    <string name="error_exceeds_limit_title">Melebihi Batas Kredit</string>
-    <string name="error_exceeds_limit_message">Jumlah pinjaman melebihi sisa batas kredit Rp %s untuk tier %s. Harap kurangi jumlahnya.</string>
+    <string name="error_active_loan_title">Ada Pinjaman Aktif</string>
+    <string name="error_active_loan_message">Tidak dapat mengajukan pinjaman baru. Anda sudah memiliki pengajuan pinjaman aktif yang sedang diproses. Mohon tunggu hingga pinjaman Anda saat ini dicairkan, dilunasi, atau ditolak sebelum mengajukan yang baru.</string>
+    <string name="error_exceeds_limit_title">Melebihi Limit Kredit</string>
+    <string name="error_exceeds_limit_message">Jumlah pinjaman melebihi sisa limit kredit Rp %s untuk tier %s. Mohon kurangi jumlahnya.</string>
     <string name="error_branch_required_title">Cabang Diperlukan</string>
-    <string name="error_branch_required_message">ID Cabang diperlukan untuk pengajuan pinjaman. Silakan pilih cabang.</string>
+    <string name="error_branch_required_message">ID Cabang diperlukan untuk pengajuan pinjaman. Mohon pilih cabang.</string>
     <string name="error_branch_not_found_title">Cabang Tidak Ditemukan</string>
-    <string name="error_branch_not_found_message">Cabang yang dipilih tidak ditemukan. Silakan refresh dan pilih cabang lain.</string>
+    <string name="error_branch_not_found_message">Cabang yang dipilih tidak ditemukan. Mohon refresh dan pilih cabang lain.</string>
     <string name="button_refresh_branches">Refresh Cabang</string>
     <string name="error_system_title">Kesalahan Sistem</string>
-    <string name="error_no_tier_message">Tidak ada produk tier yang tersedia untuk pengguna. Silakan hubungi dukungan.</string>
+    <string name="error_no_tier_message">Tidak ada produk tier yang tersedia untuk pengguna. Hubungi dukungan.</string>
     <string name="error_generic_title">Kesalahan</string>
     <string name="button_ok">OK</string>
 
     <!-- User Profile Screen -->
     <string name="profile_not_logged_in">Belum masuk</string>
-    <string name="profile_login_prompt">Masuk untuk melihat dan mengelola profil kamu.</string>
-    <string name="profile_login_button">Login sekarang</string>
-    <string name="profile_your_profile">Profil Kamu</string>
+    <string name="profile_login_prompt">Masuk untuk melihat dan mengelola profil Anda.</string>
+    <string name="profile_login_button">Masuk sekarang</string>
+    <string name="profile_your_profile">Profil Anda</string>
     <string name="menu_profile_details">Detail Profil</string>
     <string name="menu_loan_history">Riwayat Pinjaman</string>
     <string name="profile_logout_button">Keluar</string>
@@ -147,7 +147,7 @@
 
     <!-- Empty State Card -->
     <string name="empty_state_title">Buka Limit Anda</string>
-    <string name="empty_state_description">Lengkapi profil Anda dan ajukan pinjaman untuk memulai perjalanan Anda.</string>
+    <string name="empty_state_description">Lengkapi profil dan ajukan pinjaman untuk memulai perjalanan Anda.</string>
     <string name="empty_state_button">Mulai</string>
 
     <!-- User Product Tier Card -->
@@ -156,27 +156,26 @@
     <string name="tier_available_limit">Limit Tersedia</string>
     <string name="tier_limit">Limit</string>
     <string name="tier_used">Terpakai</string>
-    <string name="tier_next_progress">Progres Tier Berikutnya</string>
+    <string name="tier_next_progress">Proses Tier Berikutnya</string>
     <string name="tier_pay_more">Bayar %s lagi</string>
-    <string name="tier_eligible_upgrade">Layak untuk Upgrade!</string>
+    <string name="tier_eligible_upgrade">Memenuhi Syarat Upgrade!</string>
 
-    <!-- Settings Section -->
     <string name="settings_section_title">Pengaturan</string>
     <string name="settings_language">Bahasa</string>
-    <string name="settings_language_subtitle">Pilih bahasa yang Anda inginkan</string>
+    <string name="settings_language_subtitle">Pilih bahasa preferensi Anda</string>
     <string name="language_english">English</string>
     <string name="language_indonesian">Bahasa Indonesia</string>
-    <string name="language_selected">Terpilih</string>
+    <string name="language_selected">Dipilih</string>
 
     <!-- Additional strings for screens using stringResource() -->
     <!-- Common -->
     <string name="back">Kembali</string>
     <string name="retry">Coba Lagi</string>
     <string name="unknown_error">Kesalahan tidak diketahui</string>
-    
+
     <!-- Home Screen additional -->
     <string name="interest_rate_per_year">%1$.1f%% p.a</string>
-    
+
     <!-- Login Screen -->
     <string name="app_name_star">STAR</string>
     <string name="app_name_financial">Financial</string>
@@ -184,20 +183,20 @@
     <string name="sign_in_to_continue">Masuk untuk melanjutkan</string>
     <string name="email_or_username">Email atau Username</string>
     <string name="password">Kata Sandi</string>
-    <string name="hide_password">Sembunyikan kata sandi</string>
-    <string name="show_password">Tampilkan kata sandi</string>
+    <string name="hide_password">Sembunyikan sandi</string>
+    <string name="show_password">Tampilkan sandi</string>
     <string name="forgot_password">Lupa Kata Sandi?</string>
     <string name="sign_in">Masuk</string>
     <string name="google_logo">Logo Google</string>
     <string name="sign_in_with_google">Masuk dengan Google</string>
     <string name="dont_have_account">Belum punya akun? </string>
     <string name="sign_up">Daftar</string>
-    <string name="continue_as_guest">Lanjutkan sebagai Tamu</string>
-    
+    <string name="continue_as_guest">Lanjut sebagai Tamu</string>
+
     <!-- Register Screen -->
     <string name="create_account">Buat Akun</string>
-    <string name="join_star_financial_today">Bergabung dengan STAR Financial hari ini</string>
-    <string name="username">Nama Pengguna</string>
+    <string name="join_star_financial_today">Gabung STAR Financial hari ini</string>
+    <string name="username">Username</string>
     <string name="username_must_be_3_50_characters">Username harus 3-50 karakter</string>
     <string name="email">Email</string>
     <string name="please_enter_a_valid_email">Masukkan email yang valid</string>
@@ -205,19 +204,19 @@
     <string name="confirm_password">Konfirmasi Kata Sandi</string>
     <string name="passwords_do_not_match">Kata sandi tidak cocok</string>
     <string name="already_have_an_account">Sudah punya akun? </string>
-    
+
     <!-- Forgot Password Screen -->
     <string name="recover">Pulihkan</string>
-    <string name="reset_password">Atur Ulang Kata Sandi</string>
-    <string name="enter_email_reset_password">Masukkan alamat email Anda dan kami akan mengirimkan instruksi untuk mengatur ulang kata sandi.</string>
-    <string name="send_reset_link">Kirim Link Reset</string>
-    
+    <string name="reset_password">Reset Kata Sandi</string>
+    <string name="enter_email_reset_password">Masukkan alamat email Anda dan kami akan mengirimkan instruksi untuk mereset kata sandi Anda.</string>
+    <string name="send_reset_link">Kirim Tautan Reset</string>
+
     <!-- Loan History Screen -->
     <string name="failed_to_load_history">Gagal memuat riwayat</string>
-    <string name="no_loan_history_found">Tidak ada riwayat pinjaman</string>
+    <string name="no_loan_history_found">Riwayat pinjaman tidak ditemukan</string>
     <string name="amount">Jumlah</string>
     <string name="date">Tanggal</string>
-    
+
     <!-- Profile Details Screen -->
     <string name="failed_to_load_profile">Gagal memuat profil</string>
     <string name="personal_information">Informasi Pribadi</string>
@@ -227,15 +226,24 @@
     <string name="id_card_ktp">Kartu Identitas (KTP)</string>
     <string name="ktp_photo">Foto KTP</string>
     <string name="failed_to_load_image">Gagal memuat gambar</string>
-    <string name="no_ktp_uploaded">Belum Ada KTP</string>
+    <string name="no_ktp_uploaded">Belum Ada KTP Diunggah</string>
     <string name="bank_information">Informasi Bank</string>
     <string name="bank_name">Nama Bank</string>
     <string name="account_number">Nomor Rekening</string>
     <string name="edit_profile">Edit Profil</string>
     <string name="no_profile_yet">Belum Ada Profil</string>
-    <string name="no_profile_description">Anda belum membuat profil. Buat sekarang untuk melengkapi pengaturan akun Anda.</string>
+    <string name="no_profile_description">Anda belum membuat profil. Buat sekarang untuk melengkapi akun Anda.</string>
     <string name="create_profile">Buat Profil</string>
 
     <!-- Submit Loan Screen - Preview Dialog -->
     <string name="submit_loan_preview_branch">Cabang</string>
+
+    <!-- Loan Result Dialogs -->
+    <string name="dialog_loan_success_title">Pinjaman Berhasil Diajukan!</string>
+    <string name="dialog_loan_success_message">Pengajuan pinjaman Anda telah dikirim. Referensi: %s</string>
+    <string name="button_back_to_home">Kembali ke Beranda</string>
+    <string name="button_view_loan_history">Lihat Riwayat Pinjaman</string>
+    <string name="dialog_loan_failed_title">Pengajuan Gagal</string>
+    <string name="dialog_loan_queued_title">Permintaan Dalam Antrian</string>
+    <string name="dialog_loan_queued_message">Pengajuan pinjaman Anda telah disimpan dan akan dikirim secara otomatis saat terhubung ke internet.</string>
 </resources>

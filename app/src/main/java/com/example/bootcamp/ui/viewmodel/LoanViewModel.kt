@@ -41,6 +41,15 @@ sealed class LoanErrorType {
     data class Generic(val message: String) : LoanErrorType()
 }
 
+/**
+ * Sealed class representing loan submission result types.
+ */
+sealed class LoanResultType {
+    data class Success(val referenceNumber: String) : LoanResultType()
+    data class Failed(val message: String) : LoanResultType()
+    object QueuedOffline : LoanResultType()
+}
+
 /** UI State for the Loan Submission screen. */
 data class LoanUiState(
     val branches: List<Branch> = emptyList(),
@@ -51,7 +60,8 @@ data class LoanUiState(
     val isSubmitting: Boolean = false,
     val errorMessage: String? = null,
     val errorType: LoanErrorType? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val resultType: LoanResultType? = null
 ) {
     val isSubmitEnabled: Boolean
         get() =
@@ -146,7 +156,13 @@ constructor(
 
         viewModelScope.launch {
             _uiState.update {
-                it.copy(isSubmitting = true, errorMessage = null, errorType = null, successMessage = null)
+                it.copy(
+                    isSubmitting = true,
+                    errorMessage = null,
+                    errorType = null,
+                    successMessage = null,
+                    resultType = null
+                )
             }
 
             // If location is passed from UI (or retrieved via client if permission granted)
@@ -174,9 +190,19 @@ constructor(
             )
                 .onSuccess { message ->
                     _uiState.update {
+                        val result = if (message.contains("queued", ignoreCase = true)) {
+                            LoanResultType.QueuedOffline
+                        } else {
+                            // Extract reference number if present (assumes message format "Success... Reference: XYZ")
+                            val parts = message.split("Reference:")
+                            val ref = if (parts.size > 1) parts[1].trim() else ""
+                            LoanResultType.Success(ref)
+                        }
+
                         it.copy(
                             isSubmitting = false,
                             successMessage = message,
+                            resultType = result,
                             errorType = null,
                             amount = "",
                             tenure = "",
@@ -190,12 +216,16 @@ constructor(
                         it.copy(
                             isSubmitting = false,
                             errorMessage = if (errorType is LoanErrorType.Generic) {
-                                exception.message
-                                    ?: "Submission failed"
+                                exception.message ?: "Submission failed"
                             } else {
                                 null
                             },
-                            errorType = errorType
+                            errorType = errorType,
+                            resultType = if (errorType is LoanErrorType.Generic) {
+                                LoanResultType.Failed(exception.message ?: "Submission failed")
+                            } else {
+                                null // Specific errors handled by existing error dialogs
+                            }
                         )
                     }
                 }
@@ -296,7 +326,11 @@ constructor(
     }
 
     fun clearMessages() {
-        _uiState.update { it.copy(errorMessage = null, successMessage = null) }
+        _uiState.update { it.copy(errorMessage = null, successMessage = null, resultType = null) }
+    }
+
+    fun clearResultType() {
+        _uiState.update { it.copy(resultType = null) }
     }
 
     fun clearErrorMessage() {

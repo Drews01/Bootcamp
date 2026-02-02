@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -54,7 +57,11 @@ import androidx.core.content.ContextCompat
 import com.example.bootcamp.R
 import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Indigo600
+import com.example.bootcamp.ui.theme.Amber500
+import com.example.bootcamp.ui.theme.Green500
+import com.example.bootcamp.ui.theme.Red500
 import com.example.bootcamp.ui.viewmodel.LoanErrorType
+import com.example.bootcamp.ui.viewmodel.LoanResultType
 import com.example.bootcamp.ui.viewmodel.LoanViewModel
 import java.text.NumberFormat
 import java.util.Locale
@@ -65,7 +72,8 @@ fun SubmitLoanScreen(
     viewModel: LoanViewModel,
     modifier: Modifier = Modifier,
     onSubmitSuccess: () -> Unit = {},
-    onNavigateToEditProfile: () -> Unit = {}
+    onNavigateToEditProfile: () -> Unit = {},
+    onNavigateToLoanHistory: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,9 +86,12 @@ fun SubmitLoanScreen(
         viewModel.submitLoan()
     }
 
+    // Handled by LoanResultDialog now, but keeping for backward compatibility if needed
+    // or we can remove if we fully switch to resultType
     LaunchedEffect(uiState.successMessage) {
-        uiState.successMessage?.let {
-            snackbarHostState.showSnackbar(it)
+        if (uiState.resultType == null && uiState.successMessage != null) {
+            // Only show snackbar if not using result dialog (e.g. old flow fallback)
+            snackbarHostState.showSnackbar(uiState.successMessage!!)
             viewModel.clearSuccessMessage()
             onSubmitSuccess()
         }
@@ -102,6 +113,24 @@ fun SubmitLoanScreen(
             onRefreshBranches = {
                 viewModel.clearErrorMessage()
                 viewModel.loadBranches()
+            }
+        )
+    }
+
+    // Show Result Dialog (Success, Failed, Queued)
+    uiState.resultType?.let { resultType ->
+        LoanResultDialog(
+            resultType = resultType,
+            onDismiss = {
+                viewModel.clearResultType()
+            },
+            onBackToHome = {
+                viewModel.clearResultType()
+                onSubmitSuccess()
+            },
+            onViewLoanHistory = {
+                viewModel.clearResultType()
+                onNavigateToLoanHistory()
             }
         )
     }
@@ -379,6 +408,135 @@ fun SubmitLoanScreen(
         }
     }
 }
+
+@Composable
+fun LoanResultDialog(
+    resultType: LoanResultType,
+    onDismiss: () -> Unit,
+    onBackToHome: () -> Unit,
+    onViewLoanHistory: () -> Unit
+) {
+    val (title, message, icon, iconColor, primaryButtonText, onPrimaryClick, secondaryButtonText, onSecondaryClick) = when (resultType) {
+        is LoanResultType.Success -> {
+            val refText = if (resultType.referenceNumber.isNotBlank() && resultType.referenceNumber != "null") {
+                 "\nReference: ${resultType.referenceNumber}"
+            } else {
+                ""
+            }
+            ResultDialogData(
+                title = stringResource(R.string.dialog_loan_success_title),
+                message = stringResource(R.string.dialog_loan_success_message_base) + refText,
+                icon = Icons.Default.CheckCircle,
+                iconColor = Green500,
+                primaryButtonText = stringResource(R.string.button_view_loan_history),
+                onPrimaryClick = onViewLoanHistory,
+                secondaryButtonText = stringResource(R.string.button_back_to_home),
+                onSecondaryClick = onBackToHome
+            )
+        }
+        is LoanResultType.QueuedOffline -> {
+            ResultDialogData(
+                title = stringResource(R.string.dialog_loan_queued_title),
+                message = stringResource(R.string.dialog_loan_queued_message),
+                icon = Icons.Default.Warning,
+                iconColor = Amber500,
+                primaryButtonText = stringResource(R.string.button_back_to_home),
+                onPrimaryClick = onBackToHome,
+                secondaryButtonText = stringResource(R.string.button_view_loan_history),
+                onSecondaryClick = onViewLoanHistory
+            )
+        }
+        is LoanResultType.Failed -> {
+            ResultDialogData(
+                title = stringResource(R.string.dialog_loan_failed_title),
+                message = resultType.message,
+                icon = Icons.Default.Warning,
+                iconColor = Red500,
+                primaryButtonText = stringResource(R.string.button_retry),
+                onPrimaryClick = onDismiss,
+                secondaryButtonText = stringResource(R.string.button_back_to_home),
+                onSecondaryClick = onBackToHome
+            )
+        }
+    }
+
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF1E293B)
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.size(64.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = message,
+                    color = Gray500,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = onPrimaryClick,
+                    modifier = Modifier.fillMaxWidth(0.8f), // Not full width, but wide enough
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Indigo600
+                    )
+                ) {
+                    Text(primaryButtonText, color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                androidx.compose.material3.TextButton(onClick = onSecondaryClick) {
+                    Text(secondaryButtonText, color = Gray500)
+                }
+            }
+        }
+    }
+}
+
+private data class ResultDialogData(
+    val title: String,
+    val message: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val iconColor: Color,
+    val primaryButtonText: String,
+    val onPrimaryClick: () -> Unit,
+    val secondaryButtonText: String,
+    val onSecondaryClick: () -> Unit
+)
 
 /**
  * Preview dialog for loan submission.
