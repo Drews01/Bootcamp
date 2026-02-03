@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -33,57 +33,79 @@ import com.example.bootcamp.ui.theme.SpaceIndigo
 
 /**
  * Horizontal timeline component for displaying loan milestones.
+ * Each milestone column contains both the dot and the label, ensuring proper centering.
  */
 @Composable
 fun MilestoneTimeline(
     milestones: List<LoanMilestone>,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize()
-            .padding(vertical = 12.dp)
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.Top
     ) {
-        // Dots and lines row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            milestones.forEachIndexed { index, milestone ->
-                val isLast = index == milestones.lastIndex
+        milestones.forEachIndexed { index, milestone ->
+            val isLast = index == milestones.lastIndex
+            val nextMilestone = milestones.getOrNull(index + 1)
 
-                // Dot
-                MilestoneDot(status = milestone.status)
-
-                // Connecting line (not after the last dot)
-                if (!isLast) {
-                    ConnectingLine(
-                        isCompleted = milestone.status == MilestoneStatus.COMPLETED,
-                        modifier = Modifier.weight(1f)
-                    )
+            // Each milestone takes equal weight
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Dot with connecting line drawn behind it
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(24.dp)
+                        .drawBehind {
+                            // Draw line to the right if not the last milestone
+                            if (!isLast) {
+                                val lineColor = if (milestone.status == MilestoneStatus.COMPLETED) {
+                                    Emerald500
+                                } else {
+                                    Gray700
+                                }
+                                drawLine(
+                                    color = lineColor,
+                                    start = Offset(size.width / 2, size.height / 2),
+                                    end = Offset(size.width, size.height / 2),
+                                    strokeWidth = 3.dp.toPx(),
+                                    cap = StrokeCap.Round
+                                )
+                            }
+                            // Draw line from the left if not the first milestone
+                            if (index > 0) {
+                                val prevMilestone = milestones[index - 1]
+                                val lineColor = if (prevMilestone.status == MilestoneStatus.COMPLETED) {
+                                    Emerald500
+                                } else {
+                                    Gray700
+                                }
+                                drawLine(
+                                    color = lineColor,
+                                    start = Offset(0f, size.height / 2),
+                                    end = Offset(size.width / 2, size.height / 2),
+                                    strokeWidth = 3.dp.toPx(),
+                                    cap = StrokeCap.Round
+                                )
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    MilestoneDot(status = milestone.status)
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-        // Labels row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            milestones.forEach { milestone ->
+                // Label
                 MilestoneLabel(
                     name = milestone.name,
                     timestamp = milestone.timestamp,
-                    status = milestone.status,
-                    modifier = Modifier.weight(1f)
+                    status = milestone.status
                 )
             }
         }
@@ -104,35 +126,15 @@ private fun MilestoneDot(status: MilestoneStatus) {
 
     Box(contentAlignment = Alignment.Center) {
         // Outer glow for CURRENT status
-        Canvas(modifier = Modifier.size(24.dp)) {
-            drawCircle(color = outerColor)
+        if (status == MilestoneStatus.CURRENT) {
+            Canvas(modifier = Modifier.size(20.dp)) {
+                drawCircle(color = outerColor)
+            }
         }
         // Inner dot
-        Canvas(modifier = Modifier.size(14.dp)) {
+        Canvas(modifier = Modifier.size(12.dp)) {
             drawCircle(color = color)
         }
-    }
-}
-
-@Composable
-private fun ConnectingLine(
-    isCompleted: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val color = if (isCompleted) Emerald500 else Gray700
-
-    Canvas(
-        modifier = modifier
-            .height(4.dp)
-            .padding(horizontal = 2.dp)
-    ) {
-        drawLine(
-            color = color,
-            start = Offset(0f, size.height / 2),
-            end = Offset(size.width, size.height / 2),
-            strokeWidth = 4.dp.toPx(),
-            cap = StrokeCap.Round
-        )
     }
 }
 
@@ -140,8 +142,7 @@ private fun ConnectingLine(
 private fun MilestoneLabel(
     name: String,
     timestamp: String?,
-    status: MilestoneStatus,
-    modifier: Modifier = Modifier
+    status: MilestoneStatus
 ) {
     val textColor = when (status) {
         MilestoneStatus.COMPLETED -> Color.White
@@ -150,17 +151,18 @@ private fun MilestoneLabel(
     }
 
     Column(
-        modifier = modifier.padding(horizontal = 2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 2.dp)
     ) {
         Text(
             text = name,
             color = textColor,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
             fontWeight = if (status == MilestoneStatus.CURRENT) FontWeight.Bold else FontWeight.Normal,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            lineHeight = 11.sp
         )
         if (timestamp != null) {
             Text(
@@ -172,3 +174,4 @@ private fun MilestoneLabel(
         }
     }
 }
+
