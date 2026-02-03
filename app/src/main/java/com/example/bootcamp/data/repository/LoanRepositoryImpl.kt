@@ -12,6 +12,8 @@ import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.Branch
 import com.example.bootcamp.domain.model.LoanApplication
+import com.example.bootcamp.domain.model.LoanMilestone
+import com.example.bootcamp.domain.model.MilestoneStatus
 import com.example.bootcamp.domain.model.PendingLoan
 import com.example.bootcamp.domain.repository.LoanRepository
 import com.example.bootcamp.util.ApiResult
@@ -273,6 +275,28 @@ class LoanRepositoryImpl @Inject constructor(
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
+    }
+
+    override suspend fun getLoanMilestones(loanApplicationId: Long): Result<List<LoanMilestone>> {
+        val token = tokenManager.token.firstOrNull()
+        if (token.isNullOrBlank()) {
+            return Result.failure(IllegalStateException("User not logged in"))
+        }
+
+        return when (val result = loanRemoteDataSource.getLoanMilestones(token, loanApplicationId)) {
+            is ApiResult.Success -> {
+                val milestones = result.data.map { dto ->
+                    LoanMilestone(
+                        name = dto.name,
+                        status = MilestoneStatus.valueOf(dto.status),
+                        timestamp = dto.timestamp,
+                        order = dto.order
+                    )
+                }.sortedBy { it.order }
+                Result.success(milestones)
+            }
+            is ApiResult.Error -> result.asResult()
+        }
     }
 
     /** Clear all cached loan data (e.g., on logout). */

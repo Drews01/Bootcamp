@@ -1,6 +1,7 @@
 package com.example.bootcamp.domain.repository
 
 import com.example.bootcamp.domain.model.Branch
+import com.example.bootcamp.domain.model.LoanMilestone
 import com.example.bootcamp.domain.model.PendingLoan
 import kotlinx.coroutines.flow.Flow
 
@@ -41,6 +42,13 @@ interface LoanRepository {
     suspend fun getLoanHistory(): Result<List<com.example.bootcamp.domain.model.LoanApplication>>
 
     /**
+     * Get milestones for a specific loan application.
+     * @param loanApplicationId The loan application ID
+     * @return Result with list of LoanMilestone
+     */
+    suspend fun getLoanMilestones(loanApplicationId: Long): Result<List<LoanMilestone>>
+
+    /**
      * Get user's current tier and available credit.
      * @return Result with available credit amount
      */
@@ -69,3 +77,4 @@ interface LoanRepository {
     /** Clear all cached loan data. */
     suspend fun clearCache()
 }
+

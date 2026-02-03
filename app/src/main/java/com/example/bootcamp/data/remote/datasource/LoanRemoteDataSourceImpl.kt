@@ -4,6 +4,7 @@ import com.example.bootcamp.data.datasource.LoanRemoteDataSource
 import com.example.bootcamp.data.remote.api.LoanService
 import com.example.bootcamp.data.remote.dto.BranchDropdownItem
 import com.example.bootcamp.data.remote.dto.LoanApplicationDto
+import com.example.bootcamp.data.remote.dto.LoanMilestoneDto
 import com.example.bootcamp.data.remote.dto.SubmitLoanData
 import com.example.bootcamp.data.remote.dto.SubmitLoanRequest
 import com.example.bootcamp.data.remote.dto.UserTierDto
@@ -52,4 +53,12 @@ class LoanRemoteDataSourceImpl @Inject constructor(private val loanService: Loan
     override suspend fun getUserTier(token: String): ApiResult<UserTierDto> = ApiResponseHandler.safeApiCall {
         loanService.getUserTier("Bearer $token")
     }
+
+    override suspend fun getLoanMilestones(
+        token: String,
+        loanApplicationId: Long
+    ): ApiResult<List<LoanMilestoneDto>> = ApiResponseHandler.safeApiCall {
+        loanService.getLoanMilestones("Bearer $token", loanApplicationId)
+    }
 }
+

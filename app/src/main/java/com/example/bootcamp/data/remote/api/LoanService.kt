@@ -53,4 +53,15 @@ interface LoanService {
     suspend fun getUserTier(
         @retrofit2.http.Header("Authorization") token: String
     ): Response<ApiResponse<com.example.bootcamp.data.remote.dto.UserTierDto>>
+
+    /**
+     * Get milestones/timeline for a specific loan application.
+     * @param loanApplicationId The ID of the loan application
+     * @return ApiResponse with list of LoanMilestoneDto
+     */
+    @GET("api/loan-history/milestones/{loanApplicationId}")
+    suspend fun getLoanMilestones(
+        @retrofit2.http.Header("Authorization") token: String,
+        @retrofit2.http.Path("loanApplicationId") loanApplicationId: Long
+    ): Response<ApiResponse<List<com.example.bootcamp.data.remote.dto.LoanMilestoneDto>>>
 }
