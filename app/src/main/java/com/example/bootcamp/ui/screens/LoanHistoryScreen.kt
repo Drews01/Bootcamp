@@ -181,7 +181,11 @@ fun LoanHistoryItem(
                     StatusChip(status = loan.displayStatus, color = getStatusColor(loan.status))
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
-                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        imageVector = if (isExpanded) {
+                            Icons.Default.KeyboardArrowUp
+                        } else {
+                            Icons.Default.KeyboardArrowDown
+                        },
                         contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = Gray500
                     )
@@ -278,4 +282,3 @@ fun getStatusColor(status: String): Color = when (status.uppercase()) {
     "PAID" -> Color(0xFF60A5FA) // Blue
     else -> Color.Gray
 }
-

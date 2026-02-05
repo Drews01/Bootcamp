@@ -2,7 +2,6 @@ package com.example.bootcamp.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,10 +35,7 @@ import com.example.bootcamp.ui.theme.SpaceIndigo
  * Each milestone column contains both the dot and the label, ensuring proper centering.
  */
 @Composable
-fun MilestoneTimeline(
-    milestones: List<LoanMilestone>,
-    modifier: Modifier = Modifier
-) {
+fun MilestoneTimeline(milestones: List<LoanMilestone>, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -139,11 +135,7 @@ private fun MilestoneDot(status: MilestoneStatus) {
 }
 
 @Composable
-private fun MilestoneLabel(
-    name: String,
-    timestamp: String?,
-    status: MilestoneStatus
-) {
+private fun MilestoneLabel(name: String, timestamp: String?, status: MilestoneStatus) {
     val textColor = when (status) {
         MilestoneStatus.COMPLETED -> Color.White
         MilestoneStatus.CURRENT -> SpaceIndigo
@@ -174,4 +166,3 @@ private fun MilestoneLabel(
         }
     }
 }
-

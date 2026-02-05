@@ -77,4 +77,3 @@ interface LoanRepository {
     /** Clear all cached loan data. */
     suspend fun clearCache()
 }
-

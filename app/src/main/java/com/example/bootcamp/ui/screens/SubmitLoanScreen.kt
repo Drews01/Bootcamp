@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,10 +54,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.bootcamp.R
-import com.example.bootcamp.ui.theme.Gray500
-import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.theme.Amber500
+import com.example.bootcamp.ui.theme.Gray500
 import com.example.bootcamp.ui.theme.Green500
+import com.example.bootcamp.ui.theme.Indigo600
 import com.example.bootcamp.ui.theme.Red500
 import com.example.bootcamp.ui.viewmodel.LoanErrorType
 import com.example.bootcamp.ui.viewmodel.LoanResultType
@@ -416,10 +415,19 @@ fun LoanResultDialog(
     onBackToHome: () -> Unit,
     onViewLoanHistory: () -> Unit
 ) {
-    val (title, message, icon, iconColor, primaryButtonText, onPrimaryClick, secondaryButtonText, onSecondaryClick) = when (resultType) {
+    val (
+        title,
+        message,
+        icon,
+        iconColor,
+        primaryButtonText,
+        onPrimaryClick,
+        secondaryButtonText,
+        onSecondaryClick
+    ) = when (resultType) {
         is LoanResultType.Success -> {
             val refText = if (resultType.referenceNumber.isNotBlank() && resultType.referenceNumber != "null") {
-                 "\nReference: ${resultType.referenceNumber}"
+                "\nReference: ${resultType.referenceNumber}"
             } else {
                 ""
             }

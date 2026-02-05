@@ -88,4 +88,3 @@ class LoanHistoryViewModel @Inject constructor(
         }
     }
 }
-

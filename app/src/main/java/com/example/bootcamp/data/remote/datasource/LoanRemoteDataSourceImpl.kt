@@ -54,11 +54,8 @@ class LoanRemoteDataSourceImpl @Inject constructor(private val loanService: Loan
         loanService.getUserTier("Bearer $token")
     }
 
-    override suspend fun getLoanMilestones(
-        token: String,
-        loanApplicationId: Long
-    ): ApiResult<List<LoanMilestoneDto>> = ApiResponseHandler.safeApiCall {
-        loanService.getLoanMilestones("Bearer $token", loanApplicationId)
-    }
+    override suspend fun getLoanMilestones(token: String, loanApplicationId: Long): ApiResult<List<LoanMilestoneDto>> =
+        ApiResponseHandler.safeApiCall {
+            loanService.getLoanMilestones("Bearer $token", loanApplicationId)
+        }
 }
-
