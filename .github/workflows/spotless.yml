@@ -79,12 +79,7 @@ jobs:
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
           GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            ./gradlew assembleRelease --no-daemon
-          else
-            ./gradlew assembleDebug --no-daemon
-          fi
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK
         if: success()
