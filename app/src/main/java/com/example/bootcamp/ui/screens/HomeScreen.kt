@@ -245,16 +245,23 @@ private fun LoanSimulator(
     onNavigateToSubmitLoan: () -> Unit,
 ) {
     val formatter = remember { NumberFormat.getCurrencyInstance(Locale("in", "ID")) }
+    val decimalFormatter = remember { NumberFormat.getNumberInstance(Locale.US) }
 
     // Use derived state for initial values to update when product changes,
     // but separate mutable state for user edits.
-    // However, when product switches, it's often nice to reset or clamp values.
-    // Let's reset to defaults when product changes for simplicity and clarity.
-    var limitText by remember(product) { mutableStateOf(product.limitRupiah.toString()) }
+    var limitText by remember(product) { mutableStateOf(decimalFormatter.format(product.limitRupiah)) }
     var tenorText by remember(product) { mutableStateOf(product.maxTenorMonth.toString()) }
 
-    val limit = limitText.toLongOrNull()?.coerceAtMost(product.limitRupiah)?.coerceAtLeast(0) ?: 0
-    val tenor = tenorText.toIntOrNull()?.coerceAtMost(product.maxTenorMonth)?.coerceAtLeast(1) ?: 1
+    // Parse logic
+    val rawLimit = limitText.replace(",", "").toLongOrNull() ?: 0L
+    // Clamp for calculation: Min 100,000, Max 50,000,000
+    // Note: The input field itself will restrict typing > 50,000,000
+    // But for calculation, we also ensure it respects the bounds.
+    val limit = rawLimit.coerceAtMost(50_000_000).coerceAtMost(product.limitRupiah)
+
+    // Tenure validation: Max 36
+    val rawTenor = tenorText.toIntOrNull() ?: 0
+    val tenor = rawTenor.coerceAtMost(36).coerceAtMost(product.maxTenorMonth).coerceAtLeast(1)
 
     val yearlyRate = product.ratePercentPerYear / 100.0
     val totalInterest = limit * yearlyRate * (tenor / 12.0)
@@ -308,8 +315,17 @@ private fun LoanSimulator(
                     OutlinedTextField(
                         value = limitText,
                         onValueChange = { value ->
-                            if (value.all { it.isDigit() }) {
-                                limitText = value
+                            // Remove existing commas to check raw number
+                            val filtered = value.filter { it.isDigit() }
+                            val number = filtered.toLongOrNull()
+
+                            if (number != null) {
+                                // Max validation: 50,000,000
+                                if (number <= 50_000_000) {
+                                    limitText = decimalFormatter.format(number)
+                                }
+                            } else if (filtered.isEmpty()) {
+                                limitText = ""
                             }
                         },
                         singleLine = true,
@@ -321,7 +337,16 @@ private fun LoanSimulator(
                             cursorColor = Color.White,
                             focusedLabelColor = Indigo600,
                             unfocusedLabelColor = Gray500,
-                        )
+                        ),
+                        supportingText = {
+                            if (rawLimit < 100_000 && rawLimit != 0L) {
+                                Text(
+                                    text = "Min 100.000",
+                                    color = Color.Red,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
                     )
                 }
                 Column(modifier = Modifier.weight(0.7f)) {
@@ -334,9 +359,16 @@ private fun LoanSimulator(
                     OutlinedTextField(
                         value = tenorText,
                         onValueChange = { value ->
-                            if (value.all { it.isDigit() }) {
-                                tenorText = value
-                            }
+                            val filtered = value.filter { it.isDigit() }
+                            val number = filtered.toIntOrNull()
+                             if (number != null) {
+                                 // Max validation: 36
+                                 if (number <= 36) {
+                                     tenorText = filtered
+                                 }
+                             } else if (filtered.isEmpty()) {
+                                 tenorText = ""
+                             }
                         },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -393,6 +425,10 @@ private fun LoanSimulator(
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
+                // Disable button if limit is effectively invalid for "Apply" logic if we wanted,
+                // but user didn't ask to disable. Just validation visuals.
+                // However, minimum logic usually implies you can't submit if < min.
+                enabled = rawLimit >= 100_000
             ) {
                 Text(
                     text = stringResource(R.string.loan_apply_now),
