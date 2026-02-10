@@ -60,16 +60,20 @@ android {
         // Limit resource configurations to supported languages
         resourceConfigurations += listOf("en", "id")
 
-        val baseUrl = localProperties.getProperty("BASE_URL") ?: System.getenv("BASE_URL") ?: "http://${getLocalIp()}:8081"
+        val baseUrl =
+            localProperties.getProperty("BASE_URL") ?: System.getenv("BASE_URL") ?: "http://${getLocalIp()}:8081"
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         println("Using BASE_URL: $baseUrl")
 
         // Google Web Client ID for Credential Manager
-        val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: System.getenv("GOOGLE_WEB_CLIENT_ID") ?: ""
+        val googleWebClientId =
+            localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: System.getenv("GOOGLE_WEB_CLIENT_ID") ?: ""
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
 
         if (googleWebClientId.isEmpty()) {
-            println("WARNING: GOOGLE_WEB_CLIENT_ID not found in local.properties or Environment Variables. Google Login will fail.")
+            println(
+                "WARNING: GOOGLE_WEB_CLIENT_ID not found in local.properties or Environment Variables. Google Login will fail."
+            )
         } else {
             println("Using GOOGLE_WEB_CLIENT_ID: $googleWebClientId")
         }
