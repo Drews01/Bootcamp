@@ -361,14 +361,14 @@ private fun LoanSimulator(
                         onValueChange = { value ->
                             val filtered = value.filter { it.isDigit() }
                             val number = filtered.toIntOrNull()
-                             if (number != null) {
-                                 // Max validation: 36
-                                 if (number <= 36) {
-                                     tenorText = filtered
-                                 }
-                             } else if (filtered.isEmpty()) {
-                                 tenorText = ""
-                             }
+                            if (number != null) {
+                                // Max validation: 36
+                                if (number <= 36) {
+                                    tenorText = filtered
+                                }
+                            } else if (filtered.isEmpty()) {
+                                tenorText = ""
+                            }
                         },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
