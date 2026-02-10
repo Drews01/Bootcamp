@@ -76,6 +76,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
