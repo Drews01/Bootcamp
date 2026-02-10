@@ -473,15 +473,14 @@ This guide includes:
 
 ### Common Questions
 
-**Q: How do I get the user's profile information?**  
+**Q: How do I get the user's profile information?**
 A: Use `GET /api/user-profiles/{userId}` or `GET /api/user-profiles/me` for current user.
 
-**Q: How do I check if a user has a complete profile?**  
+**Q: How do I check if a user has a complete profile?**
 A: Use `GET /api/user-profiles/{userId}/complete` which returns a boolean.
 
-**Q: How do I see which branch a user belongs to?**  
+**Q: How do I see which branch a user belongs to?**
 A: The `branchName` field is included in user responses. For full branch details, use `GET /api/branches/{id}`.
 
-**Q: Why can't I see the password or password reset date?**  
+**Q: Why can't I see the password or password reset date?**
 A: These are security-sensitive fields intentionally restricted. Passwords are never exposed in any API response.
-

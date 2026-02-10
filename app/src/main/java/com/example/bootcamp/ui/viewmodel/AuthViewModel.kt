@@ -132,13 +132,9 @@ constructor(
             }
 
             registerUseCase(RegisterParams(username, email, password, confirmPassword))
-                .onSuccess { message ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            successMessage = message,
-                        )
-                    }
+                .onSuccess {
+                    // Auto-login after successful registration
+                    login(username, password)
                 }
                 .onFailure { exception -> handleError(exception) }
         }

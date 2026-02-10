@@ -172,8 +172,8 @@ private fun AppNavHost(viewModel: AuthViewModel, navController: NavHostControlle
                 viewModel = viewModel,
                 onNavigateToLogin = { navController.popBackStack() },
                 onRegisterSuccess = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) { inclusive = true }
                     }
                 },
             )

@@ -117,16 +117,16 @@ constructor(
     fun onAmountChanged(amount: String) {
         // Remove existing non-digits to get raw number
         val cleanString = amount.replace("[^\\d]".toRegex(), "")
-        
+
         if (cleanString.isNotEmpty()) {
-             try {
-                 val parsed = cleanString.toLong()
-                 // Format with commas
-                 val formatted = java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(parsed)
-                 _uiState.update { it.copy(amount = formatted) }
-             } catch (e: NumberFormatException) {
-                 // If number is too large or invalid, ignore last input or keep previous state
-             }
+            try {
+                val parsed = cleanString.toLong()
+                // Format with commas
+                val formatted = java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(parsed)
+                _uiState.update { it.copy(amount = formatted) }
+            } catch (e: NumberFormatException) {
+                // If number is too large or invalid, ignore last input or keep previous state
+            }
         } else {
             _uiState.update { it.copy(amount = "") }
         }
@@ -137,8 +137,8 @@ constructor(
             if (tenure.isNotEmpty()) {
                 val tenureInt = tenure.toIntOrNull()
                 if (tenureInt != null && tenureInt > 36) {
-                     // If > 36, don't update (or could clamp to 36, but blocking is safer UX here)
-                     return 
+                    // If > 36, don't update (or could clamp to 36, but blocking is safer UX here)
+                    return
                 }
             }
             _uiState.update { it.copy(tenure = tenure) }
