@@ -115,13 +115,32 @@ constructor(
     }
 
     fun onAmountChanged(amount: String) {
-        if (amount.all { it.isDigit() }) {
-            _uiState.update { it.copy(amount = amount) }
+        // Remove existing non-digits to get raw number
+        val cleanString = amount.replace("[^\\d]".toRegex(), "")
+        
+        if (cleanString.isNotEmpty()) {
+             try {
+                 val parsed = cleanString.toLong()
+                 // Format with commas
+                 val formatted = java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(parsed)
+                 _uiState.update { it.copy(amount = formatted) }
+             } catch (e: NumberFormatException) {
+                 // If number is too large or invalid, ignore last input or keep previous state
+             }
+        } else {
+            _uiState.update { it.copy(amount = "") }
         }
     }
 
     fun onTenureChanged(tenure: String) {
         if (tenure.all { it.isDigit() }) {
+            if (tenure.isNotEmpty()) {
+                val tenureInt = tenure.toIntOrNull()
+                if (tenureInt != null && tenureInt > 36) {
+                     // If > 36, don't update (or could clamp to 36, but blocking is safer UX here)
+                     return 
+                }
+            }
             _uiState.update { it.copy(tenure = tenure) }
         }
     }
@@ -134,7 +153,9 @@ constructor(
 
     fun submitLoanWithLocation(location: android.location.Location?) {
         val currentState = _uiState.value
-        val amountLong = currentState.amount.toLongOrNull()
+        // sanitize amount: remove commas
+        val cleanAmount = currentState.amount.replace(",", "")
+        val amountLong = cleanAmount.toLongOrNull()
         val tenureInt = currentState.tenure.toIntOrNull()
         val branchId = currentState.selectedBranch?.id
 

@@ -578,10 +578,13 @@ fun LoanPreviewDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 val formatter = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                PreviewRow(label = stringResource(R.string.submit_loan_preview_branch), value = branchName)
+                // Amount is already formatted with commas from ViewModel, so we need to clean it
+                // or just display it if we want. But the existing code uses a currency formatter (IDR).
+                // So let's clean it first.
+                val cleanAmount = amount.replace("[^\\d]".toRegex(), "").toLongOrNull() ?: 0L
                 PreviewRow(
                     label = stringResource(R.string.submit_loan_confirm_amount),
-                    value = formatter.format(amount.toLongOrNull() ?: 0)
+                    value = formatter.format(cleanAmount)
                 )
                 PreviewRow(
                     label = stringResource(R.string.submit_loan_confirm_tenor),
