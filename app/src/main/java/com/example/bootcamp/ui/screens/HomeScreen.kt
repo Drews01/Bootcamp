@@ -77,7 +77,7 @@ fun HomeScreen(
     homeViewModel: com.example.bootcamp.ui.viewmodel.HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit,
-    onNavigateToSubmitLoan: () -> Unit,
+    onNavigateToSubmitLoan: (String, String) -> Unit,
     // Default empty for now to avoid breaking changes immediately, user can wire up later
     onNavigateToProfile: () -> Unit = {}
 ) {
@@ -242,7 +242,7 @@ private fun LoanSimulator(
     product: LoanProduct,
     isLoggedIn: Boolean,
     onNavigateToLogin: () -> Unit,
-    onNavigateToSubmitLoan: () -> Unit,
+    onNavigateToSubmitLoan: (String, String) -> Unit,
 ) {
     val formatter = remember { NumberFormat.getCurrencyInstance(Locale("in", "ID")) }
     val decimalFormatter = remember { NumberFormat.getNumberInstance(Locale.US) }
@@ -329,6 +329,9 @@ private fun LoanSimulator(
                             }
                         },
                         singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
@@ -371,6 +374,9 @@ private fun LoanSimulator(
                             }
                         },
                         singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
@@ -417,7 +423,7 @@ private fun LoanSimulator(
             Button(
                 onClick = {
                     if (isLoggedIn) {
-                        onNavigateToSubmitLoan()
+                        onNavigateToSubmitLoan(limitText, tenorText)
                     } else {
                         onNavigateToLogin()
                     }

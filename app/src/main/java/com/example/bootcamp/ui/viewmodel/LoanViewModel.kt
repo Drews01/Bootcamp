@@ -76,6 +76,7 @@ data class LoanUiState(
 class LoanViewModel
 @Inject
 constructor(
+    private val savedStateHandle: androidx.lifecycle.SavedStateHandle,
     private val getBranchesUseCase: GetBranchesUseCase,
     private val submitLoanUseCase: SubmitLoanUseCase,
     private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository,
@@ -86,6 +87,17 @@ constructor(
     val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
 
     init {
+        // Pre-fill from navigation arguments if available
+        val initialAmount = savedStateHandle.get<String>("amount") ?: ""
+        val initialTenure = savedStateHandle.get<String>("tenure") ?: ""
+
+        if (initialAmount.isNotBlank()) {
+            onAmountChanged(initialAmount)
+        }
+        if (initialTenure.isNotBlank()) {
+            onTenureChanged(initialTenure)
+        }
+
         loadBranches()
     }
 
@@ -121,6 +133,11 @@ constructor(
         if (cleanString.isNotEmpty()) {
             try {
                 val parsed = cleanString.toLong()
+
+                if (parsed > 50000000) {
+                    return
+                }
+
                 // Format with commas
                 val formatted = java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(parsed)
                 _uiState.update { it.copy(amount = formatted) }

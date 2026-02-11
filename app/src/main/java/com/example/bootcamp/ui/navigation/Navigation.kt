@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -60,7 +61,7 @@ fun AppNavigation(viewModel: AuthViewModel, navController: NavHostController = r
                             // Pop up to the start destination of the graph to
                             // avoid building up a large stack of destinations
                             // on the back stack as users select items
-                            popUpTo(navController.graph.startDestinationId) {
+                            popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
                             // Avoid multiple copies of the same destination when
@@ -93,12 +94,26 @@ private fun AppNavHost(viewModel: AuthViewModel, navController: NavHostControlle
                 viewModel = viewModel,
                 modifier = androidx.compose.ui.Modifier.padding(paddingValues),
                 onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
-                onNavigateToSubmitLoan = { navController.navigate(Routes.SUBMIT_LOAN) },
+                onNavigateToSubmitLoan = { amount, tenure ->
+                    navController.navigate("${Routes.SUBMIT_LOAN}?amount=$amount&tenure=$tenure")
+                },
                 onNavigateToProfile = { navController.navigate(Routes.EDIT_PROFILE) }
             )
         }
 
-        composable(Routes.SUBMIT_LOAN) {
+        composable(
+            route = "${Routes.SUBMIT_LOAN}?amount={amount}&tenure={tenure}",
+            arguments = listOf(
+                androidx.navigation.navArgument("amount") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+                androidx.navigation.navArgument("tenure") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {
             val loanViewModel: com.example.bootcamp.ui.viewmodel.LoanViewModel =
                 androidx.hilt.navigation.compose.hiltViewModel()
             SubmitLoanScreen(
