@@ -58,7 +58,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Limit resource configurations to supported languages
-        resourceConfigurations += listOf("en", "id")
+        androidResources.localeFilters += listOf("en", "id")
 
         val baseUrl =
             localProperties.getProperty("BASE_URL") ?: System.getenv("BASE_URL") ?: "http://${getLocalIp()}:8081"
@@ -79,10 +79,33 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val envKeystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+            val envKeystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+            val envKeyAlias = System.getenv("RELEASE_KEY_ALIAS")
+            val envKeyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+
+            if (!envKeystorePath.isNullOrEmpty() && !envKeystorePassword.isNullOrEmpty()) {
+                storeFile = file(envKeystorePath)
+                storePassword = envKeystorePassword
+                keyAlias = envKeyAlias
+                keyPassword = envKeyPassword
+            } else {
+                // Fallback to debug signing for local builds if secrets aren't set
+                val debugConfig = getByName("debug")
+                storeFile = debugConfig.storeFile
+                storePassword = debugConfig.storePassword
+                keyAlias = debugConfig.keyAlias
+                keyPassword = debugConfig.keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

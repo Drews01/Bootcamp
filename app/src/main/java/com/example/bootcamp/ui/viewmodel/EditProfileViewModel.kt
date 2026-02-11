@@ -2,14 +2,15 @@ package com.example.bootcamp.ui.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.domain.model.UserProfile
 import com.example.bootcamp.domain.repository.UserProfileRepository
+import com.example.bootcamp.util.ImageUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,7 +79,9 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun onAddressChanged(value: String) {
-        _uiState.update { it.copy(address = value) }
+        if (value.length <= 250) {
+            _uiState.update { it.copy(address = value) }
+        }
     }
 
     fun onNikChanged(value: String) {
@@ -88,62 +91,49 @@ class EditProfileViewModel @Inject constructor(
     }
 
     fun onPhoneNumberChanged(value: String) {
-        if (value.all { it.isDigit() }) {
+        if (value.length <= 15 && value.all { it.isDigit() }) {
             _uiState.update { it.copy(phoneNumber = value) }
         }
     }
 
     fun onAccountNumberChanged(value: String) {
-        if (value.all { it.isDigit() }) {
+        if (value.length <= 16 && value.all { it.isDigit() }) {
             _uiState.update { it.copy(accountNumber = value) }
         }
     }
 
     fun onBankNameChanged(value: String) {
-        _uiState.update { it.copy(bankName = value) }
+        if (value.length <= 50) {
+            _uiState.update { it.copy(bankName = value) }
+        }
     }
 
     fun onKtpFileSelected(uri: Uri) {
-        // Validate image size (max 5MB)
-        if (!isValidImageSize(uri)) {
-            _uiState.update { it.copy(errorMessage = "Image size is too large. Max 5MB allowed.") }
-            return
-        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isUploadingKtp = true, errorMessage = null) }
 
-        // Update URI for preview
-        _uiState.update { it.copy(ktpUri = uri) }
+            val compressedFile = ImageUtils.compressImage(context, uri)
 
-        // Auto upload
-        uploadKtp(uri)
-    }
-
-    private fun isValidImageSize(uri: Uri): Boolean = try {
-        // First try to get size from ContentResolver query (works for gallery/content URIs)
-        val cursor = context.contentResolver.query(uri, null, null, null, null)
-        val sizeFromCursor = cursor?.use {
-            if (it.moveToFirst()) {
-                val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
-                if (sizeIndex != -1) {
-                    it.getLong(sizeIndex).takeIf { size -> size > 0 }
-                } else {
-                    null
-                }
+            if (compressedFile != null) {
+                val compressedUri = Uri.fromFile(compressedFile)
+                // Update URI for preview with the compressed one (optional, but good for consistency)
+                _uiState.update { it.copy(ktpUri = compressedUri) }
+                uploadKtp(compressedUri)
             } else {
-                null
+                _uiState.update {
+                    it.copy(
+                        isUploadingKtp = false,
+                        errorMessage = "Failed to process image"
+                    )
+                }
             }
         }
+    }
 
-        // If cursor didn't return a valid size, read from InputStream (works for FileProvider URIs)
-        val fileSize = sizeFromCursor ?: run {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                inputStream.available().toLong().takeIf { it > 0 }
-                    ?: inputStream.readBytes().size.toLong()
-            } ?: 0L
-        }
-
-        fileSize <= 5 * 1024 * 1024 // 5MB
-    } catch (e: Exception) {
-        true // Unable to check size, assume valid
+    private fun isValidImageSize(uri: Uri): Boolean {
+        // Validation is now handled by compression, or we can keep it as a pre-check if needed.
+        // For now, let's rely on compression to fix the size.
+        return true
     }
 
     private fun uploadKtp(uri: Uri) {
@@ -183,18 +173,25 @@ class EditProfileViewModel @Inject constructor(
     fun saveProfile() {
         val state = _uiState.value
 
+        // Input Sanitization
+        val address = state.address.trim()
+        val nik = state.nik.trim()
+        val phoneNumber = state.phoneNumber.trim()
+        val accountNumber = state.accountNumber.trim()
+        val bankName = state.bankName.trim()
+
         // Validation
-        if (state.address.isBlank() ||
-            state.nik.isBlank() ||
-            state.phoneNumber.isBlank() ||
-            state.accountNumber.isBlank() ||
-            state.bankName.isBlank()
+        if (address.isBlank() ||
+            nik.isBlank() ||
+            phoneNumber.isBlank() ||
+            accountNumber.isBlank() ||
+            bankName.isBlank()
         ) {
             _uiState.update { it.copy(errorMessage = "Please fill all required fields") }
             return
         }
 
-        if (state.nik.length != 16) {
+        if (nik.length != 16) {
             _uiState.update { it.copy(errorMessage = "NIK must be 16 digits") }
             return
         }
@@ -208,11 +205,11 @@ class EditProfileViewModel @Inject constructor(
             _uiState.update { it.copy(isSaving = true, errorMessage = null) }
 
             val request = UserProfileRequest(
-                address = state.address,
-                nik = state.nik,
-                phoneNumber = state.phoneNumber,
-                accountNumber = state.accountNumber,
-                bankName = state.bankName,
+                address = address,
+                nik = nik,
+                phoneNumber = phoneNumber,
+                accountNumber = accountNumber,
+                bankName = bankName,
                 ktpPath = state.ktpPath
             )
 

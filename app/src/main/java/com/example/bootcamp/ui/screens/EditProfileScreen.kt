@@ -295,7 +295,10 @@ fun EditProfileScreen(
                             focusedLabelColor = Indigo600,
                             unfocusedLabelColor = Gray500,
                             cursorColor = Color.White
-                        )
+                        ),
+                        supportingText = {
+                            Text("${uiState.address.length}/250", color = Gray500)
+                        }
                     )
 
                     // NIK
@@ -340,7 +343,10 @@ fun EditProfileScreen(
                             focusedLabelColor = Indigo600,
                             unfocusedLabelColor = Gray500,
                             cursorColor = Color.White
-                        )
+                        ),
+                        supportingText = {
+                            Text("${uiState.phoneNumber.length}/15", color = Gray500)
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -369,7 +375,10 @@ fun EditProfileScreen(
                             focusedLabelColor = Indigo600,
                             unfocusedLabelColor = Gray500,
                             cursorColor = Color.White
-                        )
+                        ),
+                        supportingText = {
+                            Text("${uiState.bankName.length}/50", color = Gray500)
+                        }
                     )
 
                     // Account Number
@@ -390,7 +399,10 @@ fun EditProfileScreen(
                             focusedLabelColor = Indigo600,
                             unfocusedLabelColor = Gray500,
                             cursorColor = Color.White
-                        )
+                        ),
+                        supportingText = {
+                            Text("${uiState.accountNumber.length}/16", color = Gray500)
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
