@@ -48,7 +48,10 @@ fun AppNavigation(viewModel: AuthViewModel, navController: NavHostController = r
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val showBottomBar = currentRoute in setOf(Routes.HOME, Routes.SUBMIT_LOAN, Routes.USER_PROFILE)
+    val showBottomBar =
+        currentRoute == Routes.HOME ||
+            currentRoute == Routes.USER_PROFILE ||
+            (currentRoute?.startsWith(Routes.SUBMIT_LOAN) == true)
 
     Scaffold(
         bottomBar = {
@@ -214,7 +217,8 @@ private fun BottomNavigationBar(currentRoute: String?, isLoggedIn: Boolean, onNa
 
     NavigationBar {
         destinations.forEach { route ->
-            val selected = currentRoute == route
+            val selected =
+                currentRoute == route || (currentRoute?.startsWith(route) == true && route != Routes.HOME)
             val (label, icon) =
                 when (route) {
                     Routes.HOME -> "Home" to Icons.Filled.Home
