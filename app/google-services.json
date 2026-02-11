@@ -12,7 +12,20 @@
           "package_name": "com.example.bootcamp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "263350232250-e8aobna90pacgifc4ar59nqub0lgr6o5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bootcamp",
+            "certificate_hash": "bab31065c1d0ba4bf8bd75e92c7cdf473341ccb7"
+          }
+        },
+        {
+          "client_id": "263350232250-qmpt06qitkse3uf21buinb041ei7icc0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDJhdLvfavp9vvnb_jJUD-GZpGEU_voPd4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "263350232250-qmpt06qitkse3uf21buinb041ei7icc0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
