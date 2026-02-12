@@ -37,4 +37,8 @@ interface LoanHistoryDao {
     /** Get count of cached loans. */
     @Query("SELECT COUNT(*) FROM loan_history")
     suspend fun getCount(): Int
+
+    /** Update loan status. */
+    @Query("UPDATE loan_history SET currentStatus = :status WHERE loanApplicationId = :id")
+    suspend fun updateLoanStatus(id: Long, status: String)
 }

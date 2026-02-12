@@ -1,8 +1,8 @@
 package com.example.bootcamp.domain.repository
 
 import android.net.Uri
-import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.domain.model.PendingProfile
+import com.example.bootcamp.domain.model.ProfileUpdate
 import com.example.bootcamp.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
@@ -12,10 +12,10 @@ interface UserProfileRepository {
     /**
      * Submit/update user profile.
      * If online, submits directly. If offline, queues for later sync.
-     * @param request Profile data to submit
+     * @param update Profile data to submit (domain model)
      * @return Result containing UserProfile on success or failure
      */
-    suspend fun submitProfile(request: UserProfileRequest): Result<UserProfile>
+    suspend fun submitProfile(update: ProfileUpdate): Result<UserProfile>
 
     /**
      * Upload KTP image.
@@ -31,10 +31,10 @@ interface UserProfileRepository {
     suspend fun getUserProfile(): Result<UserProfile>
 
     /**
-     * Get pending profile update as observable Flow.
+     * Observe pending profile update as Flow.
      * @return Flow of pending profile (null if none)
      */
-    fun getPendingProfile(): Flow<PendingProfile?>
+    fun observePendingProfile(): Flow<PendingProfile?>
 
     /**
      * Retry syncing the pending profile.

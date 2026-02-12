@@ -9,6 +9,7 @@ import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.local.dao.PendingProfileDao
 import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
+import com.example.bootcamp.util.ApiResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.firstOrNull
@@ -71,51 +72,50 @@ class ProfileSyncWorker @AssistedInject constructor(
             )
 
             // Attempt to submit profile
-            val response = userProfileRemoteDataSource.submitProfile(token, request)
-            val statusCode = response.code()
+            val result = userProfileRemoteDataSource.submitProfile(token, request)
 
-            return if (response.isSuccessful && response.body()?.success == true) {
-                // Mark as synced
-                pendingProfileDao.update(
-                    pendingProfile.copy(
-                        syncStatus = SyncStatus.SYNCED,
-                        errorMessage = null,
-                        lastAttemptAt = System.currentTimeMillis()
-                    )
-                )
-                // Clean up synced profiles
-                pendingProfileDao.deleteSynced()
-                Result.success()
-            } else {
-                // Extract error message
-                val errorMessage = response.body()?.message
-                    ?: response.errorBody()?.string()
-                    ?: "Unknown error"
-
-                val isPermanent = isPermanentError(errorMessage, statusCode)
-
-                if (isPermanent) {
-                    // Permanent error - don't retry
+            return when (result) {
+                is ApiResult.Success -> {
+                    // Mark as synced
                     pendingProfileDao.update(
                         pendingProfile.copy(
-                            syncStatus = SyncStatus.FAILED,
-                            errorMessage = errorMessage,
-                            retryCount = 999, // Prevent further retries
+                            syncStatus = SyncStatus.SYNCED,
+                            errorMessage = null,
                             lastAttemptAt = System.currentTimeMillis()
                         )
                     )
-                    Result.success() // Don't retry permanent errors
-                } else {
-                    // Retryable error
-                    pendingProfileDao.update(
-                        pendingProfile.copy(
-                            syncStatus = SyncStatus.FAILED,
-                            errorMessage = errorMessage,
-                            retryCount = pendingProfile.retryCount + 1,
-                            lastAttemptAt = System.currentTimeMillis()
+                    // Clean up synced profiles
+                    pendingProfileDao.deleteSynced()
+                    Result.success()
+                }
+                is ApiResult.Error -> {
+                    val errorMessage = result.message
+                    val statusCode = result.statusCode
+                    val isPermanent = isPermanentError(errorMessage, statusCode)
+
+                    if (isPermanent) {
+                        // Permanent error - don't retry
+                        pendingProfileDao.update(
+                            pendingProfile.copy(
+                                syncStatus = SyncStatus.FAILED,
+                                errorMessage = errorMessage,
+                                retryCount = 999, // Prevent further retries
+                                lastAttemptAt = System.currentTimeMillis()
+                            )
                         )
-                    )
-                    Result.retry()
+                        Result.success() // Don't retry permanent errors
+                    } else {
+                        // Retryable error
+                        pendingProfileDao.update(
+                            pendingProfile.copy(
+                                syncStatus = SyncStatus.FAILED,
+                                errorMessage = errorMessage,
+                                retryCount = pendingProfile.retryCount + 1,
+                                lastAttemptAt = System.currentTimeMillis()
+                            )
+                        )
+                        Result.retry()
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -135,9 +135,9 @@ class ProfileSyncWorker @AssistedInject constructor(
     /**
      * Check if the error is a permanent error that shouldn't be retried.
      */
-    private fun isPermanentError(message: String, statusCode: Int): Boolean {
+    private fun isPermanentError(message: String, statusCode: Int?): Boolean {
         // 4xx errors (except 408 timeout, 429 rate limit) are usually permanent
-        val isPermanentStatusCode = statusCode in 400..499 &&
+        val isPermanentStatusCode = statusCode != null && statusCode in 400..499 &&
             statusCode != 408 &&
             statusCode != 429
 

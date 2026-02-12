@@ -1,7 +1,7 @@
 package com.example.bootcamp.data.repository
 
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
 import com.example.bootcamp.data.datasource.AuthRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.data.remote.base.ErrorDetails
 import com.example.bootcamp.util.ApiResult
@@ -31,13 +31,13 @@ class AuthRepositoryImplTest {
 
     private lateinit var authRepository: AuthRepositoryImpl
     private lateinit var authRemoteDataSource: AuthRemoteDataSource
-    private lateinit var tokenManager: TokenManager
+    private lateinit var authLocalDataSource: AuthLocalDataSource
 
     @Before
     fun setup() {
         authRemoteDataSource = mockk()
-        tokenManager = mockk(relaxed = true)
-        authRepository = AuthRepositoryImpl(authRemoteDataSource, tokenManager)
+        authLocalDataSource = mockk(relaxed = true)
+        authRepository = AuthRepositoryImpl(authRemoteDataSource, authLocalDataSource)
     }
 
     // ============== Login Tests ==============
@@ -53,7 +53,7 @@ class AuthRepositoryImplTest {
         coEvery {
             authRemoteDataSource.fetchCsrfToken()
         } returns ApiResult.Success(csrfData)
-        coEvery { tokenManager.saveXsrfToken(any()) } returns Unit
+        coEvery { authLocalDataSource.saveXsrfToken(any()) } returns Unit
 
         // When
         val result = authRepository.login("testuser", "password123", null, null, "ANDROID")
@@ -62,14 +62,14 @@ class AuthRepositoryImplTest {
         assertTrue(result.isSuccess)
         assertEquals("Login successful!", result.getOrNull())
         coVerify {
-            tokenManager.saveUserData(
+            authLocalDataSource.saveUserData(
                 token = "test_token_123",
                 username = "testuser",
                 userId = "user_123",
                 email = "test@example.com"
             )
         }
-        coVerify { tokenManager.saveXsrfToken("masked_csrf_token_123") }
+        coVerify { authLocalDataSource.saveXsrfToken("masked_csrf_token_123") }
     }
 
     @Test
@@ -99,7 +99,7 @@ class AuthRepositoryImplTest {
         coEvery {
             authRemoteDataSource.fetchCsrfToken()
         } returns ApiResult.Error("CSRF fetch failed")
-        coEvery { tokenManager.saveXsrfToken(any()) } returns Unit
+        coEvery { authLocalDataSource.saveXsrfToken(any()) } returns Unit
 
         // When
         val result = authRepository.login("testuser", "password123", null, null, "ANDROID")
@@ -157,7 +157,7 @@ class AuthRepositoryImplTest {
         coEvery {
             authRemoteDataSource.fetchCsrfToken()
         } returns ApiResult.Success(csrfData)
-        coEvery { tokenManager.saveXsrfToken(any()) } returns Unit
+        coEvery { authLocalDataSource.saveXsrfToken(any()) } returns Unit
 
         // When
         val result = authRepository.googleLogin("google_id_token", null, null, "ANDROID")
@@ -166,7 +166,7 @@ class AuthRepositoryImplTest {
         assertTrue(result.isSuccess)
         assertEquals("Google Login successful!", result.getOrNull())
         coVerify {
-            tokenManager.saveUserData(
+            authLocalDataSource.saveUserData(
                 token = "test_token_123",
                 username = "testuser",
                 userId = "user_123",
@@ -213,7 +213,7 @@ class AuthRepositoryImplTest {
     @Test
     fun `logout with token calls API and clears token`() = runTest {
         // Given
-        coEvery { tokenManager.token } returns flowOf("test_token")
+        coEvery { authLocalDataSource.token } returns flowOf("test_token")
         coEvery { authRemoteDataSource.logout("test_token") } returns ApiResult.Success(Unit)
 
         // When
@@ -222,13 +222,13 @@ class AuthRepositoryImplTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify { authRemoteDataSource.logout("test_token") }
-        coVerify { tokenManager.clearToken() }
+        coVerify { authLocalDataSource.clearToken() }
     }
 
     @Test
     fun `logout without token only clears local token`() = runTest {
         // Given
-        coEvery { tokenManager.token } returns flowOf(null)
+        coEvery { authLocalDataSource.token } returns flowOf(null)
 
         // When
         val result = authRepository.logout()
@@ -236,13 +236,13 @@ class AuthRepositoryImplTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify(exactly = 0) { authRemoteDataSource.logout(any()) }
-        coVerify { tokenManager.clearToken() }
+        coVerify { authLocalDataSource.clearToken() }
     }
 
     @Test
     fun `logout clears token even when API call fails`() = runTest {
         // Given
-        coEvery { tokenManager.token } returns flowOf("test_token")
+        coEvery { authLocalDataSource.token } returns flowOf("test_token")
         coEvery { authRemoteDataSource.logout(any()) } returns ApiResult.Error("Network error")
 
         // When
@@ -250,30 +250,17 @@ class AuthRepositoryImplTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify { tokenManager.clearToken() }
+        coVerify { authLocalDataSource.clearToken() }
     }
 
     // ============== Get User Profile Tests ==============
 
-    @Test
-    fun `getUserProfile when not logged in returns failure`() = runTest {
-        // Given
-        coEvery { tokenManager.token } returns flowOf(null)
-
-        // When
-        val result = authRepository.getUserProfile()
-
-        // Then
-        assertTrue(result.isFailure)
-        assertEquals("User not logged in", result.exceptionOrNull()?.message)
-    }
-
     // ============== Token Flow Tests ==============
 
     @Test
-    fun `getTokenFlow returns token from TokenManager`() = runTest {
+    fun `getTokenFlow returns token from AuthLocalDataSource`() = runTest {
         // Given
-        coEvery { tokenManager.token } returns flowOf("test_token")
+        coEvery { authLocalDataSource.token } returns flowOf("test_token")
 
         // When
         val token = authRepository.getTokenFlow().first()
@@ -283,9 +270,9 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `getUsernameFlow returns username from TokenManager`() = runTest {
+    fun `getUsernameFlow returns username from AuthLocalDataSource`() = runTest {
         // Given
-        coEvery { tokenManager.username } returns flowOf("testuser")
+        coEvery { authLocalDataSource.username } returns flowOf("testuser")
 
         // When
         val username = authRepository.getUsernameFlow().first()

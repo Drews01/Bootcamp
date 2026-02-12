@@ -1,9 +1,10 @@
 package com.example.bootcamp.data.repository
 
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
 import com.example.bootcamp.data.datasource.AuthRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
 import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.domain.repository.AuthRepository
+import com.example.bootcamp.domain.repository.SessionRepository
 import com.example.bootcamp.util.ApiResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -19,27 +20,15 @@ class AuthRepositoryImpl
 @Inject
 constructor(
     private val authRemoteDataSource: AuthRemoteDataSource,
-    private val tokenManager: TokenManager
-) : AuthRepository {
+    private val authLocalDataSource: AuthLocalDataSource
+) : BaseRepository(),
+    AuthRepository,
+    SessionRepository {
 
-    override suspend fun register(username: String, email: String, password: String): Result<String> {
-        val result = authRemoteDataSource.register(username, email, password)
-
-        return when (result) {
-            is ApiResult.Success -> {
-                Result.success(result.data.message ?: "Registration successful!")
-            }
-            is ApiResult.Error -> {
-                Result.failure(
-                    ApiException(
-                        message = result.message,
-                        errorDetails = result.errorDetails,
-                        statusCode = result.statusCode
-                    )
-                )
-            }
+    override suspend fun register(username: String, email: String, password: String): Result<String> =
+        mapApiResult(authRemoteDataSource.register(username, email, password)) {
+            it.message ?: "Registration successful!"
         }
-    }
 
     override suspend fun login(
         usernameOrEmail: String,
@@ -50,32 +39,20 @@ constructor(
     ): Result<String> {
         val result = authRemoteDataSource.login(usernameOrEmail, password, fcmToken, deviceName, platform)
 
-        return when (result) {
-            is ApiResult.Success -> {
-                val loginData = result.data
-                // Save user data locally
-                tokenManager.saveUserData(
-                    token = loginData.token,
-                    username = loginData.username ?: usernameOrEmail,
-                    userId = loginData.userId,
-                    email = loginData.email
-                )
+        return mapApiResult(result) { loginData ->
+            // Save user data locally
+            // Note: Server doesn't return userId, so we use username as the identifier
+            authLocalDataSource.saveUserData(
+                token = loginData.token,
+                username = loginData.username ?: usernameOrEmail,
+                userId = loginData.userId ?: loginData.username ?: usernameOrEmail,
+                email = loginData.email ?: ""
+            )
 
-                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
-                // The X-XSRF-TOKEN header must use this masked value, not the cookie value
-                fetchAndStoreCsrfToken()
+            // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
+            fetchAndStoreCsrfToken()
 
-                Result.success("Login successful!")
-            }
-            is ApiResult.Error -> {
-                Result.failure(
-                    ApiException(
-                        message = result.message,
-                        errorDetails = result.errorDetails,
-                        statusCode = result.statusCode
-                    )
-                )
-            }
+            "Login successful!"
         }
     }
 
@@ -87,31 +64,20 @@ constructor(
     ): Result<String> {
         val result = authRemoteDataSource.googleLogin(idToken, fcmToken, deviceName, platform)
 
-        return when (result) {
-            is ApiResult.Success -> {
-                val loginData = result.data
-                // Save user data locally
-                tokenManager.saveUserData(
-                    token = loginData.token,
-                    username = loginData.username ?: "User",
-                    userId = loginData.userId,
-                    email = loginData.email
-                )
+        return mapApiResult(result) { loginData ->
+            // Save user data locally
+            // Note: Server doesn't return userId, so we use username as the identifier
+            authLocalDataSource.saveUserData(
+                token = loginData.token,
+                username = loginData.username ?: "User",
+                userId = loginData.userId ?: loginData.username ?: "google_user",
+                email = loginData.email ?: ""
+            )
 
-                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
-                fetchAndStoreCsrfToken()
+            // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
+            fetchAndStoreCsrfToken()
 
-                Result.success("Google Login successful!")
-            }
-            is ApiResult.Error -> {
-                Result.failure(
-                    ApiException(
-                        message = result.message,
-                        errorDetails = result.errorDetails,
-                        statusCode = result.statusCode
-                    )
-                )
-            }
+            "Google Login successful!"
         }
     }
 
@@ -123,203 +89,44 @@ constructor(
     private suspend fun fetchAndStoreCsrfToken() {
         try {
             val csrfResult = authRemoteDataSource.fetchCsrfToken()
-            when (csrfResult) {
-                is ApiResult.Success -> {
-                    val maskedToken = csrfResult.data.token
-                    tokenManager.saveXsrfToken(maskedToken)
-                    android.util.Log.d("AuthRepositoryImpl", "Stored MASKED CSRF token: ${maskedToken.take(30)}...")
-                }
-                is ApiResult.Error -> {
-                    android.util.Log.e("AuthRepositoryImpl", "Failed to fetch CSRF token: ${csrfResult.message}")
-                }
+            if (csrfResult is ApiResult.Success) {
+                val maskedToken = csrfResult.data.token
+                authLocalDataSource.saveXsrfToken(maskedToken)
+                android.util.Log.d("AuthRepositoryImpl", "Stored MASKED CSRF token: ${maskedToken.take(30)}...")
+            } else if (csrfResult is ApiResult.Error) {
+                android.util.Log.e("AuthRepositoryImpl", "Failed to fetch CSRF token: ${csrfResult.message}")
             }
         } catch (e: Exception) {
             android.util.Log.e("AuthRepositoryImpl", "Exception fetching CSRF token", e)
         }
     }
 
-    override suspend fun forgotPassword(email: String): Result<String> {
-        val result = authRemoteDataSource.forgotPassword(email)
-
-        return when (result) {
-            is ApiResult.Success -> {
-                Result.success("Password reset email sent!")
-            }
-            is ApiResult.Error -> {
-                Result.failure(
-                    ApiException(
-                        message = result.message,
-                        errorDetails = result.errorDetails,
-                        statusCode = result.statusCode
-                    )
-                )
-            }
+    override suspend fun forgotPassword(email: String): Result<String> =
+        mapApiResult(authRemoteDataSource.forgotPassword(email)) {
+            "Password reset email sent!"
         }
+
+    override suspend fun logout(): Result<String> {
+        val token = authLocalDataSource.token.first()
+
+        try {
+            if (token != null) {
+                authRemoteDataSource.logout(token)
+            }
+        } catch (e: Exception) {
+            // Ignore valid logout errors, just clear local state
+        } finally {
+            authLocalDataSource.clearToken()
+        }
+
+        return Result.success("Logged out successfully")
     }
 
-    override suspend fun logout(): Result<String> = try {
-        val token = tokenManager.token.first()
-        if (token != null) {
-            // Call logout API (ignore result)
-            authRemoteDataSource.logout(token)
-        }
-        // Always clear local token
-        tokenManager.clearToken()
-        Result.success("Logged out successfully")
-    } catch (e: Exception) {
-        // Even if network fails, clear local token
-        tokenManager.clearToken()
-        Result.success("Logged out")
-    }
+    override fun getTokenFlow(): Flow<String?> = authLocalDataSource.token
 
-    override fun getTokenFlow(): Flow<String?> = tokenManager.token
+    override fun getUsernameFlow(): Flow<String?> = authLocalDataSource.username
 
-    override fun getUsernameFlow(): Flow<String?> = tokenManager.username
+    override fun getUserIdFlow(): Flow<String?> = authLocalDataSource.userId
 
-    override fun getUserIdFlow(): Flow<String?> = tokenManager.userId
-
-    override fun getEmailFlow(): Flow<String?> = tokenManager.email
-
-    override suspend fun getUserProfile(): Result<com.example.bootcamp.domain.model.UserProfile> {
-        val token = tokenManager.token.first()
-        if (token == null) {
-            return Result.failure(IllegalStateException("User not logged in"))
-        }
-
-        val result = authRemoteDataSource.getUserProfile(token)
-        return when (result) {
-            is ApiResult.Success -> {
-                val dto = result.data
-                Result.success(
-                    com.example.bootcamp.domain.model.UserProfile(
-                        username = dto.username,
-                        email = dto.email,
-                        address = dto.address,
-                        nik = dto.nik,
-                        ktpPath = dto.ktpPath,
-                        phoneNumber = dto.phoneNumber,
-                        accountNumber = dto.accountNumber,
-                        bankName = dto.bankName,
-                        updatedAt = dto.updatedAt
-                    )
-                )
-            }
-            is ApiResult.Error -> {
-                Result.failure(
-                    ApiException(
-                        message = result.message,
-                        errorDetails = result.errorDetails,
-                        statusCode = result.statusCode
-                    )
-                )
-            }
-        }
-    }
-
-    /**
-     * Get login result with full ApiResult for UI handling. Useful when you need access to field
-     * errors.
-     */
-    suspend fun loginWithResult(
-        usernameOrEmail: String,
-        password: String,
-        fcmToken: String? = null,
-        deviceName: String? = null,
-        platform: String = "ANDROID"
-    ): ApiResult<String> {
-        val result = authRemoteDataSource.login(usernameOrEmail, password, fcmToken, deviceName, platform)
-
-        return when (result) {
-            is ApiResult.Success -> {
-                val loginData = result.data
-                tokenManager.saveUserData(
-                    token = loginData.token,
-                    username = loginData.username ?: usernameOrEmail,
-                    userId = loginData.userId,
-                    email = loginData.email
-                )
-
-                // CRITICAL: Fetch and store the MASKED CSRF token for BREACH protection
-                fetchAndStoreCsrfToken()
-
-                ApiResult.success("Login successful!")
-            }
-            is ApiResult.Error -> {
-                ApiResult.error(
-                    message = result.message,
-                    errorDetails = result.errorDetails,
-                    statusCode = result.statusCode
-                )
-            }
-        }
-    }
-
-    suspend fun googleLoginWithResult(
-        idToken: String,
-        fcmToken: String? = null,
-        deviceName: String? = null,
-        platform: String = "ANDROID"
-    ): ApiResult<String> {
-        val result = authRemoteDataSource.googleLogin(idToken, fcmToken, deviceName, platform)
-
-        return when (result) {
-            is ApiResult.Success -> {
-                val loginData = result.data
-                tokenManager.saveUserData(
-                    token = loginData.token,
-                    username = loginData.username ?: "User",
-                    userId = loginData.userId,
-                    email = loginData.email
-                )
-                fetchAndStoreCsrfToken()
-                ApiResult.success("Google Login successful!")
-            }
-            is ApiResult.Error -> {
-                ApiResult.error(
-                    message = result.message,
-                    errorDetails = result.errorDetails,
-                    statusCode = result.statusCode
-                )
-            }
-        }
-    }
-
-    /**
-     * Get register result with full ApiResult for UI handling. Useful when you need access to field
-     * errors.
-     */
-    suspend fun registerWithResult(username: String, email: String, password: String): ApiResult<String> {
-        val result = authRemoteDataSource.register(username, email, password)
-
-        return when (result) {
-            is ApiResult.Success -> {
-                ApiResult.success(result.data.message ?: "Registration successful!")
-            }
-            is ApiResult.Error -> {
-                ApiResult.error(
-                    message = result.message,
-                    errorDetails = result.errorDetails,
-                    statusCode = result.statusCode
-                )
-            }
-        }
-    }
-
-    override suspend fun updateProfile(
-        address: String,
-        nik: String,
-        phoneNumber: String,
-        accountNumber: String,
-        bankName: String
-    ): Result<String> {
-        val token = tokenManager.token.first()
-        if (token == null) {
-            return Result.failure(IllegalStateException("User not logged in"))
-        }
-
-        // For now, we need to call user profile service
-        // This requires injecting UserProfileRemoteDataSource
-        // Simplified implementation - return success
-        return Result.success("Profile updated successfully")
-    }
+    override fun getEmailFlow(): Flow<String?> = authLocalDataSource.email
 }

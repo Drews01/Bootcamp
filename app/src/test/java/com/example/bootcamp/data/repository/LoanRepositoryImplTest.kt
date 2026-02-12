@@ -1,10 +1,8 @@
 package com.example.bootcamp.data.repository
 
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
+import com.example.bootcamp.data.datasource.LoanLocalDataSource
 import com.example.bootcamp.data.datasource.LoanRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
-import com.example.bootcamp.data.local.dao.BranchDao
-import com.example.bootcamp.data.local.dao.LoanHistoryDao
-import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.entity.BranchEntity
 import com.example.bootcamp.data.local.entity.PendingLoanEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
@@ -34,29 +32,23 @@ class LoanRepositoryImplTest {
 
     private lateinit var loanRepository: LoanRepositoryImpl
     private lateinit var loanRemoteDataSource: LoanRemoteDataSource
-    private lateinit var tokenManager: TokenManager
-    private lateinit var pendingLoanDao: PendingLoanDao
-    private lateinit var branchDao: BranchDao
-    private lateinit var loanHistoryDao: LoanHistoryDao
+    private lateinit var authLocalDataSource: AuthLocalDataSource
+    private lateinit var loanLocalDataSource: LoanLocalDataSource
     private lateinit var networkMonitor: NetworkMonitor
     private lateinit var syncManager: SyncManager
 
     @Before
     fun setup() {
         loanRemoteDataSource = mockk()
-        tokenManager = mockk()
-        pendingLoanDao = mockk(relaxed = true)
-        branchDao = mockk(relaxed = true)
-        loanHistoryDao = mockk(relaxed = true)
+        authLocalDataSource = mockk()
+        loanLocalDataSource = mockk(relaxed = true)
         networkMonitor = mockk()
         syncManager = mockk(relaxed = true)
 
         loanRepository = LoanRepositoryImpl(
             loanRemoteDataSource,
-            tokenManager,
-            pendingLoanDao,
-            branchDao,
-            loanHistoryDao,
+            authLocalDataSource,
+            loanLocalDataSource,
             networkMonitor,
             syncManager
         )
@@ -68,7 +60,7 @@ class LoanRepositoryImplTest {
     fun `submitLoan when online and successful returns success`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns true
         coEvery {
             loanRemoteDataSource.submitLoan(token, 10000000L, 12, 1L, null, null)
@@ -80,14 +72,14 @@ class LoanRepositoryImplTest {
         // Then
         assertTrue(result.isSuccess)
         assertTrue(result.getOrNull()!!.contains("REF123"))
-        coVerify(exactly = 0) { pendingLoanDao.insert(any()) }
+        coVerify(exactly = 0) { loanLocalDataSource.insertPendingLoan(any()) }
     }
 
     @Test
     fun `submitLoan when offline queues for sync`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns false
 
         // When
@@ -97,7 +89,7 @@ class LoanRepositoryImplTest {
         assertTrue(result.isSuccess)
         assertTrue(result.getOrNull()!!.contains("queued"))
         coVerify {
-            pendingLoanDao.insert(
+            loanLocalDataSource.insertPendingLoan(
                 match {
                     it.amount == 10000000L &&
                         it.tenureMonths == 12 &&
@@ -113,7 +105,7 @@ class LoanRepositoryImplTest {
     fun `submitLoan when network error queues for sync`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns true
         coEvery {
             loanRemoteDataSource.submitLoan(any(), any(), any(), any(), any(), any())
@@ -125,14 +117,14 @@ class LoanRepositoryImplTest {
         // Then
         assertTrue(result.isSuccess)
         assertTrue(result.getOrNull()!!.contains("queued"))
-        coVerify { pendingLoanDao.insert(any()) }
+        coVerify { loanLocalDataSource.insertPendingLoan(any()) }
     }
 
     @Test
     fun `submitLoan when business error returns error without queuing`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns true
         coEvery {
             loanRemoteDataSource.submitLoan(any(), any(), any(), any(), any(), any())
@@ -144,13 +136,13 @@ class LoanRepositoryImplTest {
         // Then
         assertTrue(result.isFailure)
         assertEquals("Insufficient credit limit", result.exceptionOrNull()?.message)
-        coVerify(exactly = 0) { pendingLoanDao.insert(any()) }
+        coVerify(exactly = 0) { loanLocalDataSource.insertPendingLoan(any()) }
     }
 
     @Test
     fun `submitLoan when not logged in returns failure`() = runTest {
         // Given
-        coEvery { tokenManager.token } returns flowOf(null)
+        coEvery { authLocalDataSource.token } returns flowOf(null)
 
         // When
         val result = loanRepository.submitLoan(10000000L, 12, 1L, "Jakarta Branch", null, null)
@@ -166,7 +158,7 @@ class LoanRepositoryImplTest {
     fun `getBranches when online returns and caches data`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns true
         val remoteBranches = listOf(
             BranchDropdownItem(1L, "Jakarta"),
@@ -182,7 +174,7 @@ class LoanRepositoryImplTest {
         assertEquals(2, result.getOrNull()?.size)
         assertEquals("Jakarta", result.getOrNull()?.get(0)?.name)
         coVerify {
-            branchDao.insertAll(
+            loanLocalDataSource.insertBranches(
                 match {
                     it.size == 2 && it[0].name == "Jakarta"
                 }
@@ -194,13 +186,13 @@ class LoanRepositoryImplTest {
     fun `getBranches when offline returns cached data`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns false
         val cachedBranches = listOf(
             BranchEntity(1L, "Jakarta"),
             BranchEntity(2L, "Bandung")
         )
-        coEvery { branchDao.getAllBranches() } returns cachedBranches
+        coEvery { loanLocalDataSource.getBranches() } returns cachedBranches
 
         // When
         val result = loanRepository.getBranches()
@@ -215,11 +207,11 @@ class LoanRepositoryImplTest {
     fun `getBranches when online fails falls back to cache`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns true
         coEvery { loanRemoteDataSource.getBranches(token) } returns ApiResult.Error("Network error")
         val cachedBranches = listOf(BranchEntity(1L, "Jakarta"))
-        coEvery { branchDao.getAllBranches() } returns cachedBranches
+        coEvery { loanLocalDataSource.getBranches() } returns cachedBranches
 
         // When
         val result = loanRepository.getBranches()
@@ -233,9 +225,9 @@ class LoanRepositoryImplTest {
     fun `getBranches when offline and no cache returns failure`() = runTest {
         // Given
         val token = "test_token"
-        coEvery { tokenManager.token } returns flowOf(token)
+        coEvery { authLocalDataSource.token } returns flowOf(token)
         every { networkMonitor.isConnected } returns false
-        coEvery { branchDao.getAllBranches() } returns emptyList()
+        coEvery { loanLocalDataSource.getBranches() } returns emptyList()
 
         // When
         val result = loanRepository.getBranches()
@@ -260,7 +252,7 @@ class LoanRepositoryImplTest {
             retryCount = 3,
             errorMessage = "Previous error"
         )
-        coEvery { pendingLoanDao.getById(1L) } returns pendingLoan
+        coEvery { loanLocalDataSource.getPendingLoanById(1L) } returns pendingLoan
 
         // When
         val result = loanRepository.retryPendingLoan(1L)
@@ -268,7 +260,7 @@ class LoanRepositoryImplTest {
         // Then
         assertTrue(result.isSuccess)
         coVerify {
-            pendingLoanDao.update(
+            loanLocalDataSource.updatePendingLoan(
                 match {
                     it.syncStatus == SyncStatus.PENDING &&
                         it.retryCount == 0 &&
@@ -282,7 +274,7 @@ class LoanRepositoryImplTest {
     @Test
     fun `retryPendingLoan when loan not found returns failure`() = runTest {
         // Given
-        coEvery { pendingLoanDao.getById(999L) } returns null
+        coEvery { loanLocalDataSource.getPendingLoanById(999L) } returns null
 
         // When
         val result = loanRepository.retryPendingLoan(999L)
@@ -301,7 +293,7 @@ class LoanRepositoryImplTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify { pendingLoanDao.deleteById(1L) }
+        coVerify { loanLocalDataSource.deletePendingLoan(1L) }
     }
 
     // ============== Clear Cache Tests ==============
@@ -312,8 +304,8 @@ class LoanRepositoryImplTest {
         loanRepository.clearCache()
 
         // Then
-        coVerify { loanHistoryDao.clearAll() }
-        coVerify { branchDao.clearAll() }
-        coVerify { pendingLoanDao.clearAll() }
+        coVerify { loanLocalDataSource.clearLoanHistory() }
+        coVerify { loanLocalDataSource.clearBranches() }
+        coVerify { loanLocalDataSource.clearPendingLoans() }
     }
 }

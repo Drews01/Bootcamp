@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bootcamp.data.remote.dto.UserProfileRequest
+import com.example.bootcamp.domain.model.ProfileUpdate
 import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,6 +55,7 @@ class EditProfileFormViewModel
 constructor(
     private val userProfileRepository: UserProfileRepository,
     private val authRepository: AuthRepository,
+    private val sessionRepository: com.example.bootcamp.domain.repository.SessionRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -67,7 +68,7 @@ constructor(
 
     private fun loadEmail() {
         viewModelScope.launch {
-            authRepository.getEmailFlow().first()?.let { email ->
+            sessionRepository.getEmailFlow().first()?.let { email ->
                 _uiState.update { it.copy(email = email) }
             }
         }
@@ -145,8 +146,8 @@ constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
 
-            val request =
-                UserProfileRequest(
+            val update =
+                ProfileUpdate(
                     address = state.address,
                     nik = state.nik,
                     ktpPath = state.ktpPath,
@@ -156,7 +157,7 @@ constructor(
                 )
 
             userProfileRepository
-                .submitProfile(request)
+                .submitProfile(update)
                 .onSuccess {
                     _uiState.update {
                         it.copy(

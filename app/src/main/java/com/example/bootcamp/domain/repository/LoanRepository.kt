@@ -68,10 +68,10 @@ interface LoanRepository {
     suspend fun getUserAvailableCredit(): Result<Double>
 
     /**
-     * Get all pending loans as observable Flow.
+     * Observe all pending loans as Flow.
      * @return Flow of pending loan list
      */
-    fun getPendingLoans(): Flow<List<PendingLoan>>
+    fun observePendingLoans(): Flow<List<PendingLoan>>
 
     /**
      * Retry syncing a specific pending loan.

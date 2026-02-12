@@ -1,10 +1,8 @@
 package com.example.bootcamp.data.repository
 
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
+import com.example.bootcamp.data.datasource.LoanLocalDataSource
 import com.example.bootcamp.data.datasource.LoanRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
-import com.example.bootcamp.data.local.dao.BranchDao
-import com.example.bootcamp.data.local.dao.LoanHistoryDao
-import com.example.bootcamp.data.local.dao.PendingLoanDao
 import com.example.bootcamp.data.local.entity.BranchEntity
 import com.example.bootcamp.data.local.entity.LoanHistoryEntity
 import com.example.bootcamp.data.local.entity.PendingLoanEntity
@@ -29,16 +27,15 @@ import javax.inject.Singleton
 @Singleton
 class LoanRepositoryImpl @Inject constructor(
     private val loanRemoteDataSource: LoanRemoteDataSource,
-    private val tokenManager: TokenManager,
-    private val pendingLoanDao: PendingLoanDao,
-    private val branchDao: BranchDao,
-    private val loanHistoryDao: LoanHistoryDao,
+    private val authLocalDataSource: AuthLocalDataSource,
+    private val loanLocalDataSource: LoanLocalDataSource,
     private val networkMonitor: NetworkMonitor,
     private val syncManager: SyncManager
-) : LoanRepository {
+) : BaseRepository(),
+    LoanRepository {
 
     override suspend fun getBranches(): Result<List<Branch>> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
@@ -46,35 +43,20 @@ class LoanRepositoryImpl @Inject constructor(
         // If online, fetch from remote and cache
         if (networkMonitor.isConnected) {
             val remoteResult = loanRemoteDataSource.getBranches(token)
+            val result = mapApiResult(remoteResult) { dto ->
+                // Cache branches locally
+                val branchEntities = dto.map { BranchEntity(id = it.id, name = it.name) }
+                loanLocalDataSource.insertBranches(branchEntities)
 
-            when (remoteResult) {
-                is ApiResult.Success -> {
-                    // Cache branches locally
-                    val branchEntities = remoteResult.data.map { dto ->
-                        BranchEntity(id = dto.id, name = dto.name)
-                    }
-                    branchDao.insertAll(branchEntities)
-
-                    // Return mapped branches
-                    val branches = remoteResult.data.map { dto ->
-                        Branch(id = dto.id, name = dto.name)
-                    }
-                    return Result.success(branches)
-                }
-                is ApiResult.Error -> {
-                    // If remote fails, try to return cached data
-                    val cached = branchDao.getAllBranches()
-                    return if (cached.isNotEmpty()) {
-                        Result.success(cached.map { Branch(id = it.id, name = it.name) })
-                    } else {
-                        remoteResult.asResult()
-                    }
-                }
+                // Return mapped branches
+                dto.map { Branch(id = it.id, name = it.name) }
             }
+
+            if (result.isSuccess) return result
         }
 
         // Offline - return from cache
-        val cached = branchDao.getAllBranches()
+        val cached = loanLocalDataSource.getBranches()
         return if (cached.isNotEmpty()) {
             Result.success(cached.map { Branch(id = it.id, name = it.name) })
         } else {
@@ -90,7 +72,7 @@ class LoanRepositoryImpl @Inject constructor(
         latitude: Double?,
         longitude: Double?
     ): Result<String> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
@@ -140,14 +122,14 @@ class LoanRepositoryImpl @Inject constructor(
             syncStatus = SyncStatus.PENDING,
             createdAt = System.currentTimeMillis()
         )
-        pendingLoanDao.insert(pendingLoan)
+        loanLocalDataSource.insertPendingLoan(pendingLoan)
         syncManager.scheduleLoanSync()
 
         return Result.success("Loan queued for submission. Will sync when online.")
     }
 
     override suspend fun getLoanHistory(): Result<List<LoanApplication>> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
@@ -155,49 +137,42 @@ class LoanRepositoryImpl @Inject constructor(
         // If online, fetch from remote and cache
         if (networkMonitor.isConnected) {
             val remoteResult = loanRemoteDataSource.getLoanHistory(token)
-
-            when (remoteResult) {
-                is ApiResult.Success -> {
-                    // Cache loan history
-                    val historyEntities = remoteResult.data.map { dto ->
-                        LoanHistoryEntity(
-                            loanApplicationId = dto.loanApplicationId,
-                            userId = dto.userId,
-                            productId = dto.productId,
-                            productName = dto.productName,
-                            amount = dto.amount,
-                            tenureMonths = dto.tenureMonths,
-                            interestRateApplied = dto.interestRateApplied,
-                            totalAmountToPay = dto.totalAmountToPay,
-                            currentStatus = dto.currentStatus,
-                            displayStatus = dto.displayStatus,
-                            createdAt = dto.createdAt,
-                            updatedAt = dto.updatedAt
-                        )
-                    }
-                    loanHistoryDao.insertAll(historyEntities)
-
-                    // Return mapped loans
-                    val loans = remoteResult.data.map { dto ->
-                        LoanApplication(
-                            id = dto.loanApplicationId,
-                            productId = dto.productId,
-                            productName = dto.productName,
-                            amount = dto.amount,
-                            tenureMonths = dto.tenureMonths,
-                            status = dto.currentStatus,
-                            displayStatus = dto.displayStatus,
-                            date = dto.createdAt
-                        )
-                    }
-                    return Result.success(loans)
+            val result = mapApiResult(remoteResult) { dto ->
+                // Cache loan history
+                val historyEntities = dto.map {
+                    LoanHistoryEntity(
+                        loanApplicationId = it.loanApplicationId,
+                        userId = it.userId,
+                        productId = it.productId,
+                        productName = it.productName,
+                        amount = it.amount,
+                        tenureMonths = it.tenureMonths,
+                        interestRateApplied = it.interestRateApplied,
+                        totalAmountToPay = it.totalAmountToPay,
+                        currentStatus = it.currentStatus,
+                        displayStatus = it.displayStatus,
+                        createdAt = it.createdAt,
+                        updatedAt = it.updatedAt
+                    )
                 }
-                is ApiResult.Error -> {
-                    // If remote fails, try to return cached data
-                    return getCachedLoanHistory()
-                        ?: remoteResult.asResult()
+                loanLocalDataSource.insertLoanHistory(historyEntities)
+
+                // Return mapped loans
+                dto.map {
+                    LoanApplication(
+                        id = it.loanApplicationId,
+                        productId = it.productId,
+                        productName = it.productName,
+                        amount = it.amount,
+                        tenureMonths = it.tenureMonths,
+                        status = it.currentStatus,
+                        displayStatus = it.displayStatus,
+                        date = it.createdAt
+                    )
                 }
             }
+
+            if (result.isSuccess) return result
         }
 
         // Offline - return from cache
@@ -206,7 +181,7 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getCachedLoanHistory(): Result<List<LoanApplication>>? {
-        val cached = loanHistoryDao.getAllHistory()
+        val cached = loanLocalDataSource.getLoanHistory()
         if (cached.isEmpty()) return null
 
         val loans = cached.map { entity ->
@@ -224,23 +199,24 @@ class LoanRepositoryImpl @Inject constructor(
         return Result.success(loans)
     }
 
-    override fun observeLoanHistory(): Flow<List<LoanApplication>> = loanHistoryDao.observeHistory().map { entities ->
-        entities.map { entity ->
-            LoanApplication(
-                id = entity.loanApplicationId,
-                productId = entity.productId,
-                productName = entity.productName,
-                amount = entity.amount,
-                tenureMonths = entity.tenureMonths,
-                status = entity.currentStatus,
-                displayStatus = entity.displayStatus,
-                date = entity.createdAt
-            )
+    override fun observeLoanHistory(): Flow<List<LoanApplication>> =
+        loanLocalDataSource.observeLoanHistory().map { entities ->
+            entities.map { entity ->
+                LoanApplication(
+                    id = entity.loanApplicationId,
+                    productId = entity.productId,
+                    productName = entity.productName,
+                    amount = entity.amount,
+                    tenureMonths = entity.tenureMonths,
+                    status = entity.currentStatus,
+                    displayStatus = entity.displayStatus,
+                    date = entity.createdAt
+                )
+            }
         }
-    }
 
     override suspend fun refreshLoanHistory(): Result<Unit> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
@@ -249,33 +225,29 @@ class LoanRepositoryImpl @Inject constructor(
             return Result.failure(IllegalStateException("No network connection"))
         }
 
-        return when (val remoteResult = loanRemoteDataSource.getLoanHistory(token)) {
-            is ApiResult.Success -> {
-                val historyEntities = remoteResult.data.map { dto ->
-                    LoanHistoryEntity(
-                        loanApplicationId = dto.loanApplicationId,
-                        userId = dto.userId,
-                        productId = dto.productId,
-                        productName = dto.productName,
-                        amount = dto.amount,
-                        tenureMonths = dto.tenureMonths,
-                        interestRateApplied = dto.interestRateApplied,
-                        totalAmountToPay = dto.totalAmountToPay,
-                        currentStatus = dto.currentStatus,
-                        displayStatus = dto.displayStatus,
-                        createdAt = dto.createdAt,
-                        updatedAt = dto.updatedAt
-                    )
-                }
-                loanHistoryDao.insertAll(historyEntities)
-                Result.success(Unit)
+        return mapApiResult(loanRemoteDataSource.getLoanHistory(token)) { dto ->
+            val historyEntities = dto.map {
+                LoanHistoryEntity(
+                    loanApplicationId = it.loanApplicationId,
+                    userId = it.userId,
+                    productId = it.productId,
+                    productName = it.productName,
+                    amount = it.amount,
+                    tenureMonths = it.tenureMonths,
+                    interestRateApplied = it.interestRateApplied,
+                    totalAmountToPay = it.totalAmountToPay,
+                    currentStatus = it.currentStatus,
+                    displayStatus = it.displayStatus,
+                    createdAt = it.createdAt,
+                    updatedAt = it.updatedAt
+                )
             }
-            is ApiResult.Error -> remoteResult.asResult()
+            loanLocalDataSource.insertLoanHistory(historyEntities)
         }
     }
 
     override suspend fun getUserAvailableCredit(): Result<Double> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
@@ -285,28 +257,29 @@ class LoanRepositoryImpl @Inject constructor(
             .asResult()
     }
 
-    override fun getPendingLoans(): Flow<List<PendingLoan>> = pendingLoanDao.getAllPendingLoans().map { entities ->
-        entities.map { entity ->
-            PendingLoan(
-                id = entity.id,
-                amount = entity.amount,
-                tenureMonths = entity.tenureMonths,
-                branchId = entity.branchId,
-                branchName = entity.branchName,
-                syncStatus = entity.syncStatus,
-                errorMessage = entity.errorMessage,
-                retryCount = entity.retryCount,
-                createdAt = entity.createdAt
-            )
+    override fun observePendingLoans(): Flow<List<PendingLoan>> =
+        loanLocalDataSource.observePendingLoans().map { entities ->
+            entities.map { entity ->
+                PendingLoan(
+                    id = entity.id,
+                    amount = entity.amount,
+                    tenureMonths = entity.tenureMonths,
+                    branchId = entity.branchId,
+                    branchName = entity.branchName,
+                    syncStatus = entity.syncStatus,
+                    errorMessage = entity.errorMessage,
+                    retryCount = entity.retryCount,
+                    createdAt = entity.createdAt
+                )
+            }
         }
-    }
 
     override suspend fun retryPendingLoan(id: Long): Result<Unit> {
         return try {
-            val loan = pendingLoanDao.getById(id)
+            val loan = loanLocalDataSource.getPendingLoanById(id)
                 ?: return Result.failure(IllegalArgumentException("Loan not found"))
 
-            pendingLoanDao.update(
+            loanLocalDataSource.updatePendingLoan(
                 loan.copy(
                     syncStatus = SyncStatus.PENDING,
                     retryCount = 0,
@@ -321,38 +294,34 @@ class LoanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deletePendingLoan(id: Long): Result<Unit> = try {
-        pendingLoanDao.deleteById(id)
+        loanLocalDataSource.deletePendingLoan(id)
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
     }
 
     override suspend fun getLoanMilestones(loanApplicationId: Long): Result<List<LoanMilestone>> {
-        val token = tokenManager.token.firstOrNull()
+        val token = authLocalDataSource.token.firstOrNull()
         if (token.isNullOrBlank()) {
             return Result.failure(IllegalStateException("User not logged in"))
         }
 
-        return when (val result = loanRemoteDataSource.getLoanMilestones(token, loanApplicationId)) {
-            is ApiResult.Success -> {
-                val milestones = result.data.map { dto ->
-                    LoanMilestone(
-                        name = dto.name,
-                        status = MilestoneStatus.valueOf(dto.status),
-                        timestamp = dto.timestamp,
-                        order = dto.order
-                    )
-                }.sortedBy { it.order }
-                Result.success(milestones)
-            }
-            is ApiResult.Error -> result.asResult()
+        return mapApiResult(loanRemoteDataSource.getLoanMilestones(token, loanApplicationId)) { dto ->
+            dto.map {
+                LoanMilestone(
+                    name = it.name,
+                    status = MilestoneStatus.valueOf(it.status),
+                    timestamp = it.timestamp,
+                    order = it.order
+                )
+            }.sortedBy { it.order }
         }
     }
 
     /** Clear all cached loan data (e.g., on logout). */
     override suspend fun clearCache() {
-        loanHistoryDao.clearAll()
-        branchDao.clearAll()
-        pendingLoanDao.clearAll()
+        loanLocalDataSource.clearLoanHistory()
+        loanLocalDataSource.clearBranches()
+        loanLocalDataSource.clearPendingLoans()
     }
 }

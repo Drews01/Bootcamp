@@ -73,6 +73,7 @@ constructor(
     private val forgotPasswordUseCase: ForgotPasswordUseCase,
 
     private val authRepository: AuthRepository,
+    private val sessionRepository: com.example.bootcamp.domain.repository.SessionRepository,
     private val userProfileRepository: com.example.bootcamp.domain.repository.UserProfileRepository,
     private val loanRepository: com.example.bootcamp.domain.repository.LoanRepository,
     private val fcmService: FCMService
@@ -87,30 +88,30 @@ constructor(
 
     private fun observeAuthState() {
         viewModelScope.launch {
-            authRepository.getTokenFlow().collect { token ->
+            sessionRepository.getTokenFlow().collect { token ->
                 _uiState.update { it.copy(isLoggedIn = token != null) }
             }
         }
         viewModelScope.launch {
-            authRepository.getUsernameFlow().collect { username ->
+            sessionRepository.getUsernameFlow().collect { username ->
                 _uiState.update { it.copy(username = username) }
             }
         }
         viewModelScope.launch {
-            authRepository.getUserIdFlow().collect { userId ->
+            sessionRepository.getUserIdFlow().collect { userId ->
                 _uiState.update { it.copy(userId = userId) }
             }
         }
         viewModelScope.launch {
-            authRepository.getEmailFlow().collect { email ->
+            sessionRepository.getEmailFlow().collect { email ->
                 _uiState.update { it.copy(email = email) }
             }
         }
 
         viewModelScope.launch {
             kotlinx.coroutines.flow.combine(
-                userProfileRepository.getPendingProfile(),
-                loanRepository.getPendingLoans()
+                userProfileRepository.observePendingProfile(),
+                loanRepository.observePendingLoans()
             ) { pendingProfile, pendingLoans ->
                 (pendingProfile != null) || (pendingLoans.isNotEmpty())
             }.collect { hasPending ->

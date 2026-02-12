@@ -1,17 +1,16 @@
 package com.example.bootcamp.data.repository
 
 import android.net.Uri
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
+import com.example.bootcamp.data.datasource.UserProfileLocalDataSource
 import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
-import com.example.bootcamp.data.local.dao.PendingProfileDao
-import com.example.bootcamp.data.local.dao.UserProfileCacheDao
 import com.example.bootcamp.data.local.entity.PendingProfileEntity
 import com.example.bootcamp.data.local.entity.SyncStatus
 import com.example.bootcamp.data.local.entity.UserProfileCacheEntity
-import com.example.bootcamp.data.remote.base.ApiException
 import com.example.bootcamp.data.remote.dto.UserProfileRequest
 import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.model.PendingProfile
+import com.example.bootcamp.domain.model.ProfileUpdate
 import com.example.bootcamp.domain.model.UserProfile
 import com.example.bootcamp.domain.repository.UserProfileRepository
 import com.example.bootcamp.util.NetworkMonitor
@@ -25,59 +24,63 @@ import javax.inject.Singleton
 @Singleton
 class UserProfileRepositoryImpl @Inject constructor(
     private val remoteDataSource: UserProfileRemoteDataSource,
-    private val tokenManager: TokenManager,
-    private val pendingProfileDao: PendingProfileDao,
-    private val userProfileCacheDao: UserProfileCacheDao,
+    private val authLocalDataSource: AuthLocalDataSource,
+    private val userProfileLocalDataSource: UserProfileLocalDataSource,
     private val networkMonitor: NetworkMonitor,
     private val syncManager: SyncManager
-) : UserProfileRepository {
+) : BaseRepository(),
+    UserProfileRepository {
 
-    override suspend fun submitProfile(request: UserProfileRequest): Result<UserProfile> {
+    override suspend fun submitProfile(update: ProfileUpdate): Result<UserProfile> {
         return try {
-            val token = tokenManager.token.first()
+            val token = authLocalDataSource.token.first()
                 ?: return Result.failure(Exception("Not authenticated"))
+
+            // Map domain model to DTO for remote call
+            val request = UserProfileRequest(
+                address = update.address,
+                nik = update.nik,
+                ktpPath = update.ktpPath,
+                phoneNumber = update.phoneNumber,
+                accountNumber = update.accountNumber,
+                bankName = update.bankName
+            )
 
             // Try remote first if online
             if (networkMonitor.isConnected) {
-                val response = remoteDataSource.submitProfile(token, request)
-
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-                    if (apiResponse?.success == true && apiResponse.data != null) {
-                        val dto = apiResponse.data
-                        val profile = UserProfile(
-                            username = dto.username,
-                            email = dto.email,
-                            address = dto.address,
-                            nik = dto.nik,
-                            ktpPath = dto.ktpPath,
-                            phoneNumber = dto.phoneNumber,
-                            accountNumber = dto.accountNumber,
-                            bankName = dto.bankName,
-                            updatedAt = dto.updatedAt
-                        )
-
-                        // Cache the profile
-                        cacheProfile(profile)
-
-                        return Result.success(profile)
-                    }
+                val remoteResult = remoteDataSource.submitProfile(token, request)
+                val result = mapApiResult(remoteResult) { dto ->
+                    val profile = UserProfile(
+                        username = dto.username,
+                        email = dto.email,
+                        address = dto.address,
+                        nik = dto.nik,
+                        ktpPath = dto.ktpPath,
+                        phoneNumber = dto.phoneNumber,
+                        accountNumber = dto.accountNumber,
+                        bankName = dto.bankName,
+                        updatedAt = dto.updatedAt
+                    )
+                    // Cache the profile
+                    cacheProfile(profile)
+                    profile
                 }
-                // If remote fails, fall through to queue locally
+
+                if (result.isSuccess) return result
             }
 
             // Queue for offline sync
             val pendingProfile = PendingProfileEntity(
-                address = request.address,
-                nik = request.nik,
-                ktpPath = request.ktpPath,
-                phoneNumber = request.phoneNumber,
-                accountNumber = request.accountNumber,
-                bankName = request.bankName,
+                address = update.address,
+                nik = update.nik,
+                ktpPath = update.ktpPath,
+                phoneNumber = update.phoneNumber,
+                accountNumber = update.accountNumber,
+                bankName = update.bankName,
                 syncStatus = SyncStatus.PENDING,
                 createdAt = System.currentTimeMillis()
             )
-            pendingProfileDao.insert(pendingProfile)
+            userProfileLocalDataSource.savePendingProfileUpdate(pendingProfile)
             syncManager.scheduleProfileSync()
 
             // Return a "queued" profile for UI display
@@ -85,12 +88,12 @@ class UserProfileRepositoryImpl @Inject constructor(
                 UserProfile(
                     username = "",
                     email = "",
-                    address = request.address,
-                    nik = request.nik,
-                    ktpPath = request.ktpPath,
-                    phoneNumber = request.phoneNumber,
-                    accountNumber = request.accountNumber,
-                    bankName = request.bankName,
+                    address = update.address,
+                    nik = update.nik,
+                    ktpPath = update.ktpPath,
+                    phoneNumber = update.phoneNumber,
+                    accountNumber = update.accountNumber,
+                    bankName = update.bankName,
                     updatedAt = null,
                     isPending = true
                 )
@@ -102,21 +105,11 @@ class UserProfileRepositoryImpl @Inject constructor(
 
     override suspend fun uploadKtp(imageUri: Uri): Result<String> {
         return try {
-            val token = tokenManager.token.first()
+            val token = authLocalDataSource.token.first()
                 ?: return Result.failure(Exception("Not authenticated"))
 
-            val response = remoteDataSource.uploadKtp(token, imageUri)
-
-            if (response.isSuccessful) {
-                val apiResponse = response.body()
-                if (apiResponse?.success == true && apiResponse.data != null) {
-                    Result.success(apiResponse.data.ktpPath ?: "")
-                } else {
-                    Result.failure(Exception(apiResponse?.message ?: "Failed to upload KTP"))
-                }
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Result.failure(Exception(errorBody ?: "Failed to upload KTP"))
+            return mapApiResult(remoteDataSource.uploadKtp(token, imageUri)) {
+                it.ktpPath ?: ""
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -125,48 +118,30 @@ class UserProfileRepositoryImpl @Inject constructor(
 
     override suspend fun getUserProfile(): Result<UserProfile> {
         return try {
-            val token = tokenManager.token.first()
+            val token = authLocalDataSource.token.first()
                 ?: return Result.failure(Exception("Not authenticated"))
 
             // If online, fetch from remote and cache
             if (networkMonitor.isConnected) {
-                val response = remoteDataSource.getUserProfile(token)
-
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-                    if (apiResponse?.success == true && apiResponse.data != null) {
-                        val dto = apiResponse.data
-                        val profile = UserProfile(
-                            username = dto.username ?: "",
-                            email = dto.email ?: "",
-                            address = dto.address,
-                            nik = dto.nik,
-                            ktpPath = dto.ktpPath,
-                            phoneNumber = dto.phoneNumber,
-                            accountNumber = dto.accountNumber,
-                            bankName = dto.bankName,
-                            updatedAt = dto.updatedAt
-                        )
-
-                        // Cache the profile
-                        cacheProfile(profile)
-
-                        return Result.success(profile)
-                    } else {
-                        // Remote returned error, try cache
-                        return getCachedProfile()
-                            ?: Result.failure(Exception(apiResponse?.message ?: "Failed to get profile"))
-                    }
-                } else {
-                    // HTTP error, try cache
-                    return getCachedProfile()
-                        ?: Result.failure(
-                            ApiException(
-                                message = response.errorBody()?.string() ?: "Failed to get profile",
-                                statusCode = response.code()
-                            )
-                        )
+                val remoteResult = remoteDataSource.getUserProfile(token)
+                val result = mapApiResult(remoteResult) { dto ->
+                    val profile = UserProfile(
+                        username = dto.username ?: "",
+                        email = dto.email ?: "",
+                        address = dto.address,
+                        nik = dto.nik,
+                        ktpPath = dto.ktpPath,
+                        phoneNumber = dto.phoneNumber,
+                        accountNumber = dto.accountNumber,
+                        bankName = dto.bankName,
+                        updatedAt = dto.updatedAt
+                    )
+                    // Cache the profile
+                    cacheProfile(profile)
+                    profile
                 }
+
+                if (result.isSuccess) return result
             }
 
             // Offline - return from cache
@@ -190,11 +165,11 @@ class UserProfileRepositoryImpl @Inject constructor(
             bankName = profile.bankName,
             updatedAt = profile.updatedAt
         )
-        userProfileCacheDao.insertOrUpdate(entity)
+        userProfileLocalDataSource.saveUserProfile(entity)
     }
 
     private suspend fun getCachedProfile(): Result<UserProfile>? {
-        val cached = userProfileCacheDao.getProfile() ?: return null
+        val cached = userProfileLocalDataSource.getUserProfile() ?: return null
         val profile = UserProfile(
             username = cached.username,
             email = cached.email,
@@ -209,30 +184,31 @@ class UserProfileRepositoryImpl @Inject constructor(
         return Result.success(profile)
     }
 
-    override fun getPendingProfile(): Flow<PendingProfile?> = pendingProfileDao.observePendingProfile().map { entity ->
-        entity?.let {
-            PendingProfile(
-                id = it.id,
-                address = it.address,
-                nik = it.nik,
-                ktpPath = it.ktpPath,
-                phoneNumber = it.phoneNumber,
-                accountNumber = it.accountNumber,
-                bankName = it.bankName,
-                syncStatus = it.syncStatus,
-                errorMessage = it.errorMessage,
-                retryCount = it.retryCount,
-                createdAt = it.createdAt
-            )
+    override fun observePendingProfile(): Flow<PendingProfile?> =
+        userProfileLocalDataSource.observePendingProfileUpdate().map { entity ->
+            entity?.let {
+                PendingProfile(
+                    id = it.id,
+                    address = it.address,
+                    nik = it.nik,
+                    ktpPath = it.ktpPath,
+                    phoneNumber = it.phoneNumber,
+                    accountNumber = it.accountNumber,
+                    bankName = it.bankName,
+                    syncStatus = it.syncStatus,
+                    errorMessage = it.errorMessage,
+                    retryCount = it.retryCount,
+                    createdAt = it.createdAt
+                )
+            }
         }
-    }
 
     override suspend fun retryPendingProfile(): Result<Unit> {
         return try {
-            val profile = pendingProfileDao.getPendingProfile()
+            val profile = userProfileLocalDataSource.getPendingProfileUpdate()
                 ?: return Result.failure(IllegalArgumentException("No pending profile found"))
 
-            pendingProfileDao.update(
+            userProfileLocalDataSource.savePendingProfileUpdate(
                 profile.copy(
                     syncStatus = SyncStatus.PENDING,
                     retryCount = 0,
@@ -247,7 +223,7 @@ class UserProfileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun clearPendingProfile(): Result<Unit> = try {
-        pendingProfileDao.clear()
+        userProfileLocalDataSource.clearPendingProfileUpdate()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)
@@ -255,7 +231,7 @@ class UserProfileRepositoryImpl @Inject constructor(
 
     /** Clear cached profile data (e.g., on logout). */
     override suspend fun clearCache() {
-        userProfileCacheDao.clear()
-        pendingProfileDao.clear()
+        userProfileLocalDataSource.clearUserProfile()
+        userProfileLocalDataSource.clearPendingProfileUpdate()
     }
 }

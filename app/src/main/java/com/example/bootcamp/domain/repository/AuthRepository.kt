@@ -1,7 +1,5 @@
 package com.example.bootcamp.domain.repository
 
-import kotlinx.coroutines.flow.Flow
-
 /**
  * Repository interface for authentication operations. Defines the contract that data layer must
  * implement. Following Dependency Inversion Principle (SOLID).
@@ -60,47 +58,9 @@ interface AuthRepository {
      * Logout the current user.
      * @return Result containing success message or failure
      */
+    /**
+     * Logout the current user.
+     * @return Result containing success message or failure
+     */
     suspend fun logout(): Result<String>
-
-    /**
-     * Get the authentication token as a Flow.
-     * @return Flow emitting the current token or null
-     */
-    fun getTokenFlow(): Flow<String?>
-
-    /**
-     * Get the current username as a Flow.
-     * @return Flow emitting the current username or null
-     */
-    fun getUsernameFlow(): Flow<String?>
-
-    /**
-     * Get the current user ID as a Flow.
-     * @return Flow emitting the current user ID or null
-     */
-    fun getUserIdFlow(): Flow<String?>
-
-    /**
-     * Get the current email as a Flow.
-     * @return Flow emitting the current email or null
-     */
-    fun getEmailFlow(): Flow<String?>
-
-    /**
-     * Get user profile details.
-     * @return Result with UserProfile on success
-     */
-    suspend fun getUserProfile(): Result<com.example.bootcamp.domain.model.UserProfile>
-
-    /**
-     * Update user profile.
-     * @return Result with success message
-     */
-    suspend fun updateProfile(
-        address: String,
-        nik: String,
-        phoneNumber: String,
-        accountNumber: String,
-        bankName: String
-    ): Result<String>
 }

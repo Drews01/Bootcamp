@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bootcamp.data.remote.dto.UserProfileRequest
+import com.example.bootcamp.domain.model.ProfileUpdate
 import com.example.bootcamp.domain.model.UserProfile
 import com.example.bootcamp.domain.repository.UserProfileRepository
 import com.example.bootcamp.util.ImageUtils
@@ -204,7 +204,7 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, errorMessage = null) }
 
-            val request = UserProfileRequest(
+            val update = ProfileUpdate(
                 address = address,
                 nik = nik,
                 phoneNumber = phoneNumber,
@@ -213,7 +213,7 @@ class EditProfileViewModel @Inject constructor(
                 ktpPath = state.ktpPath
             )
 
-            userProfileRepository.submitProfile(request)
+            userProfileRepository.submitProfile(update)
                 .onSuccess {
                     _uiState.update {
                         it.copy(

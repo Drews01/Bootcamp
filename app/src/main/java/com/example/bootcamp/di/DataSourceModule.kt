@@ -1,7 +1,13 @@
 package com.example.bootcamp.di
 
+import com.example.bootcamp.data.datasource.AuthLocalDataSource
+import com.example.bootcamp.data.datasource.AuthLocalDataSourceImpl
 import com.example.bootcamp.data.datasource.AuthRemoteDataSource
+import com.example.bootcamp.data.datasource.LoanLocalDataSource
+import com.example.bootcamp.data.datasource.LoanLocalDataSourceImpl
 import com.example.bootcamp.data.datasource.LoanRemoteDataSource
+import com.example.bootcamp.data.datasource.UserProfileLocalDataSource
+import com.example.bootcamp.data.datasource.UserProfileLocalDataSourceImpl
 import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
 import com.example.bootcamp.data.remote.datasource.AuthRemoteDataSourceImpl
 import com.example.bootcamp.data.remote.datasource.LoanRemoteDataSourceImpl
@@ -33,5 +39,21 @@ abstract class DataSourceModule {
     /** Binds UserProfileRemoteDataSource interface to its implementation. */
     @Binds
     @Singleton
-    abstract fun bindUserProfileRemoteDataSource(impl: UserProfileRemoteDataSourceImpl): UserProfileRemoteDataSource
+    abstract fun bindUserProfileRemoteDataSource(
+        userProfileRemoteDataSourceImpl: UserProfileRemoteDataSourceImpl
+    ): UserProfileRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthLocalDataSource(authLocalDataSourceImpl: AuthLocalDataSourceImpl): AuthLocalDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindLoanLocalDataSource(loanLocalDataSourceImpl: LoanLocalDataSourceImpl): LoanLocalDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindUserProfileLocalDataSource(
+        userProfileLocalDataSourceImpl: UserProfileLocalDataSourceImpl
+    ): UserProfileLocalDataSource
 }

@@ -36,6 +36,7 @@ class AuthViewModelTest {
     private val googleLoginUseCase: GoogleLoginUseCase = mockk()
     private val registerUseCase: RegisterUseCase = mockk()
     private val forgotPasswordUseCase: ForgotPasswordUseCase = mockk()
+    private val sessionRepository: com.example.bootcamp.domain.repository.SessionRepository = mockk()
     private val authRepository: AuthRepository = mockk()
     private val userProfileRepository: UserProfileRepository = mockk()
     private val loanRepository: LoanRepository = mockk()
@@ -61,12 +62,12 @@ class AuthViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         // Mock repository flows to avoid initialisation errors in init block
-        coEvery { authRepository.getTokenFlow() } returns flowOf(null)
-        coEvery { authRepository.getUsernameFlow() } returns flowOf(null)
-        coEvery { authRepository.getUserIdFlow() } returns flowOf(null)
-        coEvery { authRepository.getEmailFlow() } returns flowOf(null)
-        coEvery { userProfileRepository.getPendingProfile() } returns flowOf(null)
-        coEvery { loanRepository.getPendingLoans() } returns flowOf(emptyList())
+        coEvery { sessionRepository.getTokenFlow() } returns flowOf(null)
+        coEvery { sessionRepository.getUsernameFlow() } returns flowOf(null)
+        coEvery { sessionRepository.getUserIdFlow() } returns flowOf(null)
+        coEvery { sessionRepository.getEmailFlow() } returns flowOf(null)
+        coEvery { userProfileRepository.observePendingProfile() } returns flowOf(null)
+        coEvery { loanRepository.observePendingLoans() } returns flowOf(emptyList())
         coEvery { fcmService.getToken() } returns "dummy_token"
 
         loginUseCase = FakeLoginUseCase()
@@ -79,6 +80,7 @@ class AuthViewModelTest {
             logoutUseCase,
             forgotPasswordUseCase,
             authRepository,
+            sessionRepository,
             userProfileRepository,
             loanRepository,
             fcmService

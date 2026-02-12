@@ -1,24 +1,14 @@
 package com.example.bootcamp.di
 
-import com.example.bootcamp.data.datasource.AuthRemoteDataSource
-import com.example.bootcamp.data.datasource.LoanRemoteDataSource
-import com.example.bootcamp.data.datasource.UserProfileRemoteDataSource
-import com.example.bootcamp.data.local.TokenManager
-import com.example.bootcamp.data.local.dao.BranchDao
-import com.example.bootcamp.data.local.dao.LoanHistoryDao
-import com.example.bootcamp.data.local.dao.PendingLoanDao
-import com.example.bootcamp.data.local.dao.PendingProfileDao
-import com.example.bootcamp.data.local.dao.UserProfileCacheDao
 import com.example.bootcamp.data.repository.AuthRepositoryImpl
 import com.example.bootcamp.data.repository.LoanRepositoryImpl
 import com.example.bootcamp.data.repository.UserProfileRepositoryImpl
-import com.example.bootcamp.data.sync.SyncManager
 import com.example.bootcamp.domain.repository.AuthRepository
 import com.example.bootcamp.domain.repository.LoanRepository
+import com.example.bootcamp.domain.repository.SessionRepository
 import com.example.bootcamp.domain.repository.UserProfileRepository
-import com.example.bootcamp.util.NetworkMonitor
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -29,54 +19,21 @@ import javax.inject.Singleton
  */
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
-    /**
-     * Provides AuthRepository implementation. Using interface binding for testability and SOLID
-     * principles.
-     */
-    @Provides
+    @Binds
     @Singleton
-    fun provideAuthRepository(authRemoteDataSource: AuthRemoteDataSource, tokenManager: TokenManager): AuthRepository =
-        AuthRepositoryImpl(authRemoteDataSource, tokenManager)
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
 
-    /** Provides LoanRepository implementation with offline-first support. */
-    @Provides
+    @Binds
     @Singleton
-    fun provideLoanRepository(
-        loanRemoteDataSource: LoanRemoteDataSource,
-        tokenManager: TokenManager,
-        pendingLoanDao: PendingLoanDao,
-        branchDao: BranchDao,
-        loanHistoryDao: LoanHistoryDao,
-        networkMonitor: NetworkMonitor,
-        syncManager: SyncManager
-    ): LoanRepository = LoanRepositoryImpl(
-        loanRemoteDataSource,
-        tokenManager,
-        pendingLoanDao,
-        branchDao,
-        loanHistoryDao,
-        networkMonitor,
-        syncManager
-    )
+    abstract fun bindSessionRepository(impl: AuthRepositoryImpl): SessionRepository
 
-    /** Provides UserProfileRepository implementation with offline-first support. */
-    @Provides
+    @Binds
     @Singleton
-    fun provideUserProfileRepository(
-        userProfileRemoteDataSource: UserProfileRemoteDataSource,
-        tokenManager: TokenManager,
-        pendingProfileDao: PendingProfileDao,
-        userProfileCacheDao: UserProfileCacheDao,
-        networkMonitor: NetworkMonitor,
-        syncManager: SyncManager
-    ): UserProfileRepository = UserProfileRepositoryImpl(
-        userProfileRemoteDataSource,
-        tokenManager,
-        pendingProfileDao,
-        userProfileCacheDao,
-        networkMonitor,
-        syncManager
-    )
+    abstract fun bindLoanRepository(impl: LoanRepositoryImpl): LoanRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserProfileRepository(impl: UserProfileRepositoryImpl): UserProfileRepository
 }
