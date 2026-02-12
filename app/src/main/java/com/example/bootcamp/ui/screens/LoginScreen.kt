@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -475,7 +476,7 @@ fun LoginScreen(
                         ) {
                             // Placeholder for Google Icon
                             Icon(
-                                imageVector = Icons.Default.Email, // TODO: Use actual Google Icon
+                                painter = painterResource(id = R.drawable.ic_google),
                                 contentDescription = stringResource(R.string.google_logo),
                                 tint = Color.Unspecified,
                                 modifier = Modifier.size(24.dp)

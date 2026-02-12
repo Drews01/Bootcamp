@@ -42,6 +42,19 @@ interface LoanRepository {
     suspend fun getLoanHistory(): Result<List<com.example.bootcamp.domain.model.LoanApplication>>
 
     /**
+     * Observe loan application history reactively from local cache.
+     * Emits whenever the cached data changes.
+     * @return Flow of LoanApplication list
+     */
+    fun observeLoanHistory(): Flow<List<com.example.bootcamp.domain.model.LoanApplication>>
+
+    /**
+     * Force-refresh loan history from the remote server and update local cache.
+     * @return Result indicating success or failure of the refresh
+     */
+    suspend fun refreshLoanHistory(): Result<Unit>
+
+    /**
      * Get milestones for a specific loan application.
      * @param loanApplicationId The loan application ID
      * @return Result with list of LoanMilestone

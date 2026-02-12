@@ -224,6 +224,56 @@ class LoanRepositoryImpl @Inject constructor(
         return Result.success(loans)
     }
 
+    override fun observeLoanHistory(): Flow<List<LoanApplication>> = loanHistoryDao.observeHistory().map { entities ->
+        entities.map { entity ->
+            LoanApplication(
+                id = entity.loanApplicationId,
+                productId = entity.productId,
+                productName = entity.productName,
+                amount = entity.amount,
+                tenureMonths = entity.tenureMonths,
+                status = entity.currentStatus,
+                displayStatus = entity.displayStatus,
+                date = entity.createdAt
+            )
+        }
+    }
+
+    override suspend fun refreshLoanHistory(): Result<Unit> {
+        val token = tokenManager.token.firstOrNull()
+        if (token.isNullOrBlank()) {
+            return Result.failure(IllegalStateException("User not logged in"))
+        }
+
+        if (!networkMonitor.isConnected) {
+            return Result.failure(IllegalStateException("No network connection"))
+        }
+
+        return when (val remoteResult = loanRemoteDataSource.getLoanHistory(token)) {
+            is ApiResult.Success -> {
+                val historyEntities = remoteResult.data.map { dto ->
+                    LoanHistoryEntity(
+                        loanApplicationId = dto.loanApplicationId,
+                        userId = dto.userId,
+                        productId = dto.productId,
+                        productName = dto.productName,
+                        amount = dto.amount,
+                        tenureMonths = dto.tenureMonths,
+                        interestRateApplied = dto.interestRateApplied,
+                        totalAmountToPay = dto.totalAmountToPay,
+                        currentStatus = dto.currentStatus,
+                        displayStatus = dto.displayStatus,
+                        createdAt = dto.createdAt,
+                        updatedAt = dto.updatedAt
+                    )
+                }
+                loanHistoryDao.insertAll(historyEntities)
+                Result.success(Unit)
+            }
+            is ApiResult.Error -> remoteResult.asResult()
+        }
+    }
+
     override suspend fun getUserAvailableCredit(): Result<Double> {
         val token = tokenManager.token.firstOrNull()
         if (token.isNullOrBlank()) {
